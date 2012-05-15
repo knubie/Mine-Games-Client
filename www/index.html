@@ -4,61 +4,110 @@
   <title></title>
   
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no;" />
-	<meta charset="utf-8">
+		<meta charset="utf-8">
 
+        <link rel="stylesheet" href="css/lib/jquery.mobile-1.1.0.min.css" />
+		<!-- iPad/iPhone specific css below, add after your main css >
+		<link rel="stylesheet" media="only screen and (max-device-width: 1024px)" href="ipad.css" type="text/css" />		
+		<link rel="stylesheet" media="only screen and (max-device-width: 480px)" href="iphone.css" type="text/css" />		
+		-->
+		<!-- If your application is targeting iOS BEFORE 4.0 you MUST put json2.js from http://www.JSON.org/json2.js into your www directory and include it here -->
+		<script type="text/javascript" charset="utf-8" src="js/lib/cordova-1.7.0.js"></script>
+		<script src="js/lib/jquery-1.7.2.min.js"></script>
+		<script src="js/lib/jquery.mobile-1.1.0.min.js"></script>
+		<script src="js/lib/ChildBrowser.js"></script>
+		<script src="js/lib/jquery.cookie.js"></script>
+		<script type="text/javascript">
+			var childBrowser = window.plugins.childBrowser
 
-	<!-- iPad/iPhone specific css below, add after your main css >
-	<link rel="stylesheet" media="only screen and (max-device-width: 1024px)" href="ipad.css" type="text/css" />		
-	<link rel="stylesheet" media="only screen and (max-device-width: 480px)" href="iphone.css" type="text/css" />		
-	-->
-	<!-- If your application is targeting iOS BEFORE 4.0 you MUST put json2.js from http://www.JSON.org/json2.js into your www directory and include it here -->
-	<script type="text/javascript" charset="utf-8" src="cordova-1.7.0.js"></script>
-    <script type="text/javascript">
+			preventBehavior = function(e) {
+		    e.preventDefault();
+		  };
 
+		  document.addEventListener("touchmove", preventBehavior, false);
 
-	// If you want to prevent dragging, uncomment this section
-	/*
-	function preventBehavior(e) 
-	{ 
-      e.preventDefault(); 
-    };
-	document.addEventListener("touchmove", preventBehavior, false);
-	*/
-	
-	/* If you are supporting your own protocol, the var invokeString will contain any arguments to the app launch.
-	see http://iphonedevelopertips.com/cocoa/launching-your-own-application-via-a-custom-url-scheme.html
-	for more details -jm */
-	/*
-	function handleOpenURL(url)
-	{
-		// TODO: do something with the url passed in.
-	}
-	*/
-	
-	function onBodyLoad()
-	{		
-		document.addEventListener("deviceready", onDeviceReady, false);
-	}
-	
-	/* When this function is called, Cordova has been initialized and is ready to roll */
-	/* If you are supporting your own protocol, the var invokeString will contain any arguments to the app launch.
-	see http://iphonedevelopertips.com/cocoa/launching-your-own-application-via-a-custom-url-scheme.html
-	for more details -jm */
-	function onDeviceReady()
-	{
-		// do your thing!
-		navigator.notification.alert("Cordova is working")
-	}
-    
-    </script>
+		  onBodyLoad = function() {
+		    document.addEventListener("deviceready", onDeviceReady, false);
+		  };
+
+		  onDeviceReady = function() {
+		    window.plugins.childBrowser.onLocationChange = function(loc) {
+			    if (/access_token/.test(loc)) {
+		        var access_token = unescape(loc).split("access_token/")[1];
+		        $.cookie('token', access_token, {
+		        	expires: 7300,
+		        	domain: 'localhost:3000'
+		        });
+		        window.plugins.childBrowser.close();
+		        $.mobile.changePage("#lobby", {transition: "none"});
+					}	        
+		    };
+		  };
+  </script>
+	<script src="js/index.js"></script>
   </head>
   <body onload="onBodyLoad()">
-	<h1>Hey, it's Cordova!</h1>
-	<p>Don't know how to get started? Check out our <em><a target="_blank" href="http://docs.phonegap.com/en/edge/guide_getting-started_ios_index.md.html#Getting%20Started%20with%20iOS">Getting Started Guide</a></em>
-	<br />
-	<ol>
-		<li>Check your console log for any white-list rejection errors.</li>
-		<li>Add your allowed <strong>hosts</strong> in Cordova.plist/ExternalHosts (wildcards OK, don't enter the URL scheme)</li>
-	</ol>
+		<div id="home" data-role="page">
+
+			<a href="#login" data-transition="slideup" data-role="button">login</a>
+			<a href="#signup" data-transition="slideup" data-role="button">sign up</a>
+
+		</div><!-- /page#splash -->
+
+		<div id="login" data-role="page">
+      <div data-role="header" data-position="inline">
+				<a data-rel="back" data-icon="delete">Cancel</a>
+				<h1>Log In</h1>
+			</div>
+      <form accept-charset="UTF-8" action="/sessions" method="post"><div style="margin:0;padding:0;display:inline"><input name="utf8" type="hidden" value="&#x2713;" /><input name="authenticity_token" type="hidden" value="UX579q2drE3GE6zozBjxb16WOqDIDjevorJv4Vcxh0Q=" /></div>
+          <div class='field'>
+            <label for="session_email">Email</label>
+            <input id="session_email" name="session[email]" size="30" type="text" />
+          </div>
+          <div class='field'>
+            <label for="session_password">Password</label>
+            <input id="session_password" name="session[password]" size="30" type="password" />
+          </div>
+          <div class='actions'>
+            <input name="commit" type="submit" value="Sign in" />
+          </div>
+        </form>
+        <a id="facebook-auth">Sign in with facebook</a>
+      </div>
+		</div>
+
+		<div id="signup" data-role="page">
+      <div data-role="header" data-position="inline">
+				<a data-rel="back" data-icon="delete">Cancel</a>
+				<h1>Sign Up</h1>
+			</div>
+		</div>
+
+		<div id="lobby" data-role="page">
+      <div data-role="header" data-position="inline">
+				<a class="logout">Log Out</a>
+				<h1>Lobby</h1>
+			</div>
+			<a href="#new_match" data-transition="slide" id="create_match" data-role="button">Create Match!</a>
+
+		</div>
+
+		<div id="new_match" data-role="page">
+			<a href="#new_match_username" data-role="button" data-transition="slide">enter username</a>
+			<a href="#new_match_facebook" data-role="button" data-transition="slide">find friends on facebook</a>
+			<a href="#new_match_random" data-role="button" data-transition="slide">play random opponents</a>
+		</div>
+		<div id="new_match_username" data-role="page"> 
+		</div>
+		<div id="new_match_facebook" data-role="page"> 
+			Play friends:
+			<div class="play_friends"></div>
+			Invite friends:
+			<div class="invite_friends"></div>
+		</div>
+		<div id="new_match_random" data-role="page"> 
+			random
+		</div>
   </body>
 </html>
+p

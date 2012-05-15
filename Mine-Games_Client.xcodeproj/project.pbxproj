@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		C9909B801561E45E0025310B /* www in Resources */ = {isa = PBXBuildFile; fileRef = C9909B7F1561E45E0025310B /* www */; };
 		C9BCD630155F42FB0085744B /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C9BCD62F155F42FB0085744B /* Foundation.framework */; };
 		C9BCD632155F42FB0085744B /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C9BCD631155F42FB0085744B /* UIKit.framework */; };
 		C9BCD634155F42FB0085744B /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C9BCD633155F42FB0085744B /* CoreGraphics.framework */; };
@@ -38,10 +39,14 @@
 		C9BCD67B155F42FB0085744B /* MainViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = C9BCD67A155F42FB0085744B /* MainViewController.m */; };
 		C9BCD67D155F42FB0085744B /* MainViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = C9BCD67C155F42FB0085744B /* MainViewController.xib */; };
 		C9BCD681155F42FB0085744B /* verify.sh in Resources */ = {isa = PBXBuildFile; fileRef = C9BCD680155F42FB0085744B /* verify.sh */; };
-		C9BCD688155F435F0085744B /* www in Resources */ = {isa = PBXBuildFile; fileRef = C9BCD687155F435F0085744B /* www */; };
+		C9ED30371561FCB600EA9663 /* ChildBrowser.bundle in Resources */ = {isa = PBXBuildFile; fileRef = C9ED30311561FCB600EA9663 /* ChildBrowser.bundle */; };
+		C9ED30381561FCB600EA9663 /* ChildBrowserCommand.m in Sources */ = {isa = PBXBuildFile; fileRef = C9ED30331561FCB600EA9663 /* ChildBrowserCommand.m */; };
+		C9ED30391561FCB600EA9663 /* ChildBrowserViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = C9ED30351561FCB600EA9663 /* ChildBrowserViewController.m */; };
+		C9ED303A1561FCB600EA9663 /* ChildBrowserViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = C9ED30361561FCB600EA9663 /* ChildBrowserViewController.xib */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		C9909B7F1561E45E0025310B /* www */ = {isa = PBXFileReference; lastKnownFileType = folder; path = www; sourceTree = "<group>"; };
 		C9BCD62B155F42FB0085744B /* Mine-Games_Client.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Mine-Games_Client.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		C9BCD62F155F42FB0085744B /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		C9BCD631155F42FB0085744B /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
@@ -79,7 +84,12 @@
 		C9BCD67C155F42FB0085744B /* MainViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = MainViewController.xib; path = Classes/MainViewController.xib; sourceTree = "<group>"; };
 		C9BCD67F155F42FB0085744B /* README */ = {isa = PBXFileReference; lastKnownFileType = text; name = README; path = Plugins/README; sourceTree = "<group>"; };
 		C9BCD680155F42FB0085744B /* verify.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = verify.sh; sourceTree = "<group>"; };
-		C9BCD687155F435F0085744B /* www */ = {isa = PBXFileReference; lastKnownFileType = folder; path = www; sourceTree = "<group>"; };
+		C9ED30311561FCB600EA9663 /* ChildBrowser.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; name = ChildBrowser.bundle; path = Plugins/ChildBrowser/ChildBrowser.bundle; sourceTree = "<group>"; };
+		C9ED30321561FCB600EA9663 /* ChildBrowserCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ChildBrowserCommand.h; path = Plugins/ChildBrowser/ChildBrowserCommand.h; sourceTree = "<group>"; };
+		C9ED30331561FCB600EA9663 /* ChildBrowserCommand.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ChildBrowserCommand.m; path = Plugins/ChildBrowser/ChildBrowserCommand.m; sourceTree = "<group>"; };
+		C9ED30341561FCB600EA9663 /* ChildBrowserViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ChildBrowserViewController.h; path = Plugins/ChildBrowser/ChildBrowserViewController.h; sourceTree = "<group>"; };
+		C9ED30351561FCB600EA9663 /* ChildBrowserViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ChildBrowserViewController.m; path = Plugins/ChildBrowser/ChildBrowserViewController.m; sourceTree = "<group>"; };
+		C9ED30361561FCB600EA9663 /* ChildBrowserViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = ChildBrowserViewController.xib; path = Plugins/ChildBrowser/ChildBrowserViewController.xib; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -117,7 +127,7 @@
 		C9BCD61D155F42FB0085744B = {
 			isa = PBXGroup;
 			children = (
-				C9BCD687155F435F0085744B /* www */,
+				C9909B7F1561E45E0025310B /* www */,
 				C9BCD649155F42FB0085744B /* Mine-Games_Client */,
 				C9BCD62E155F42FB0085744B /* Frameworks */,
 				C9BCD62C155F42FB0085744B /* Products */,
@@ -257,6 +267,12 @@
 		C9BCD67E155F42FB0085744B /* Plugins */ = {
 			isa = PBXGroup;
 			children = (
+				C9ED30311561FCB600EA9663 /* ChildBrowser.bundle */,
+				C9ED30321561FCB600EA9663 /* ChildBrowserCommand.h */,
+				C9ED30331561FCB600EA9663 /* ChildBrowserCommand.m */,
+				C9ED30341561FCB600EA9663 /* ChildBrowserViewController.h */,
+				C9ED30351561FCB600EA9663 /* ChildBrowserViewController.m */,
+				C9ED30361561FCB600EA9663 /* ChildBrowserViewController.xib */,
 				C9BCD67F155F42FB0085744B /* README */,
 			);
 			name = Plugins;
@@ -333,7 +349,9 @@
 				C9BCD674155F42FB0085744B /* Cordova.plist in Resources */,
 				C9BCD67D155F42FB0085744B /* MainViewController.xib in Resources */,
 				C9BCD681155F42FB0085744B /* verify.sh in Resources */,
-				C9BCD688155F435F0085744B /* www in Resources */,
+				C9909B801561E45E0025310B /* www in Resources */,
+				C9ED30371561FCB600EA9663 /* ChildBrowser.bundle in Resources */,
+				C9ED303A1561FCB600EA9663 /* ChildBrowserViewController.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -363,6 +381,8 @@
 				C9BCD650155F42FB0085744B /* main.m in Sources */,
 				C9BCD678155F42FB0085744B /* AppDelegate.m in Sources */,
 				C9BCD67B155F42FB0085744B /* MainViewController.m in Sources */,
+				C9ED30381561FCB600EA9663 /* ChildBrowserCommand.m in Sources */,
+				C9ED30391561FCB600EA9663 /* ChildBrowserViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -547,6 +567,7 @@
 				C9BCD686155F42FB0085744B /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

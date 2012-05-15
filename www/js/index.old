@@ -1,0 +1,26 @@
+var server_url = "http://localhost:3000"
+var preventBehavior = function(e) {e.preventDefault();};
+document.addEventListener("touchmove", preventBehavior, false);
+var onBodyLoad = function() {document.addEventListener("deviceready", onDeviceReady, false); }
+
+var onDeviceReady = function() {
+	window.plugins.childBrowser.onLocationChange = function(loc) {
+		// If facebook auth is successful
+		if (loc == server_url+"/lobby") {
+  		// Close Child Browser
+  		window.plugins.childBrowser.close();
+  		// Send user to the lobby
+			$.mobile.changePage("#lobby", {transition: "none"});
+		}
+	}
+}
+$(function() {
+
+	// Sign up / Sign in
+	$('#facebook-auth').click(function() {
+		window.plugins.childBrowser.showWebPage(server_url+'/auth/facebook'); // TODO: get facebook to display mobile version
+	});
+
+	// Lobby
+
+});
