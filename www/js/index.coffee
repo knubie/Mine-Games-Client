@@ -13,7 +13,7 @@ onDeviceReady = ->
 
   $ ->
 
-    faye = new Faye.Client 'http://localhost:9292/faye' # TODO: replace with actual production server
+    faye = new Faye.Client 'http://mine-games-faye.herokuapp.com/faye'
     faye.subscribe '/matches/new', (data) ->
       console.log data
       $('.matches').append("<li><a href='#match' class='match-list-item' data-transition='slide' data-id='#{data.match.id}'>#{user.username for user in data.match.users}</a></li>").listview('refresh')

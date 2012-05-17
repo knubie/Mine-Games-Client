@@ -16,7 +16,7 @@ onBodyLoad = function() {
 onDeviceReady = function() {
   return $(function() {
     var facebook_auth, faye, get_lobby;
-    faye = new Faye.Client('http://localhost:9292/faye');
+    faye = new Faye.Client('http://mine-games-faye.herokuapp.com/faye');
     faye.subscribe('/matches/new', function(data) {
       var user;
       console.log(data);
