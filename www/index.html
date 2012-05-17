@@ -17,6 +17,7 @@
 		<script src="js/lib/jquery.mobile-1.1.0.min.js"></script>
 		<script src="js/lib/ChildBrowser.js"></script>
 		<script src="js/lib/jquery.cookie.js"></script>
+		<script src="http://localhost:9292/faye.js"></script> <!-- TODO: replace with production server -->
 		<script src="js/index.js"></script>
   </head>
   <body onload="onBodyLoad()">
@@ -89,9 +90,9 @@
 				<h1>Facebook</h1>
 			</div>
 			Play friends:
-			<div class="play_friends"></div>
+			<div id="play_friends"></div>
 			Invite friends:
-			<div class="invite_friends"></div>
+			<div id="invite_friends"></div>
 		</div>
 		<div id="new_match_random" data-role="page"> 
 			random

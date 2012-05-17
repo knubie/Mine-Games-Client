@@ -14,23 +14,23 @@ onBodyLoad = function() {
 };
 
 onDeviceReady = function() {
-  console.log('device ready.');
-  window.plugins.childBrowser.onLocationChange = function(loc) {
-    var access_token;
-    if (/access_token/.test(loc)) {
-      console.log('token found');
-      access_token = unescape(loc).split("access_token/")[1];
-      $.cookie("token", access_token, {
-        expires: 7300
-      });
-      window.plugins.childBrowser.close();
-      return $.mobile.changePage("#lobby", {
-        transition: "none"
-      });
-    }
-  };
   return $(function() {
-    var get_lobby;
+    var facebook_auth, faye, get_lobby;
+    faye = new Faye.Client('http://localhost:9292/faye');
+    faye.subscribe('/matches/new', function(data) {
+      var user;
+      console.log(data);
+      return $('.matches').append("<li><a href='#match' class='match-list-item' data-transition='slide' data-id='" + data.match.id + "'>" + ((function() {
+        var _i, _len, _ref, _results;
+        _ref = data.match.users;
+        _results = [];
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          user = _ref[_i];
+          _results.push(user.username);
+        }
+        return _results;
+      })()) + "</a></li>").listview('refresh');
+    });
     get_lobby = function() {
       console.log('get lobby');
       console.log("cookie: " + ($.cookie('token')));
@@ -64,6 +64,21 @@ onDeviceReady = function() {
         }
       });
     };
+    facebook_auth = function(callback) {
+      window.plugins.childBrowser.showWebPage("" + server_url + "/auth/facebook?display=touch");
+      return window.plugins.childBrowser.onLocationChange = function(loc) {
+        var access_token;
+        if (/access_token/.test(loc)) {
+          console.log('token found');
+          access_token = unescape(loc).split("access_token/")[1];
+          $.cookie("token", access_token, {
+            expires: 7300
+          });
+          window.plugins.childBrowser.close();
+          return callback();
+        }
+      };
+    };
     if ($.cookie("token") != null) {
       console.log("cookie: " + ($.cookie('token')));
       $.mobile.changePage("#lobby", {
@@ -72,7 +87,11 @@ onDeviceReady = function() {
       get_lobby();
     }
     $("#facebook-auth").click(function() {
-      return window.plugins.childBrowser.showWebPage("" + server_url + "/auth/facebook?display=touch");
+      return facebook_auth(function() {
+        return $.mobile.changePage("#lobby", {
+          transition: "none"
+        });
+      });
     });
     $('.logout').click(function() {
       console.log("cookie: " + ($.cookie('token')));
@@ -96,9 +115,10 @@ onDeviceReady = function() {
         success: function(data) {
           var friend, list, _i, _len, _ref, _results;
           console.log('victory is mine!');
-          $("." + type).html('');
+          console.log(data);
+          $("#play_friends").html('');
           list = function(friend, type) {
-            return $("." + type).append("<label><input id='users_' name='users[]' type='checkbox' value='" + friend.id + "'>" + friend.name + "</label>").trigger('create');
+            return $("#" + type).append("<label><input id='users_' name='users[]' type='checkbox' value='" + friend.id + "'>" + friend.name + "</label>").trigger('create');
           };
           _ref = data.play_friends;
           _results = [];

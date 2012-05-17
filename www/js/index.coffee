@@ -1,6 +1,6 @@
 # THIS FILE IS BARE.. NO CLOSURE WRAPPER
 
-server_url = "http://localhost:3000"
+server_url = "http://localhost:3000" # TODO: replace with actual production server
 
 preventBehavior = (e) ->
   e.preventDefault()
@@ -10,25 +10,19 @@ onBodyLoad = ->
   document.addEventListener "deviceready", onDeviceReady, false
 
 onDeviceReady = ->
-  console.log('device ready.')
-  window.plugins.childBrowser.onLocationChange = (loc) ->
-    if /access_token/.test(loc)
-      console.log('token found')
-      # URL looks like: server.com/access_token/:access_token
-      access_token = unescape(loc).split("access_token/")[1]
-      $.cookie "token", access_token,
-        expires: 7300
-
-      window.plugins.childBrowser.close()
-      $.mobile.changePage "#lobby",
-        transition: "none"
-
 
   $ ->
+
+    faye = new Faye.Client 'http://localhost:9292/faye' # TODO: replace with actual production server
+    faye.subscribe '/matches/new', (data) ->
+      console.log data
+      $('.matches').append("<li><a href='#match' class='match-list-item' data-transition='slide' data-id='#{data.match.id}'>#{user.username for user in data.match.users}</a></li>").listview('refresh')
 
     get_lobby = ->
       console.log('get lobby')
       console.log "cookie: #{$.cookie('token')}"
+
+
       $.ajax(
         type: 'GET'
         url: "#{server_url}/matches.json"
@@ -41,19 +35,37 @@ onDeviceReady = ->
           add match for match in data
       )
 
+    facebook_auth = (callback) ->
+      window.plugins.childBrowser.showWebPage "#{server_url}/auth/facebook?display=touch"
+
+      window.plugins.childBrowser.onLocationChange = (loc) ->
+        if /access_token/.test(loc)
+          console.log('token found')
+          # URL looks like: server.com/access_token/:access_token
+          access_token = unescape(loc).split("access_token/")[1]
+          $.cookie "token", access_token,
+            expires: 7300
+
+          window.plugins.childBrowser.close()
+          callback()
+
+
+
+
     # Home
     # ============================================
 
-    # Skip to the lobby if the user has alread logged in.
     if $.cookie("token")?
       console.log "cookie: #{$.cookie('token')}"
+      # TODO: match token with user on server side, if match, execute the below block
       $.mobile.changePage "#lobby",
         transition: "none"
       get_lobby()
 
     $("#facebook-auth").click ->
-      # console.log(childBrowser)
-      window.plugins.childBrowser.showWebPage "#{server_url}/auth/facebook?display=touch"
+      facebook_auth ->
+        $.mobile.changePage "#lobby",
+          transition: "none"
 
 
     # Lobby
@@ -73,6 +85,7 @@ onDeviceReady = ->
 
 
     $('#new_match_facebook').live('pageshow', ->
+      # TODO: send to facebook auth if token fails
       console.log("cookie: #{$.cookie('token')}")
       $.ajax(
         type: 'GET'
@@ -80,10 +93,11 @@ onDeviceReady = ->
         dataType: 'json'
         success: (data) ->
           console.log('victory is mine!')
-          $(".#{type}").html('')
+          console.log(data)
+          $("#play_friends").html('')
           list = (friend, type) ->
             # if typeof friend == 'object'
-            $(".#{type}").append("<label><input id='users_' name='users[]' type='checkbox' value='#{friend.id}'>#{friend.name}</label>").trigger('create')
+            $("##{type}").append("<label><input id='users_' name='users[]' type='checkbox' value='#{friend.id}'>#{friend.name}</label>").trigger('create')
           list friend, 'play_friends' for friend in data.play_friends
           # list friend, 'invite_friends' for friend in data.invite_friends
         error: (xhr, txtstat, err) ->
