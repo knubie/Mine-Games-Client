@@ -16,3 +16,6 @@ ul {
 .green {
 	background-color: green;
 }
+.selected {
+	opacity: 0.5;
+}

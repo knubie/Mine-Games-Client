@@ -18,11 +18,40 @@ onBodyLoad = function() {
 
 onDeviceReady = function() {
   return $(function() {
-    var CardListView, Deck, Decks, LobbyView, Match, MatchListView, MatchView, Matches, cards, facebook_auth, lobby, templates;
+    var CardDetailView, CardListView, Deck, Decks, LobbyView, Match, MatchListView, MatchView, Matches, actions, facebook_auth, gsub, lobby, templates;
+    gsub = function(source, pattern, replacement) {
+      var match, result;
+      if (!((pattern != null) && (replacement != null))) {
+        return source;
+      }
+      result = '';
+      while (source.length > 0) {
+        if ((match = source.match(pattern))) {
+          result += source.slice(0, match.index);
+          result += replacement;
+          source = source.slice(match.index + match[0].length);
+        } else {
+          result += source;
+          source = '';
+        }
+      }
+      return result;
+    };
+    Array.prototype.minus = function(v) {
+      var x, _i, _len, _results;
+      _results = [];
+      for (_i = 0, _len = this.length; _i < _len; _i++) {
+        x = this[_i];
+        if (x !== v) {
+          _results.push(x);
+        }
+      }
+      return _results;
+    };
     templates = {
       LobbyMatchListItem: function(id, players) {
         var player;
-        return "<li><a href='#match' class='match-list-item' data-transition='slide' data-id='" + id + "'>" + ((function() {
+        return "<li><a>" + ((function() {
           var _i, _len, _results;
           _results = [];
           for (_i = 0, _len = players.length; _i < _len; _i++) {
@@ -33,17 +62,20 @@ onDeviceReady = function() {
         })()) + "</a></li>";
       },
       CardListItem: function(name, desc) {
-        return "<li><a href='#card-detail' class='card-list-item' data-transition='slide'><img src='" + name + "_thumb.png' alt='' />" + name + desc + "</a></li>";
+        return "<li class='card'><a href='#card-detail' class='card-list-item' data-transition='slide'><img src='" + (gsub(name, ' ', '_')) + "_thumb.png' alt='' />" + name + desc + "</a></li>";
       }
     };
-    cards = {
-      'stone pickaxe': {
-        short_desc: '+1 card from the mine',
-        long_desc: 'Draw one card from the Mineshaft and add it to your hand.'
-      },
-      'copper': {
-        short_desc: '+$1',
-        long_desc: 'Worth $1 at the shop.'
+    actions = {
+      discard: function(view, number, type, callback) {
+        view.match.selection = [];
+        view.events['click'] = 'select';
+        if (number === 'any') {
+
+        } else {
+          if (view.selection.length === number) {
+            return callback();
+          }
+        }
       }
     };
     Match = (function(_super) {
@@ -69,9 +101,9 @@ onDeviceReady = function() {
         return this.fetch();
       };
 
-      Matches.prototype.url = "" + server_url + "/matches";
-
       Matches.prototype.model = Match;
+
+      Matches.prototype.url = "" + server_url + "/matches";
 
       return Matches;
 
@@ -106,6 +138,177 @@ onDeviceReady = function() {
       return Decks;
 
     })(Backbone.Collection);
+    CardDetailView = (function(_super) {
+
+      __extends(CardDetailView, _super);
+
+      function CardDetailView() {
+        return CardDetailView.__super__.constructor.apply(this, arguments);
+      }
+
+      CardDetailView.prototype.el = 'what';
+
+      return CardDetailView;
+
+    })(Backbone.View);
+    CardListView = (function(_super) {
+
+      __extends(CardListView, _super);
+
+      function CardListView() {
+        return CardListView.__super__.constructor.apply(this, arguments);
+      }
+
+      CardListView.prototype.initialize = function(match, card) {
+        this.match = match;
+        this.card = card;
+        return this.setElement($('#templates').find("#" + (gsub(this.card, ' ', '_'))).clone());
+      };
+
+      CardListView.prototype.events = {
+        'click': 'render_card',
+        'touchstart': 'touchstart',
+        'touchmove': 'touchmove'
+      };
+
+      CardListView.prototype.w = 55;
+
+      CardListView.prototype.touch = {
+        x1: 0,
+        y1: 0
+      };
+
+      CardListView.prototype.swiping = false;
+
+      CardListView.prototype.dragging = false;
+
+      CardListView.prototype.selected = false;
+
+      CardListView.prototype.selection = [];
+
+      CardListView.prototype.render_card = function() {
+        return console.log('render me!');
+      };
+
+      CardListView.prototype.touchstart = function(e) {
+        this.touch.x1 = e.originalEvent.pageX;
+        return this.touch.y1 = e.originalEvent.pageY;
+      };
+
+      CardListView.prototype.touchmove = function(e) {
+        var pct;
+        this.dx = e.originalEvent.pageX - this.touch.x1;
+        this.dy = e.originalEvent.pageY - this.touch.y1;
+        if (Math.abs(this.dy) < 6 && Math.abs(this.dx) > 0 && !this.swiping && !this.dragging) {
+          this.swiping = true;
+          window.inAction = true;
+          this.$el.addClass("drag");
+        }
+        if (this.swiping) {
+          if (this.dx > 0 && this.dx < this.w) {
+            this.used = false;
+            pct = this.dx / this.w;
+            if (pct < 0.05) {
+              pct = 0;
+            }
+          } else if (this.dx < 0 && this.dx > -this.w) {
+
+          } else if (this.dx >= this.w) {
+            this.dx = this.w + (this.dx - this.w) * .25;
+          } else if (this.dx <= -this.w) {
+            this.dx = -this.w + (this.dx + this.w) * .25;
+          }
+          if (this.dx >= this.w - 1) {
+            this.$el.addClass("green");
+            this.used = true;
+          } else {
+            this.$el.removeClass("green");
+          }
+          return this.$el.css("-webkit-transform", "translate3d(" + this.dx + "px, 0, 0)");
+        }
+      };
+
+      CardListView.prototype.select = function() {
+        if (this.selected) {
+          this.selected = true;
+          this.$el.addClass('selected');
+          return this.selection.push(this);
+        } else {
+          this.selected = false;
+          this.$el.removeClass('selected');
+          return this.selection.minus(this);
+        }
+      };
+
+      return CardListView;
+
+    })(Backbone.View);
+    MatchView = (function(_super) {
+
+      __extends(MatchView, _super);
+
+      function MatchView() {
+        return MatchView.__super__.constructor.apply(this, arguments);
+      }
+
+      MatchView.prototype.initialize = function(match, deck) {
+        this.match = match;
+        this.deck = deck;
+        return this.render();
+      };
+
+      MatchView.prototype.el = '#match';
+
+      MatchView.prototype.render = function() {
+        var card, _fn, _i, _len, _ref,
+          _this = this;
+        console.log('about to render cards');
+        this.$el.find('#hand').html('');
+        _ref = this.deck.get('hand');
+        _fn = function(card) {
+          var view;
+          view = new CardListView(_this.match, card);
+          return _this.$el.find('#hand').append(view.el);
+        };
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          card = _ref[_i];
+          _fn(card);
+        }
+        return $.mobile.changePage("#match", {
+          transition: "slide"
+        });
+      };
+
+      return MatchView;
+
+    })(Backbone.View);
+    MatchListView = (function(_super) {
+
+      __extends(MatchListView, _super);
+
+      function MatchListView() {
+        return MatchListView.__super__.constructor.apply(this, arguments);
+      }
+
+      MatchListView.prototype.initialize = function(match, deck) {
+        this.match = match;
+        this.deck = deck;
+        return this.setElement(templates.LobbyMatchListItem(this.match.get('id'), this.match.get('players')));
+      };
+
+      MatchListView.prototype.events = {
+        'click': 'render_match'
+      };
+
+      MatchListView.prototype.render_match = function() {
+        var view;
+        console.log('rendering match');
+        return view = new MatchView(this.match, this.deck);
+      };
+
+      return MatchListView;
+
+    })(Backbone.View);
     LobbyView = (function(_super) {
 
       __extends(LobbyView, _super);
@@ -124,7 +327,15 @@ onDeviceReady = function() {
       LobbyView.prototype.el = '#lobby';
 
       LobbyView.prototype.events = {
-        'click #refresh_lobby': 'refresh'
+        'click #refresh_lobby': 'refresh',
+        'click .logout': 'logout'
+      };
+
+      LobbyView.prototype.logout = function() {
+        $.cookie('token', null);
+        return $.mobile.changePage("#home", {
+          transition: "flip"
+        });
       };
 
       LobbyView.prototype.render = function() {
@@ -133,13 +344,15 @@ onDeviceReady = function() {
           return _this.decks.on('reset', function() {
             var match, _i, _len, _ref, _results;
             console.log('iterating...');
+            $.mobile.changePage("#lobby", {
+              transition: "none"
+            });
             _ref = _this.matches.models;
             _results = [];
             for (_i = 0, _len = _ref.length; _i < _len; _i++) {
               match = _ref[_i];
               _results.push((function(match) {
                 var deck, view;
-                console.log(match);
                 deck = _this.decks.where({
                   match_id: match.get('id')
                 });
@@ -164,85 +377,6 @@ onDeviceReady = function() {
       return LobbyView;
 
     })(Backbone.View);
-    MatchListView = (function(_super) {
-
-      __extends(MatchListView, _super);
-
-      function MatchListView() {
-        return MatchListView.__super__.constructor.apply(this, arguments);
-      }
-
-      MatchListView.prototype.initialize = function(match, deck) {
-        this.match = match;
-        this.deck = deck;
-        return this.el = templates.LobbyMatchListItem(this.match.get('id'), this.match.get('players'));
-      };
-
-      MatchListView.prototype.events = {
-        'click': 'render_match'
-      };
-
-      MatchListView.prototype.render_match = function() {
-        var view;
-        view = new MatchView(this.match, this.deck);
-        view.match = this.match;
-        view.deck = this.deck;
-        return view.render();
-      };
-
-      return MatchListView;
-
-    })(Backbone.View);
-    MatchView = (function(_super) {
-
-      __extends(MatchView, _super);
-
-      function MatchView() {
-        return MatchView.__super__.constructor.apply(this, arguments);
-      }
-
-      MatchView.prototype.initialize = function(match, deck) {
-        this.match = match;
-        this.deck = deck;
-      };
-
-      MatchView.prototype.el = '#match';
-
-      MatchView.prototype.render = function() {
-        var card, _i, _len, _ref, _results;
-        _ref = this.deck.hand;
-        _results = [];
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          card = _ref[_i];
-          _results.push((function(card) {
-            var view;
-            view = new CardListView;
-            return $el.find('#hand').append(view.el);
-          })(card));
-        }
-        return _results;
-      };
-
-      return MatchView;
-
-    })(Backbone.View);
-    CardListView = (function(_super) {
-
-      __extends(CardListView, _super);
-
-      function CardListView() {
-        return CardListView.__super__.constructor.apply(this, arguments);
-      }
-
-      CardListView.prototype.events = {
-        'click': 'render_card'
-      };
-
-      CardListView.prototype.render_card = function() {};
-
-      return CardListView;
-
-    })(Backbone.View);
     facebook_auth = function(callback) {
       window.plugins.childBrowser.showWebPage("" + server_url + "/auth/facebook?display=touch");
       return window.plugins.childBrowser.onLocationChange = function(loc) {
@@ -258,17 +392,12 @@ onDeviceReady = function() {
       };
     };
     if ($.cookie("token") != null) {
-      $.mobile.changePage("#lobby", {
-        transition: "none"
-      });
       lobby = new LobbyView(new Matches, new Decks);
     }
-    $("#facebook-auth").on('tap', function() {
+    $("#facebook-auth").on('click', function() {
       console.log('clicked facebook');
       return facebook_auth(function() {
-        return $.mobile.changePage("#lobby", {
-          transition: "none"
-        });
+        return lobby = new LobbyView(new Matches, new Decks);
       });
     });
     $('#login-form').submit(function(e) {
@@ -297,14 +426,6 @@ onDeviceReady = function() {
       }, 'json');
       return e.preventDefault();
     });
-    $('.logout').click(function() {
-      $.cookie('token', null);
-      return $.mobile.changePage("#home", {
-        transition: "flip"
-      });
-    });
-    $('#lobby').on('pageinit', function() {});
-    $('#refresh_lobby').click(function() {});
     $('#new_match_facebook').on('pageshow', function() {
       return $.getJSON("" + server_url + "/friends.json", function(data) {
         var friend, list, _i, _len, _ref, _results;
