@@ -28,7 +28,19 @@ onDeviceReady = ->
           source = ''
 
       result
+
+    # String::gsub =  (re, replStr) ->
+    #   while (i = @indexOf(re)) != -1 # Do this block while 're' is found in the string
+    #     pre  = @substr(0, i) # pre = the string up until 're' is found
+    #     post = @substr(i+_.size(re),_.size(@)) # post = the string after the 're'
+    #     @ = pre + replStr + post # put pre and post together with the replStr in between
+
     Array::minus = (v) -> x for x in @ when x!=v
+    Array::popper = (e) ->
+      popper = @[e..e]
+      @[e..e] = []
+      return popper
+
 
     # pusher = new Pusher('efc99ac7a3e488aaa691')
     # channel = pusher.subscribe('mine-games')
@@ -40,46 +52,76 @@ onDeviceReady = ->
 
 
     templates =
-      LobbyMatchListItem: (id, players) ->
-        "<li><a>#{player.username for player in players}</a></li>"
+      LobbyMatchListItem: (id, players, turn) ->
+        "<li><a>#{player.username for player in players} : #{if turn then 'your turn' else 'their turn'}</a></li>"
       CardListItem: (name, desc) ->
         "<li class='card'><a href='#card-detail' class='card-list-item' data-transition='slide'><img src='#{gsub(name, ' ', '_')}_thumb.png' alt='' />#{name}#{desc}</a></li>"
 
+    cards =
+      stone_pickaxe:
+        name: 'stone pickaxe'
+        type: 'action'
+        cost: 3
+        use: ->
+          actions.draw(
+            number: 3
+          )
+
+      copper:
+        name: 'copper'
+        type: 'money'
+        value: 1
 
     actions =
-      discard: (view, number, type, callback) ->
-        view.match.selection = []
-        view.events['click'] = 'select'
-        if number == 'any'
-          
-          # display done button
-          # do stuff
-        else
-          if view.selection.length == number
-            callback()
-            # end fundction
-          # do stuff
+      mine: (i, cb) ->
+        console.log 'mine'
+        # do something
+      draw: (options, callback) ->
+        console.log 'draw from your deck'
+        for i in [1..options.number]
+          do ->
+            console.log 'iterating..'
+            c = current.deck.get('cards')
+            h = current.deck.get('hand')
 
+            nc = c[0]
+            c[0..0] = []
+            h.push nc
 
-    #   discard
-    #     change click event handler
-    #     add card to array
-    #     if nummber is passed as argument
-    #       function ends when array.length == nummber
-    #     else
-    #      function ends when 'done' is clicked
+            current.deck.set({cards: c})
+            current.deck.set({hand: h})
 
-    #     done
-    #       change event handler back
-    #       return array.length
-    #       execute callback function
+            console.log "new card: #{nc}"
 
+            view = new CardListView(cards[gsub(nc, ' ', '_')]) #TODO take the gsub out and change card names on serverside to use underscore
+            current.hand.push view
 
+        # if callback?
+        #   callback()
+        # else
+        #   return
+        # do something
+      discard: (i, type, cb) ->
+        # do something
+      trash: (i, type, cb) ->
+        # do something
+
+    current =
+      lobby: 0 # LobbyView
+      match: 0 # Match model
+      deck:  0 # Deck model
+      hand:  [] # array of CardListView
+      turn: false
+      user: 0
+      before_turn: ->
+        # do nothing
 
     # Models / Collections
     # ============================================
 
     class Match extends Backbone.Model
+      initialize: ->
+
 
     class Matches extends Backbone.Collection
       initialize: ->
@@ -89,6 +131,16 @@ onDeviceReady = ->
       url: "#{server_url}/matches"
 
     class Deck extends Backbone.Model
+      initialize: ->
+        @on 'change:actions change:buys', =>
+          if @actions is 0 and @buys is 0
+            # server request to change turn
+            if current.match.turn + 1 > current.match.players.length + 1
+              current.match.turn = 0
+            else
+              current.match.turn += 1
+            # end turn
+          # @save()
 
     class Decks extends Backbone.Collection
       initialize: ->
@@ -105,14 +157,30 @@ onDeviceReady = ->
       el: 'what'
 
     class CardListView extends Backbone.View
-      initialize: (@match, @card) ->
-        # @setElement templates.CardListItem(@card, 'this is just some card')
-        @setElement $('#templates').find("##{gsub(@card, ' ', '_')}").clone()
+
+      initialize: (@card) ->
+        console.log 'init CardListView'
+        @setElement $('#templates').find("##{gsub(@card.name, ' ', '_')}").clone()
+        @render()
 
       events:
-        'click': 'render_card'
+        # 'click': 'use'
         'touchstart': 'touchstart'
         'touchmove': 'touchmove'
+        'swiperight': 'swiperight'
+        'touchend': 'touchend'
+        'touchcancel': 'touchend'
+
+      render: ->
+        console.log 'rendering CardListView'
+        $('#hand').append(@el)
+
+      # use: ->
+      #   if current.turn
+      #     @card.use()
+      #   current.deck.set({ actions: current.deck.get('actions') - 1 }) if @card.type == 'action'
+
+
       w: 55
       touch:
         x1: 0
@@ -120,7 +188,7 @@ onDeviceReady = ->
       swiping: false
       dragging: false
       selected: false
-      selection: []
+      use: false
 
       render_card: ->
         console.log 'render me!'
@@ -140,11 +208,12 @@ onDeviceReady = ->
           @$el.addClass "drag"
         if @swiping
           if @dx > 0 and @dx < @w
-            @used = false
+            @use = false
             pct = @dx / @w
             pct = 0  if pct < 0.05
           else if @dx < 0 and @dx > -@w
           else if @dx >= @w
+            @use = true
             @dx = @w + (@dx - @w) * .25
           else if @dx <= -@w
             @dx = -@w + (@dx + @w) * .25
@@ -156,53 +225,152 @@ onDeviceReady = ->
             @$el.removeClass "green"
           @$el.css "-webkit-transform", "translate3d(" + @dx + "px, 0, 0)"  #if dx <= 0 #or list.todos.length > 0
 
+      swiperight: (e) ->
+        console.log 'swiping right'
+
+      touchend: (e) ->
+        console.log 'touch end'
+        @$el.removeClass("drag green").css "-webkit-transform", "translate3d(0,0,0)"
+        if @use
+          if current.turn
+            @card.use()
+          current.deck.set({ actions: current.deck.get('actions') - 1 }) if @card.type == 'action'
+
+        # @touch = {}
+
       select: ->
         if @selected
-          @selected = true
-          @$el.addClass('selected')
-          @selection.push @
-        else
           @selected = false
           @$el.removeClass('selected')
           @selection.minus @
+        else
+          @selected = true
+          @$el.addClass('selected')
+          current.match.selection.push @
+          if current.match.selection.length == match.selection_length
+            current.match.selection_callback()
+
+      discard: (options,callback) ->
+        current.match.selection = []
+        current.match.selection_length = options.number
+        current.match.selection_callback = =>
+          if callback?
+            callback({
+              number: match.selection.length
+            })
+          else
+            return
+        for card in current.hand
+          do (card) =>
+            card.delegateEvents {
+              'click': 'select'
+            }
+
+
+      draw: (options,callback) ->
+        for i in [1..options.number]
+          do =>
+            c = current.deck.get('cards')
+            h = current.deck.get('hand')
+
+            nc = c[0]
+            c[0..0] = []
+            h.push nc
+
+            current.deck.set({cards: c})
+            current.deck.set({hand: h})
+
+            view = new CardListView(nc)
+            current.hand.push view
+
+            @parent.$el.find('#hand').append(view.el)
+
+        if callback?
+          callback()
+        else
+          return
+
+      cellar: =>
+        console.log 'clicked card'
+        # @discard({
+        #   number: 3
+        #   type: 'any'
+        # }, (returned) =>
+        #   console.log 'firing callback'
+        #   # @actions.draw({
+        #   #   number: returned.number  
+        #   # })
+        # )
+        @draw({
+          number: 3
+        })
 
     class MatchView extends Backbone.View
 
-      initialize: (@match, @deck) ->
+      initialize: () ->
+        console.log 'init MatchView'
         @render()
+        if current.match.get('turn') == current.user.id
+          current.turn = true
+        else
+          current.turn = false
+
+        current.deck.on 'change:actions', =>
+          console.log 'actions changed'
+          @$el.find('#actions > .count').html(current.deck.get 'actions')
 
       el: '#match'
 
+      events:
+        'click #end_turn': 'end_turn'
+
       render: ->
-        console.log 'about to render cards'
+        console.log 'rendering MatchView'
         @$el.find('#hand').html('')
-        for card in @deck.get('hand')
+        for card in current.deck.get('hand')
           do (card) =>
-            view = new CardListView(@match, card)
-            @$el.find('#hand').append(view.el)
+            view = new CardListView(cards[gsub(card, ' ', '_')]) #TODO take the gsub out and change card names on serverside to use underscore)
+            current.hand.push view # TODO should probably take this out.
+
+        @$el.find('#actions > .count').html(current.deck.get 'actions')
+
 
         $.mobile.changePage "#match",
-        transition: "slide"
+          transition: "slide"
 
         # render all the other shit too
 
+      end_turn: ->
+        console.log 'ending turn'
+        $.post("#{server_url}/end_turn/#{current.match.get('id')}", (data) ->
+          console.log data
+        )
+        # do something
 
     class MatchListView extends Backbone.View
 
       initialize: (@match, @deck) ->
-        @setElement templates.LobbyMatchListItem(@match.get('id'), @match.get('players'))
+        console.log 'init MatchListView'
+        @setElement templates.LobbyMatchListItem(@match.get('id'), @match.get('players'), @match.get('turn') == current.user.id)
+        @render()
 
       events:
         'click': 'render_match'
 
+      render: ->
+        console.log 'MatchListView#render'
+        $('#matches').append(@el).listview('refresh')
+
       render_match: ->
         console.log 'rendering match'
-        view = new MatchView(@match, @deck)
-        # view.render()
+        current.match = @match
+        current.deck = @deck
+        view = new MatchView()
         
     class LobbyView extends Backbone.View
 
-      initialize: (@matches, @decks) ->
+      initialize: () ->
+        console.log 'init LobbyView'
         @render()
 
       el: '#lobby'
@@ -217,24 +385,26 @@ onDeviceReady = ->
           transition: "flip"
 
       render: =>
-        @matches.on 'reset', => # 'reset' event is triggered when Collection#fetch completes
-          @decks.on 'reset', =>
-            console.log 'iterating...'
+        console.log 'LobbyView#render'
+        matches.on 'reset', => # 'reset' event is triggered when Collection#fetch completes
+          decks.on 'reset', =>
+            console.log 'fetched data for matches and decks'
             $.mobile.changePage "#lobby",
             transition: "none"
-            for match in @matches.models
+            for match in matches.models
               do (match) =>
-                deck = @decks.where(match_id: match.get('id'))
-                view = new MatchListView(match, deck[0])
-
-                @$el.find('#matches').append(view.el).listview('refresh')
+                d = decks.where(match_id: match.get('id'))
+                view = new MatchListView(match, d[0])
 
       refresh: ->
-        @matches.fetch(add: true)
-        @decks.fetch(add: true)
+        matches.fetch(add: true)
+        decks.fetch(add: true)
         # Look for new matches
 
 
+
+    # Authorization
+    # ============================================
     facebook_auth = (callback) ->
       window.plugins.childBrowser.showWebPage "#{server_url}/auth/facebook?display=touch"
       window.plugins.childBrowser.onLocationChange = (loc) ->
@@ -247,18 +417,22 @@ onDeviceReady = ->
           window.plugins.childBrowser.close()
           callback()
 
-
-    # Authorization
-    # ============================================
+    matches = new Matches
+    decks = new Decks
 
     if $.cookie("token")?
       # TODO: match token with user on server side, if match, execute the below block
-      lobby = new LobbyView(new Matches, new Decks)
+      console.log 'cookie found'
+      $.getJSON("#{server_url}/users/1", (user) ->
+        current.user = user
+      )
+      console.log 'instantiating LobbyView'
+      current.lobby = new LobbyView()
 
     $("#facebook-auth").on 'click', ->
       console.log 'clicked facebook'
       facebook_auth ->
-        lobby = new LobbyView(new Matches, new Decks)
+        current.lobby = new LobbyView()
 
     $('#login-form').submit (e) ->
       $.post("#{server_url}/signin.json", $(this).serialize(), (user) ->
@@ -266,6 +440,7 @@ onDeviceReady = ->
           alert 'invalid username and/or password'
         else
           $.cookie 'token', user.token
+          current.user = user
           $.mobile.changePage '#lobby',
             transition: 'slidedown'
       , 'json')

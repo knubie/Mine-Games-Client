@@ -14,8 +14,8 @@
 		-->
 		<!-- If your application is targeting iOS BEFORE 4.0 you MUST put json2.js from http://www.JSON.org/json2.js into your www directory and include it here -->
 		<script src="http://localhost:8080/target/target-script-min.js#anonymous"></script>
-		<script type="text/javascript" src="js/lib/thumbs.js"></script>
-		<script type="text/javascript" charset="utf-8" src="js/lib/cordova-1.7.0.js"></script>
+		<script src="js/lib/thumbs.js"></script>
+		<script src="js/lib/cordova-1.7.0.js"></script>
 		<script src="js/lib/jquery-1.7.2.min.js"></script>
 		<script src="js/lib/jquery.mobile-1.1.0.min.js"></script>
 		<script src="js/lib/underscore-min.js"></script>
@@ -124,8 +124,15 @@
 
 		<div id="match" data-role="page"> 
       <div data-role="header" data-position="inline">
-				<a data-rel="back">back</a>
+				<a data-rel="back">back to lobby</a>
+				<a data-icon="check" id="end_turn">end turn</a>
 				<h1>Match</h1>
+			</div>
+			<div id="actions">
+				actions: <div class="count">0</div>
+			</div>
+			<div id="to_spend">
+				to spend: <div class="count">0</div>
 			</div>
 			<ul id="hand">
 				<li class='card'>test</li>
