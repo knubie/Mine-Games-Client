@@ -35,9 +35,18 @@ onDeviceReady = ->
     #     post = @substr(i+_.size(re),_.size(@)) # post = the string after the 're'
     #     @ = pre + replStr + post # put pre and post together with the replStr in between
 
+    # Array::minus = (v) ->
+    #   x for x in @ when x isnt v
+
     Array::minus = (v) ->
-      x for x in @ when x isnt v
-      
+      results = []
+      for x in @
+        if x!=v
+          results.push x
+        else
+          v = ''
+      results
+
 
     Array::popper = (e) ->
       popper = @[e..e]

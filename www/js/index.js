@@ -32,15 +32,17 @@ onDeviceReady = function() {
       return result;
     };
     Array.prototype.minus = function(v) {
-      var x, _i, _len, _results;
-      _results = [];
+      var results, x, _i, _len;
+      results = [];
       for (_i = 0, _len = this.length; _i < _len; _i++) {
         x = this[_i];
         if (x !== v) {
-          _results.push(x);
+          results.push(x);
+        } else {
+          v = '';
         }
       }
-      return _results;
+      return results;
     };
     Array.prototype.popper = function(e) {
       var popper, _ref;
