@@ -3,9 +3,9 @@
 # server_url = "http://mine-games.herokuapp.com" # TODO: replace with actual production server
 server_url = "http://localhost:3000" # TODO: replace with actual production server
 
-preventBehavior = (e) ->
-  e.preventDefault()
-document.addEventListener "touchmove", preventBehavior, false
+# preventBehavior = (e) ->
+#   e.preventDefault()
+# document.addEventListener "touchmove", preventBehavior, false
 
 onBodyLoad = ->
   document.addEventListener "deviceready", onDeviceReady, false
@@ -35,7 +35,10 @@ onDeviceReady = ->
     #     post = @substr(i+_.size(re),_.size(@)) # post = the string after the 're'
     #     @ = pre + replStr + post # put pre and post together with the replStr in between
 
-    Array::minus = (v) -> x for x in @ when x!=v
+    Array::minus = (v) ->
+      x for x in @ when x isnt v
+      
+
     Array::popper = (e) ->
       popper = @[e..e]
       @[e..e] = []
@@ -73,9 +76,26 @@ onDeviceReady = ->
         value: 1
 
     actions =
-      mine: (i, cb) ->
+      mine: (options, cb) ->
         console.log 'mine'
-        # do something
+        for i in [1..options.number]
+          do ->
+            console.log 'iterating..'
+            m = current.match.get('mine')
+            h = current.deck.get('hand')
+
+            nc = c[0]
+            m[0..0] = []
+            h.push nc
+
+            current.match.set({mine: m})
+            current.deck.set({hand: h})
+
+            console.log "new card: #{nc}"
+
+            view = new CardListView(cards[gsub(nc, ' ', '_')]) #TODO take the gsub out and change card names on serverside to use underscore
+            current.hand.push view
+
       draw: (options, callback) ->
         console.log 'draw from your deck'
         for i in [1..options.number]
@@ -102,7 +122,9 @@ onDeviceReady = ->
         #   return
         # do something
       discard: (i, type, cb) ->
-        # do something
+        # insert view that tells user to discard cards
+        # add icon to click on each card that let's user discard that card
+
       trash: (i, type, cb) ->
         # do something
 
@@ -153,6 +175,27 @@ onDeviceReady = ->
     # Views
     # ============================================
 
+    class ShopListView extends Backbone.View
+
+      initialize: () ->
+        console.log 'init ShopListView'
+        @render
+
+      el: '#shop'
+
+      render: =>
+        console.log 'ShopListView#render'
+        shop = {}
+        prev = ''
+        for card in current.match.get('shop')
+          do (card) =>
+            if card != prev
+              shop[card] = 1
+            else
+              shop[card]++
+            prev = card
+
+
     class CardDetailView extends Backbone.View
       el: 'what'
 
@@ -170,6 +213,8 @@ onDeviceReady = ->
         'swiperight': 'swiperight'
         'touchend': 'touchend'
         'touchcancel': 'touchend'
+        'click .discard': 'discard'
+        # 'click .trash': 'trash'
 
       render: ->
         console.log 'rendering CardListView'
@@ -250,7 +295,14 @@ onDeviceReady = ->
           if current.match.selection.length == match.selection_length
             current.match.selection_callback()
 
-      discard: (options,callback) ->
+      discard: (e) ->
+        @$el.hide()
+        nh = current.deck.get('hand')
+        nh = nh.minus(@card.name)
+        current.deck.set('hand', nh)
+        console.log current.deck.get('hand')
+
+      discard2: (options,callback) ->
         current.match.selection = []
         current.match.selection_length = options.number
         current.match.selection_callback = =>
@@ -423,6 +475,7 @@ onDeviceReady = ->
     if $.cookie("token")?
       # TODO: match token with user on server side, if match, execute the below block
       console.log 'cookie found'
+      # TODO: add 'logging in' animation loader
       $.getJSON("#{server_url}/users/1", (user) ->
         current.user = user
       )
