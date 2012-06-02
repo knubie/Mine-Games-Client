@@ -19,3 +19,6 @@ ul {
 .selected {
 	opacity: 0.5;
 }
+.discard {
+	display: none;
+}

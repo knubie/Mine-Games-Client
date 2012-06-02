@@ -134,6 +134,9 @@
 			<div id="to_spend">
 				to spend: <div class="count">0</div>
 			</div>
+			<div id="turn">
+				turn: <div class="count">0</div>
+			</div>
 			<ul id="hand">
 				<li class='card'>test</li>
 			</ul>
@@ -162,7 +165,27 @@
 		</div>
 
 		<div id="templates" style="display: none;">
-			<li id='stone_pickaxe' class='card'><img src='images/_thumb.png' height='50' alt='' /><img src='images/discard.png' class='discard' alt='' />stone pickaxe</li>
-			<li id='copper' class='card'><img src='images/_thumb.png' height='50' alt='' />copper</li> </div>
+			<!-- Cards -->
+			<li id='stone_pickaxe' class='card'>
+				<img src='images/_thumb.png' height='50' alt='' />
+				<img src='images/discard.png' class='discard' alt='' />
+				stone pickaxe
+			</li>
+			<li id='copper' class='card'><img src='images/_thumb.png' height='50' alt='' />
+				<img src='images/discard.png' class='discard' alt='' />
+				copper
+			</li>
+			<li id='silver' class='card'><img src='images/_thumb.png' height='50' alt='' />
+				<img src='images/discard.png' class='discard' alt='' />
+				silver
+			</li>
+
+			<!-- Shop items -->
+			<div id='shop-item'>
+				<img src='images/_thumb.png' height='50' alt='' />
+				<div class='count'>0</div><div class="price">$0</div>
+				<div class='name'></div>
+			</div>
+		</div>
   </body>
 </html>
