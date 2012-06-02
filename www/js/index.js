@@ -255,6 +255,7 @@ onDeviceReady = function() {
       hand: [],
       turn: false,
       user: 0,
+      to_spend: 0,
       before_turn: function() {}
     };
     Match = (function(_super) {
@@ -265,7 +266,12 @@ onDeviceReady = function() {
         return Match.__super__.constructor.apply(this, arguments);
       }
 
-      Match.prototype.initialize = function() {};
+      Match.prototype.initialize = function() {
+        var _this = this;
+        return this.on('change', function() {
+          return _this.save;
+        });
+      };
 
       return Match;
 
@@ -304,14 +310,7 @@ onDeviceReady = function() {
       Deck.prototype.initialize = function() {
         var _this = this;
         return this.on('change', function() {
-          _this.save();
-          if (_this.actions === 0 && _this.buys === 0) {
-            if (current.match.turn + 1 > current.match.players.length + 1) {
-              return current.match.turn = 0;
-            } else {
-              return current.match.turn += 1;
-            }
-          }
+          return _this.save();
         });
       };
 
@@ -320,6 +319,75 @@ onDeviceReady = function() {
       Deck.prototype.amount_discarded = 0;
 
       Deck.prototype.type = 0;
+
+      Deck.prototype.to_spend = function() {
+        var card, to_spend, _fn, _i, _len, _ref;
+        to_spend = 0;
+        console.log('to spend');
+        console.log(cards);
+        _ref = this.get('hand');
+        _fn = function(card) {
+          if (cards[gsub(card, ' ', '_')].type === 'money') {
+            return to_spend += cards[gsub(card, ' ', '_')].value;
+          }
+        };
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          card = _ref[_i];
+          _fn(card);
+        }
+        return to_spend;
+      };
+
+      Deck.prototype.spend = function(value) {
+        var card, money_cards, new_hand, _fn, _fn1, _i, _j, _len, _len1, _ref;
+        console.log('spend');
+        money_cards = [];
+        _ref = this.get('hand');
+        _fn = function(card) {
+          if (cards[gsub(card, ' ', '_')].type === 'money') {
+            return money_cards.push(card);
+          }
+        };
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          card = _ref[_i];
+          _fn(card);
+        }
+        money_cards = _.sortBy(money_cards, function(i) {
+          return i;
+        });
+        console.log(money_cards);
+        new_hand = this.get('hand');
+        _fn1 = function(card) {
+          if (value > 0) {
+            new_hand = new_hand.minus(card);
+            console.log(new_hand);
+            value = value - cards[gsub(card, ' ', '_')].value;
+            return console.log(value);
+          }
+        };
+        for (_j = 0, _len1 = money_cards.length; _j < _len1; _j++) {
+          card = money_cards[_j];
+          _fn1(card);
+        }
+        if (value < 0) {
+          switch (value) {
+            case -1:
+              new_hand.push('copper');
+              break;
+            case -2:
+              new_hand.push('silver');
+              break;
+            case -3:
+              new_hand.push('gold');
+              break;
+            case -4:
+              new_hand.push('silver');
+              new_hand.push('silver');
+          }
+        }
+        console.log(new_hand);
+        return this.set('hand', new_hand);
+      };
 
       return Deck;
 
@@ -359,12 +427,37 @@ onDeviceReady = function() {
         return this.render();
       };
 
+      ShopListView.prototype.events = {
+        'click': 'buy'
+      };
+
       ShopListView.prototype.render = function() {
         console.log('ShopListView#render');
         $('#shop').append(this.el);
         this.$el.find('.count').html(this.amount);
         this.$el.find('.price').html(this.card.cost);
         return this.$el.find('.name').html(this.card.name);
+      };
+
+      ShopListView.prototype.buy = function() {
+        var curr_cards, shop;
+        console.log(current.deck.to_spend());
+        if (this.card.cost <= current.deck.to_spend() && current.turn) {
+          console.log('buy it');
+          console.log(current.match.get('shop'));
+          shop = current.match.get('shop');
+          shop = shop.minus(this.card.name);
+          current.match.set('shop', shop);
+          curr_cards = current.deck.get('cards');
+          curr_cards.push(this.card.name);
+          current.deck.set('cards', curr_cards);
+          console.log(current.match.get('shop'));
+          console.log(current.deck.get('cards'));
+          this.amount--;
+          return current.deck.spend(this.card.cost);
+        } else {
+          return console.log('not enough money');
+        }
       };
 
       return ShopListView;
@@ -582,27 +675,12 @@ onDeviceReady = function() {
         });
         return current.deck.on('change:hand', function() {
           console.log('hand changed');
-          return _this.$el.find('#to_spend > .count').html(_this.to_spend());
+          _this.$el.find('#to_spend > .count').html(current.deck.to_spend());
+          return _this.render();
         });
       };
 
       MatchView.prototype.el = '#match';
-
-      MatchView.prototype.to_spend = function() {
-        var card, to_spend, _fn, _i, _len, _ref;
-        to_spend = 0;
-        _ref = current.deck.get('hand');
-        _fn = function(card) {
-          if (cards[gsub(card, ' ', '_')].type === 'money') {
-            return to_spend += cards[gsub(card, ' ', '_')].value;
-          }
-        };
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          card = _ref[_i];
-          _fn(card);
-        }
-        return to_spend;
-      };
 
       MatchView.prototype.events = {
         'click #end_turn': 'end_turn'
@@ -626,7 +704,7 @@ onDeviceReady = function() {
           _fn(card);
         }
         this.$el.find('#actions > .count').html(current.deck.get('actions'));
-        this.$el.find('#to_spend > .count').html(this.to_spend());
+        this.$el.find('#to_spend > .count').html(current.deck.to_spend());
         this.$el.find('#turn > .count').html(current.match.get('turn'));
         return $.mobile.changePage("#match", {
           transition: "slide"

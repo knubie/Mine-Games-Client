@@ -239,6 +239,7 @@ onDeviceReady = ->
       hand:  [] # array of CardListView
       turn: false
       user: 0
+      to_spend: 0
       before_turn: ->
         # do nothing
 
@@ -247,6 +248,8 @@ onDeviceReady = ->
 
     class Match extends Backbone.Model
       initialize: ->
+        @on 'change', =>
+          @save
         # do something
 
     class Matches extends Backbone.Collection
@@ -262,18 +265,54 @@ onDeviceReady = ->
       initialize: ->
         @on 'change', =>
           @save()
-          if @actions is 0 and @buys is 0
-            # server request to change turn
-            if current.match.turn + 1 > current.match.players.length + 1
-              current.match.turn = 0
-            else
-              current.match.turn += 1
-            # end turn
-          # @save()
 
       amount_to_discard: 0
       amount_discarded: 0
       type: 0
+
+      to_spend: ->
+        to_spend = 0
+        console.log 'to spend'
+        console.log cards
+        for card in @get('hand')
+          do (card) ->
+            if cards[gsub(card, ' ', '_')].type == 'money'
+              to_spend += cards[gsub(card, ' ', '_')].value
+        to_spend
+
+      spend: (value) ->
+        console.log 'spend'
+        money_cards = []
+        for card in @get('hand')
+          do (card) ->
+            if cards[gsub(card, ' ', '_')].type == 'money'
+              money_cards.push(card)
+        money_cards = _.sortBy money_cards, (i) -> return i
+        console.log money_cards
+        new_hand = @get('hand')
+        for card in money_cards
+          do (card) ->
+            if value > 0
+              new_hand = new_hand.minus(card)
+              console.log new_hand
+              value = value - cards[gsub(card, ' ', '_')].value
+              console.log value
+        if value < 0
+          switch value
+            when -1
+              new_hand.push 'copper'
+            when -2 
+              new_hand.push 'silver'
+            when -3 
+              new_hand.push 'gold'
+            when -4 
+              new_hand.push 'silver'
+              new_hand.push 'silver'
+
+        console.log new_hand
+        @set('hand', new_hand)
+
+
 
     class Decks extends Backbone.Collection
       initialize: ->
@@ -292,6 +331,9 @@ onDeviceReady = ->
         @setElement $('#templates').find("#shop-item").clone()
         @render()
 
+      events:
+        'click': 'buy'
+
       render: ->
         console.log 'ShopListView#render'
         $('#shop').append(@el)
@@ -300,6 +342,25 @@ onDeviceReady = ->
         @$el.find('.price').html(@card.cost)
         @$el.find('.name').html(@card.name)
 
+      buy: ->
+        console.log current.deck.to_spend()
+        if @card.cost <= current.deck.to_spend() and current.turn
+          console.log 'buy it'
+          console.log current.match.get('shop')
+          shop = current.match.get('shop')
+          shop = shop.minus(@card.name)
+          current.match.set('shop', shop)
+          curr_cards = current.deck.get('cards')
+          curr_cards.push @card.name
+          current.deck.set('cards', curr_cards)
+          console.log current.match.get('shop')
+          console.log current.deck.get('cards')
+          # Remove @card.name from current.match.shop
+          # Add @card.name to current.hand.cards
+          @amount--
+          current.deck.spend(@card.cost)
+        else
+          console.log 'not enough money'
 
     class ShopView extends Backbone.View
 
@@ -447,17 +508,10 @@ onDeviceReady = ->
           @$el.find('#actions > .count').html(current.deck.get 'actions')
         current.deck.on 'change:hand', =>
           console.log 'hand changed'
-          @$el.find('#to_spend > .count').html(@to_spend())
+          @$el.find('#to_spend > .count').html(current.deck.to_spend())
+          @render()
 
       el: '#match'
-
-      to_spend: ->
-        to_spend = 0
-        for card in current.deck.get('hand')
-          do (card) ->
-            if cards[gsub(card, ' ', '_')].type == 'money'
-              to_spend += cards[gsub(card, ' ', '_')].value
-        to_spend
 
       events:
         'click #end_turn': 'end_turn'
@@ -474,7 +528,7 @@ onDeviceReady = ->
         #     current.hand.push view # TODO should probably take this out.
 
         @$el.find('#actions > .count').html(current.deck.get 'actions')
-        @$el.find('#to_spend > .count').html(@to_spend())
+        @$el.find('#to_spend > .count').html(current.deck.to_spend())
         @$el.find('#turn > .count').html(current.match.get 'turn')
 
 
