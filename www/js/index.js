@@ -4,7 +4,7 @@ var onBodyLoad, onDeviceReady, server_url,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
-server_url = "http://localhost:3000";
+server_url = "http://mine-games.herokuapp.com/";
 
 onBodyLoad = function() {
   return document.addEventListener("deviceready", onDeviceReady, false);
