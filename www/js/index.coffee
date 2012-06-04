@@ -420,7 +420,7 @@ onDeviceReady = ->
 
       initialize: (@card) ->
         console.log 'init CardListView'
-        @setElement $('#templates').find("##{gsub(@card.name, ' ', '_')}").clone()
+        @setElement $('#templates').find(".card").clone()
         @render()
 
       events:
@@ -435,6 +435,8 @@ onDeviceReady = ->
 
       render: ->
         console.log 'rendering CardListView'
+        @$el.find('.thumb').attr('src', "images/#{gsub(@card.name, ' ', '_')}")
+        @$el.find('.name').html(@card.name)
         $('#hand').append(@el)
 
       w: 55
@@ -612,6 +614,7 @@ onDeviceReady = ->
         console.log 'LobbyView#render'
         matches.fetch()
         decks.fetch()
+        console.log 'fetching decks/matches'
         matches.on 'reset', => # 'reset' event is triggered when Collection#fetch completes
           decks.on 'reset', =>
             $('#matches').html('')
@@ -665,7 +668,10 @@ onDeviceReady = ->
         $.getJSON "#{server_url}/users/1", (user) ->
           current.user = user
           console.log 'instantiating LobbyView'
-          current.lobby = new LobbyView()
+          if current.lobby # FIXME: perhaps render the lobby first and update it after sign in
+            current.lobby.render()
+          else
+            current.lobby = new LobbyView()
 
     $('#login-form').submit (e) ->
       $.post("#{server_url}/signin.json", $(this).serialize(), (user) ->

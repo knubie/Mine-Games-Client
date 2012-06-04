@@ -569,7 +569,7 @@ onDeviceReady = function() {
       CardListView.prototype.initialize = function(card) {
         this.card = card;
         console.log('init CardListView');
-        this.setElement($('#templates').find("#" + (gsub(this.card.name, ' ', '_'))).clone());
+        this.setElement($('#templates').find(".card").clone());
         return this.render();
       };
 
@@ -584,6 +584,8 @@ onDeviceReady = function() {
 
       CardListView.prototype.render = function() {
         console.log('rendering CardListView');
+        this.$el.find('.thumb').attr('src', "images/" + (gsub(this.card.name, ' ', '_')));
+        this.$el.find('.name').html(this.card.name);
         return $('#hand').append(this.el);
       };
 
@@ -829,6 +831,7 @@ onDeviceReady = function() {
         console.log('LobbyView#render');
         matches.fetch();
         decks.fetch();
+        console.log('fetching decks/matches');
         return matches.on('reset', function() {
           return decks.on('reset', function() {
             var match, _i, _len, _ref, _results;
@@ -893,7 +896,11 @@ onDeviceReady = function() {
         return $.getJSON("" + server_url + "/users/1", function(user) {
           current.user = user;
           console.log('instantiating LobbyView');
-          return current.lobby = new LobbyView();
+          if (current.lobby) {
+            return current.lobby.render();
+          } else {
+            return current.lobby = new LobbyView();
+          }
         });
       });
     });
