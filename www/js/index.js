@@ -101,7 +101,7 @@ onDeviceReady = function() {
             callback: function(new_card) {
               var log, log_msg;
               console.log('calling callback');
-              log_msg = "<span class='name'>" + current.user.username + "</span> used an <span class='item action'>Stone Pickaxe</span> and got a <span class='money'>" + new_card + "</span>";
+              log_msg = "<span class='name'>" + current.user.username + "</span> used an <span class='item action'>Iron Pickaxe</span> and got a <span class='money'>" + new_card + "</span>";
               if (typeof current.match.get('log') !== 'Array') {
                 log = [];
               } else {
@@ -124,7 +124,7 @@ onDeviceReady = function() {
             callback: function(new_card) {
               var log, log_msg;
               console.log('calling callback');
-              log_msg = "<span class='name'>" + current.user.username + "</span> used an <span class='item action'>Stone Pickaxe</span> and got a <span class='money'>" + new_card + "</span>";
+              log_msg = "<span class='name'>" + current.user.username + "</span> used an <span class='item action'>Diamond Pickaxe</span> and got a <span class='money'>" + new_card + "</span>";
               if (typeof current.match.get('log') !== 'Array') {
                 log = [];
               } else {
@@ -195,12 +195,32 @@ onDeviceReady = function() {
       tnt: {
         name: 'tnt',
         type: 'action',
-        cost: 6
+        cost: 6,
+        use: function() {}
       },
       minecart: {
         name: 'minecart',
         type: 'action',
-        cost: 5
+        cost: 5,
+        use: function() {
+          current.deck.set('actions', current.deck.get('actions') + 1);
+          return actions.draw({
+            number: 1,
+            callback: function(new_card) {
+              var log, log_msg;
+              console.log('calling callback');
+              log_msg = "<span class='name'>" + current.user.username + "</span> used a <span class='item action'>Minecart</span> and got a <span class='money'>" + new_card + "</span>";
+              if (typeof current.match.get('log') !== 'Array') {
+                log = [];
+              } else {
+                log = current.match.get('log');
+              }
+              log.push(log_msg);
+              current.match.set('log', log);
+              return console.log(log_msg);
+            }
+          });
+        }
       },
       headlamp: {
         name: 'headlamp',
@@ -245,29 +265,27 @@ onDeviceReady = function() {
         }
         return _results;
       },
-      draw: function(options, callback) {
-        var i, _i, _ref, _results;
+      draw: function(options) {
+        var c, h, i, nc, view, _i, _ref, _ref1, _results;
         console.log('draw from your deck');
         _results = [];
         for (i = _i = 1, _ref = options.number; 1 <= _ref ? _i <= _ref : _i >= _ref; i = 1 <= _ref ? ++_i : --_i) {
-          _results.push((function() {
-            var c, h, nc, view, _ref1;
-            console.log('iterating..');
-            c = current.deck.get('cards');
-            h = current.deck.get('hand');
-            nc = c[0];
-            [].splice.apply(c, [0, 1].concat(_ref1 = [])), _ref1;
-            h.push(nc);
-            current.deck.set({
-              cards: c
-            });
-            current.deck.set({
-              hand: h
-            });
-            console.log("new card: " + nc);
-            view = new CardListView(cards[gsub(nc, ' ', '_')]);
-            return current.hand.push(view);
-          })());
+          console.log('iterating..');
+          c = current.deck.get('cards');
+          h = current.deck.get('hand');
+          nc = c[0];
+          [].splice.apply(c, [0, 1].concat(_ref1 = [])), _ref1;
+          h.push(nc);
+          current.deck.set({
+            cards: c
+          });
+          current.deck.set({
+            hand: h
+          });
+          console.log("new card: " + nc);
+          view = new CardListView(cards[gsub(nc, ' ', '_')]);
+          current.hand.push(view);
+          _results.push(options.callback(nc));
         }
         return _results;
       },
@@ -910,7 +928,9 @@ onDeviceReady = function() {
           return alert('invalid username and/or password');
         } else {
           $.cookie('token', user.token);
-          console.log($.cookie('token'));
+          console.log($.cookie('token', {
+            expires: 7300
+          }));
           current.user = user;
           if (current.lobby) {
             current.lobby.render();
