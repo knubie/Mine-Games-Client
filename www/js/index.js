@@ -4,7 +4,7 @@ var onBodyLoad, onDeviceReady, server_url,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
   __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
-server_url = "http://localhost:3000";
+server_url = "http://mine-games.herokuapp.com";
 
 onBodyLoad = function() {
   return document.addEventListener("deviceready", onDeviceReady, false);
@@ -97,7 +97,20 @@ onDeviceReady = function() {
         cost: 5,
         use: function() {
           return actions.mine({
-            number: 2
+            number: 2,
+            callback: function(new_card) {
+              var log, log_msg;
+              console.log('calling callback');
+              log_msg = "<span class='name'>" + current.user.username + "</span> used an <span class='item action'>Stone Pickaxe</span> and got a <span class='money'>" + new_card + "</span>";
+              if (typeof current.match.get('log') !== 'Array') {
+                log = [];
+              } else {
+                log = current.match.get('log');
+              }
+              log.push(log_msg);
+              current.match.set('log', log);
+              return console.log(log_msg);
+            }
           });
         }
       },
@@ -107,7 +120,20 @@ onDeviceReady = function() {
         cost: 8,
         use: function() {
           return actions.mine({
-            number: 3
+            number: 3,
+            callback: function(new_card) {
+              var log, log_msg;
+              console.log('calling callback');
+              log_msg = "<span class='name'>" + current.user.username + "</span> used an <span class='item action'>Stone Pickaxe</span> and got a <span class='money'>" + new_card + "</span>";
+              if (typeof current.match.get('log') !== 'Array') {
+                log = [];
+              } else {
+                log = current.match.get('log');
+              }
+              log.push(log_msg);
+              current.match.set('log', log);
+              return console.log(log_msg);
+            }
           });
         }
       },
@@ -155,6 +181,17 @@ onDeviceReady = function() {
           });
         }
       },
+      coal: {
+        name: 'coal',
+        type: 'coal',
+        value: 0,
+        use: function() {
+          console.log('copper used');
+          return actions.discard({
+            number: 2
+          });
+        }
+      },
       tnt: {
         name: 'tnt',
         type: 'action',
@@ -188,26 +225,23 @@ onDeviceReady = function() {
     };
     actions = {
       mine: function(options) {
-        var i, _i, _ref, _results;
+        var h, i, m, nc, view, _i, _ref, _ref1, _results;
         console.log('mine');
         _results = [];
         for (i = _i = 1, _ref = options.number; 1 <= _ref ? _i <= _ref : _i >= _ref; i = 1 <= _ref ? ++_i : --_i) {
-          _results.push((function() {
-            var h, m, nc, view, _ref1;
-            console.log('iterating..');
-            m = current.match.get('mine');
-            h = current.deck.get('hand');
-            nc = m[0];
-            [].splice.apply(m, [0, 1].concat(_ref1 = [])), _ref1;
-            h.push(nc);
-            current.match.set('mine', m);
-            current.deck.set('mine', h);
-            console.log("new card: " + nc);
-            console.log(current.deck.get('hand'));
-            view = new CardListView(cards[gsub(nc, ' ', '_')]);
-            current.hand.push(view);
-            return options.callback(nc);
-          })());
+          console.log('iterating..');
+          m = current.match.get('mine');
+          h = current.deck.get('hand');
+          nc = m[0];
+          [].splice.apply(m, [0, 1].concat(_ref1 = [])), _ref1;
+          h.push(nc);
+          current.match.set('mine', m);
+          current.deck.set('mine', h);
+          console.log("new card: " + nc);
+          console.log(current.deck.get('hand'));
+          view = new CardListView(cards[gsub(nc, ' ', '_')]);
+          current.hand.push(view);
+          _results.push(options.callback(nc));
         }
         return _results;
       },
@@ -268,8 +302,10 @@ onDeviceReady = function() {
 
       Match.prototype.initialize = function() {
         var _this = this;
+        console.log(this.url());
         return this.on('change', function() {
-          return _this.save;
+          console.log('saving match');
+          return _this.save();
         });
       };
 
@@ -310,6 +346,7 @@ onDeviceReady = function() {
       Deck.prototype.initialize = function() {
         var _this = this;
         return this.on('change', function() {
+          console.log('saving deck');
           return _this.save();
         });
       };
@@ -324,7 +361,6 @@ onDeviceReady = function() {
         var card, to_spend, _fn, _i, _len, _ref;
         to_spend = 0;
         console.log('to spend');
-        console.log(cards);
         _ref = this.get('hand');
         _fn = function(card) {
           if (cards[gsub(card, ' ', '_')].type === 'money') {
@@ -485,14 +521,11 @@ onDeviceReady = function() {
         console.log('ShopListView#render');
         shop = {};
         prev = '';
-        console.log(current.match.get('shop'));
         _ref = current.match.get('shop');
         _fn = function(card) {
-          console.log('iterating shop cards');
           if (card !== prev) {
             shop[card] = 1;
           } else {
-            console.log('dupe');
             shop[card] = shop[card] + 1;
           }
           return prev = card;
@@ -501,7 +534,6 @@ onDeviceReady = function() {
           card = _ref[_i];
           _fn(card);
         }
-        console.log(shop);
         _results = [];
         for (card in shop) {
           amount = shop[card];
@@ -663,6 +695,8 @@ onDeviceReady = function() {
       MatchView.prototype.initialize = function() {
         var _this = this;
         console.log('init MatchView');
+        console.log(current.match);
+        console.log(current.deck);
         this.render();
         if (current.match.get('turn') === current.user.id) {
           current.turn = true;
@@ -696,7 +730,7 @@ onDeviceReady = function() {
         _ref = current.deck.get('hand');
         _fn = function(card) {
           var view;
-          console.log('some card');
+          console.log('some cards');
           return view = new CardListView(cards[gsub(card, ' ', '_')]);
         };
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
@@ -712,6 +746,7 @@ onDeviceReady = function() {
       };
 
       MatchView.prototype.end_turn = function() {
+        var _this = this;
         console.log('ending turn');
         return $.post("" + server_url + "/end_turn/" + (current.match.get('id')), function(data) {
           console.log(data);
@@ -735,6 +770,8 @@ onDeviceReady = function() {
         this.match = match;
         this.deck = deck;
         console.log('init MatchListView');
+        console.log("match turn: " + (this.match.get('turn')));
+        console.log("user id: " + current.user.id);
         this.setElement(templates.LobbyMatchListItem(this.match.get('id'), this.match.get('players'), this.match.get('turn') === current.user.id));
         return this.render();
       };
@@ -840,7 +877,6 @@ onDeviceReady = function() {
     };
     matches = new Matches;
     decks = new Decks;
-    $.cookie('token', 'LollakwpnMXj54X6oWwt2g');
     if ($.cookie("token") != null) {
       console.log('cookie found');
       $.getJSON("" + server_url + "/users/1", function(user) {
@@ -850,12 +886,15 @@ onDeviceReady = function() {
       });
     } else {
       console.log('cookie not found');
-      console.log($.cookie('token'));
     }
     $("#facebook-auth").on('click', function() {
       console.log('clicked facebook');
       return facebook_auth(function() {
-        return current.lobby = new LobbyView();
+        return $.getJSON("" + server_url + "/users/1", function(user) {
+          current.user = user;
+          console.log('instantiating LobbyView');
+          return current.lobby = new LobbyView();
+        });
       });
     });
     $('#login-form').submit(function(e) {
@@ -866,7 +905,11 @@ onDeviceReady = function() {
           $.cookie('token', user.token);
           console.log($.cookie('token'));
           current.user = user;
-          current.lobby = new LobbyView();
+          if (current.lobby) {
+            current.lobby.render();
+          } else {
+            current.lobby = new LobbyView();
+          }
           return $.mobile.changePage('#lobby', {
             transition: 'slidedown'
           });

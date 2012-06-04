@@ -1,7 +1,7 @@
 # THIS FILE IS BARE.. NO CLOSURE WRAPPER
 
-# server_url = "http://mine-games.herokuapp.com" # TODO: replace with actual production server
-server_url = "http://localhost:3000" # TODO: replace with actual production server
+server_url = "http://mine-games.herokuapp.com"
+# server_url = "http://localhost:3000" # TODO: replace with actual production server
 
 # preventBehavior = (e) ->
 #   e.preventDefault()
@@ -95,15 +95,34 @@ onDeviceReady = ->
         use: ->
           actions.mine
             number: 2
+            callback: (new_card) ->
+              console.log 'calling callback'
+              log_msg = "<span class='name'>#{current.user.username}</span> used an <span class='item action'>Stone Pickaxe</span> and got a <span class='money'>#{new_card}</span>"
+              if typeof current.match.get('log') isnt 'Array'
+                log = []
+              else
+                log = current.match.get('log')
+              log.push log_msg
+              current.match.set('log', log)
+              console.log log_msg
           
       diamond_pickaxe:
         name: 'diamond pickaxe'
         type: 'action'
         cost: 8
         use: ->
-          actions.mine(
+          actions.mine
             number: 3
-          )
+            callback: (new_card) ->
+              console.log 'calling callback'
+              log_msg = "<span class='name'>#{current.user.username}</span> used an <span class='item action'>Stone Pickaxe</span> and got a <span class='money'>#{new_card}</span>"
+              if typeof current.match.get('log') isnt 'Array'
+                log = []
+              else
+                log = current.match.get('log')
+              log.push log_msg
+              current.match.set('log', log)
+              console.log log_msg
 
       copper:
         name: 'copper'
@@ -136,6 +155,15 @@ onDeviceReady = ->
         name: 'diamond'
         type: 'money'
         value: 5
+        use: ->
+          console.log 'copper used'
+          actions.discard
+            number: 2
+
+      coal:
+        name: 'coal'
+        type: 'coal'
+        value: 0
         use: ->
           console.log 'copper used'
           actions.discard
@@ -175,24 +203,24 @@ onDeviceReady = ->
       mine: (options) ->
         console.log 'mine'
         for i in [1..options.number]
-          do ->
-            console.log 'iterating..'
-            m = current.match.get('mine')
-            h = current.deck.get('hand')
+          console.log 'iterating..'
+          m = current.match.get('mine')
+          h = current.deck.get('hand')
 
-            nc = m[0]
-            m[0..0] = []
-            h.push nc
+          nc = m[0]
+          m[0..0] = []
+          h.push nc
 
-            current.match.set('mine', m)
-            current.deck.set('mine', h)
+          current.match.set('mine', m)
+          current.deck.set('mine', h)
 
-            console.log "new card: #{nc}"
-            console.log current.deck.get('hand')
+          console.log "new card: #{nc}"
+          console.log current.deck.get('hand')
 
-            view = new CardListView(cards[gsub(nc, ' ', '_')]) #TODO take the gsub out and change card names on serverside to use underscore
-            current.hand.push view
-            options.callback(nc)
+          view = new CardListView(cards[gsub(nc, ' ', '_')]) #TODO take the gsub out and change card names on serverside to use underscore
+          current.hand.push view
+
+          options.callback(nc)
 
       draw: (options, callback) ->
         console.log 'draw from your deck'
@@ -248,8 +276,10 @@ onDeviceReady = ->
 
     class Match extends Backbone.Model
       initialize: ->
+        console.log @url()
         @on 'change', =>
-          @save
+          console.log 'saving match'
+          @save() #TODO: optimize so you don't send 1000 requests every time the deck changes
         # do something
 
     class Matches extends Backbone.Collection
@@ -264,6 +294,7 @@ onDeviceReady = ->
     class Deck extends Backbone.Model
       initialize: ->
         @on 'change', =>
+          console.log 'saving deck'
           @save()
 
       amount_to_discard: 0
@@ -273,7 +304,6 @@ onDeviceReady = ->
       to_spend: ->
         to_spend = 0
         console.log 'to spend'
-        console.log cards
         for card in @get('hand')
           do (card) ->
             if cards[gsub(card, ' ', '_')].type == 'money'
@@ -312,9 +342,7 @@ onDeviceReady = ->
         console.log new_hand
         @set('hand', new_hand)
 
-
-
-    class Decks extends Backbone.Collection
+    class Decks extends Backbone.Collection # FIXME: this doesn't seem right...
       initialize: ->
         @fetch()
 
@@ -374,18 +402,14 @@ onDeviceReady = ->
         console.log 'ShopListView#render'
         shop = {}
         prev = ''
-        console.log current.match.get('shop')
         for card in current.match.get('shop')
           do (card) =>
-            console.log 'iterating shop cards'
             if card != prev
               shop[card] = 1
             else
-              console.log 'dupe'
               shop[card] = shop[card] + 1
             prev = card
 
-        console.log shop
         for card, amount of shop
           view = new ShopListView(cards[gsub(card, ' ', '_')], amount)
 
@@ -412,12 +436,6 @@ onDeviceReady = ->
       render: ->
         console.log 'rendering CardListView'
         $('#hand').append(@el)
-
-      # use: ->
-      #   if current.turn
-      #     @card.use()
-      #   current.deck.set({ actions: current.deck.get('actions') - 1 }) if @card.type == 'action'
-
 
       w: 55
       touch:
@@ -497,6 +515,8 @@ onDeviceReady = ->
 
       initialize: () ->
         console.log 'init MatchView'
+        console.log current.match
+        console.log current.deck
         @render()
         if current.match.get('turn') == current.user.id
           current.turn = true
@@ -523,7 +543,7 @@ onDeviceReady = ->
         console.log current.deck
         for card in current.deck.get('hand')
           do (card) =>
-            console.log 'some card'
+            console.log 'some cards'
             view = new CardListView(cards[gsub(card, ' ', '_')]) #TODO take the gsub out and change card names on serverside to use underscore)
         #     current.hand.push view # TODO should probably take this out.
 
@@ -539,7 +559,7 @@ onDeviceReady = ->
 
       end_turn: ->
         console.log 'ending turn'
-        $.post("#{server_url}/end_turn/#{current.match.get('id')}", (data) ->
+        $.post("#{server_url}/end_turn/#{current.match.get('id')}", (data) =>
           console.log data
           current.match.fetch()
           current.deck.fetch()
@@ -550,6 +570,8 @@ onDeviceReady = ->
 
       initialize: (@match, @deck) ->
         console.log 'init MatchListView'
+        console.log "match turn: #{@match.get('turn')}"
+        console.log "user id: #{current.user.id}"
         @setElement templates.LobbyMatchListItem(@match.get('id'), @match.get('players'), @match.get('turn') == current.user.id)
         @render()
 
@@ -623,7 +645,7 @@ onDeviceReady = ->
     matches = new Matches
     decks = new Decks
 
-    $.cookie 'token', 'LollakwpnMXj54X6oWwt2g' #TODO: take this out and find out why cookies aren't persisting
+    # $.cookie 'token', 'LollakwpnMXj54X6oWwt2g' #TODO: take this out and find out why cookies aren't persisting
     
     if $.cookie("token")?
       # TODO: match token with user on server side, if match, execute the below block
@@ -636,12 +658,14 @@ onDeviceReady = ->
       )
     else
       console.log 'cookie not found'
-      console.log $.cookie 'token'
 
     $("#facebook-auth").on 'click', ->
       console.log 'clicked facebook'
       facebook_auth ->
-        current.lobby = new LobbyView()
+        $.getJSON "#{server_url}/users/1", (user) ->
+          current.user = user
+          console.log 'instantiating LobbyView'
+          current.lobby = new LobbyView()
 
     $('#login-form').submit (e) ->
       $.post("#{server_url}/signin.json", $(this).serialize(), (user) ->
@@ -651,7 +675,12 @@ onDeviceReady = ->
           $.cookie 'token', user.token
           console.log $.cookie 'token'
           current.user = user
-          current.lobby = new LobbyView()
+
+          if current.lobby # FIXME: perhaps render the lobby first and update it after sign in
+            current.lobby.render()
+          else
+            current.lobby = new LobbyView()
+
           $.mobile.changePage '#lobby',
             transition: 'slidedown'
       , 'json')
