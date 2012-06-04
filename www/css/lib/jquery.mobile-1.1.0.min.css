@@ -316,7 +316,6 @@
 .ui-overlay-c {
 	border: 1px solid 		#aaa /*{c-body-border}*/;
 	color: 					#333333 /*{c-body-color}*/;
-	text-shadow: 0 /*{c-body-shadow-x}*/ 1px /*{c-body-shadow-y}*/ 0 /*{c-body-shadow-radius}*/ #fff /*{c-body-shadow-color}*/;
 	background: 			#f9f9f9 /*{c-body-background-color}*/;
 	background-image: -webkit-gradient(linear, left top, left bottom, from( #f9f9f9 /*{c-body-background-start}*/), to( #eeeeee /*{c-body-background-end}*/)); /* Saf4+, Chrome */
 	background-image: -webkit-linear-gradient( #f9f9f9 /*{c-body-background-start}*/, #eeeeee /*{c-body-background-end}*/); /* Chrome 10+, Saf5.1+ */
@@ -357,7 +356,6 @@
 	background: 			#eee /*{c-bup-background-color}*/;
 	font-weight: bold;
 	color: 					#222 /*{c-bup-color}*/;
-	text-shadow: 0 /*{c-bup-shadow-x}*/ 1px /*{c-bup-shadow-y}*/ 0 /*{c-bup-shadow-radius}*/ #ffffff /*{c-bup-shadow-color}*/;
 	background-image: -webkit-gradient(linear, left top, left bottom, from( #ffffff /*{c-bup-background-start}*/), to( #f1f1f1 /*{c-bup-background-end}*/)); /* Saf4+, Chrome */
 	background-image: -webkit-linear-gradient( #ffffff /*{c-bup-background-start}*/, #f1f1f1 /*{c-bup-background-end}*/); /* Chrome 10+, Saf5.1+ */
 	background-image:    -moz-linear-gradient( #ffffff /*{c-bup-background-start}*/, #f1f1f1 /*{c-bup-background-end}*/); /* FF3.6 */
@@ -373,7 +371,6 @@
 	background: 			#dfdfdf /*{c-bhover-background-color}*/;
 	font-weight: bold;
 	color: 					#222 /*{c-bhover-color}*/;
-	text-shadow: 0 /*{c-bhover-shadow-x}*/ 1px /*{c-bhover-shadow-y}*/ 0 /*{c-bhover-shadow-radius}*/ #ffffff /*{c-bhover-shadow-color}*/;
 	background-image: -webkit-gradient(linear, left top, left bottom, from( #f6f6f6 /*{c-bhover-background-start}*/), to( #e0e0e0 /*{c-bhover-background-end}*/)); /* Saf4+, Chrome */
 	background-image: -webkit-linear-gradient( #f9f9f9 /*{c-bhover-background-start}*/, #e0e0e0 /*{c-bhover-background-end}*/); /* Chrome 10+, Saf5.1+ */
 	background-image:    -moz-linear-gradient( #f6f6f6 /*{c-bhover-background-start}*/, #e0e0e0 /*{c-bhover-background-end}*/); /* FF3.6 */
@@ -389,7 +386,6 @@
 	background: 			#d6d6d6 /*{c-bdown-background-color}*/;
 	font-weight: bold;
 	color: 					#222 /*{c-bdown-color}*/;
-	text-shadow: 0 /*{c-bdown-shadow-x}*/ 1px /*{c-bdown-shadow-y}*/ 0 /*{c-bdown-shadow-radius}*/ #ffffff /*{c-bdown-shadow-color}*/;
 	background-image: -webkit-gradient(linear, left top, left bottom, from( #d0d0d0 /*{c-bdown-background-start}*/), to( #dfdfdf /*{c-bdown-background-end}*/)); /* Saf4+, Chrome */
 	background-image: -webkit-linear-gradient( #d0d0d0 /*{c-bdown-background-start}*/, #dfdfdf /*{c-bdown-background-end}*/); /* Chrome 10+, Saf5.1+ */
 	background-image:    -moz-linear-gradient( #d0d0d0 /*{c-bdown-background-start}*/, #dfdfdf /*{c-bdown-background-end}*/); /* FF3.6 */
@@ -699,8 +695,7 @@ a.ui-link-inherit {
 /* button inner top highlight
 -----------------------------------------------------------------------------------------------------------*/
 .ui-btn-inner {
-	border-top: 1px solid 	#fff;
-	border-color: 			rgba(255,255,255,.3);
+
 }
 /* corner rounding classes
 -----------------------------------------------------------------------------------------------------------*/
@@ -1740,7 +1735,18 @@ div.ui-mobile-viewport { overflow-x: hidden; }
 .ui-navbar-expanded .ui-btn-icon-bottom .ui-icon { bottom: 15px; }
 .ui-navbar-expanded li .ui-btn .ui-btn-inner { min-height: 2.5em; }
 .ui-navbar-expanded .ui-navbar-noicons .ui-btn .ui-btn-inner { padding-top: 1.8em; padding-bottom: 1.9em; }
-.ui-btn { display: block; text-align: center; cursor:pointer;  position: relative; margin: .5em 5px; padding: 0; }
+.ui-btn { display: block; text-align: center; cursor:pointer;  position: relative; margin: 1em 36px; padding: 0; }
+
+/* Special Button Classes */
+.yellow{
+	background: #e8a22e;
+	border: solid 2px #4f3b29;
+	padding-top:5px;
+	padding-bottom:5px;
+
+}
+
+
 .ui-mini { margin: .25em 5px; }
 .ui-btn-inner { padding: .6em 20px; min-width: .75em; display: block; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; position: relative; zoom: 1; }
 .ui-btn input, .ui-btn button { z-index: 2; }
