@@ -195,6 +195,23 @@ onDeviceReady = ->
               current.match.set('log', log)
               console.log log_msg
 
+      mule:
+        name: 'mule'
+        type: 'action'
+        cost: 5
+        use: ->
+          actions.draw
+            number: 3
+            callback: (new_card) ->
+              console.log 'calling callback'
+              log_msg = "<span class='name'>#{current.user.username}</span> used a <span class='item action'>Minecart</span> and got a <span class='money'>#{new_card}</span>"
+              if typeof current.match.get('log') isnt 'Array'
+                log = []
+              else
+                log = current.match.get('log')
+              log.push log_msg
+              current.match.set('log', log)
+              console.log log_msg
 
       headlamp:
         name: 'headlamp'
@@ -453,7 +470,7 @@ onDeviceReady = ->
 
       render: ->
         console.log 'rendering CardListView'
-        @$el.find('.thumb').attr('src', "images/#{gsub(@card.name, ' ', '_')}")
+        # @$el.find('.thumb').attr('src', "images/#{gsub(@card.name, ' ', '_')}") # TODO: make this work
         @$el.find('.name').html(@card.name)
         $('#hand').append(@el)
 
@@ -565,15 +582,14 @@ onDeviceReady = ->
           do (card) =>
             console.log 'some cards'
             view = new CardListView(cards[gsub(card, ' ', '_')]) #TODO take the gsub out and change card names on serverside to use underscore)
-        #     current.hand.push view # TODO should probably take this out.
 
         @$el.find('#actions > .count').html(current.deck.get 'actions')
         @$el.find('#to_spend > .count').html(current.deck.to_spend())
         @$el.find('#turn > .count').html(current.match.get 'turn')
 
 
-        $.mobile.changePage "#match",
-          transition: "slide"
+        # $.mobile.changePage "#match",
+        #   transition: "slide"
 
         # render all the other shit too
 
@@ -592,7 +608,8 @@ onDeviceReady = ->
         console.log 'init MatchListView'
         console.log "match turn: #{@match.get('turn')}"
         console.log "user id: #{current.user.id}"
-        @setElement templates.LobbyMatchListItem(@match.get('id'), @match.get('players'), @match.get('turn') == current.user.id)
+        @setElement $('#templates').find(".match-item-view").clone()
+        # @setElement templates.LobbyMatchListItem(@match.get('id'), @match.get('players'), @match.get('turn') == current.user.id)
         @render()
 
       events:
@@ -606,8 +623,19 @@ onDeviceReady = ->
         console.log 'rendering match'
         current.match = @match
         current.deck = @deck
-        view = new MatchView()
-        shopview = new ShopView()
+
+        if current.matchview
+          console.log 'refresh old matchview'
+          current.matchview.render()
+        else
+          console.log 'create new matchview'
+          current.matchview = new MatchView()
+
+        # if current.shopview
+        #   current.shopview.render()
+        # else
+        #   current.shopview = new ShopView()
+
         
     class LobbyView extends Backbone.View
 
@@ -628,7 +656,7 @@ onDeviceReady = ->
         $.mobile.changePage "#home",
           transition: "flip"
 
-      render: =>
+      render: ->
         console.log 'LobbyView#render'
         matches.fetch()
         decks.fetch()
@@ -638,7 +666,7 @@ onDeviceReady = ->
             $('#matches').html('')
             console.log 'fetched data for matches and decks'
             $.mobile.changePage "#lobby",
-            transition: "none"
+              transition: "none"
             for match in matches.models
               do (match) =>
                 d = decks.where(match_id: match.get('id'))
@@ -652,15 +680,22 @@ onDeviceReady = ->
     # Authorization
     # ============================================
     facebook_auth = (callback) ->
+      console.log 'facebook_auth function'
       window.plugins.childBrowser.showWebPage "#{server_url}/auth/facebook?display=touch"
+      console.log 1
       window.plugins.childBrowser.onLocationChange = (loc) ->
+        console.log 2
         if /access_token/.test(loc)
           # URL looks like: server.com/access_token/:access_token
+          console.log 3
           access_token = unescape(loc).split("access_token/")[1]
+          console.log 4
           $.cookie "token", access_token,
             expires: 7300
 
+          console.log 5
           window.plugins.childBrowser.close()
+          console.log 6
           callback()
 
     matches = new Matches
@@ -683,7 +718,9 @@ onDeviceReady = ->
     $("#facebook-auth").on 'click', ->
       console.log 'clicked facebook'
       facebook_auth ->
+        console.log 7
         $.getJSON "#{server_url}/users/1", (user) ->
+          console.log 8
           current.user = user
           console.log 'instantiating LobbyView'
           if current.lobby # FIXME: perhaps render the lobby first and update it after sign in
