@@ -35,9 +35,18 @@ onDeviceReady = ->
     #     post = @substr(i+_.size(re),_.size(@)) # post = the string after the 're'
     #     @ = pre + replStr + post # put pre and post together with the replStr in between
 
+    # Array::minus = (v) ->
+    #   x for x in @ when x isnt v
+
     Array::minus = (v) ->
-      x for x in @ when x isnt v
-      
+      results = []
+      for x in @
+        if x!=v
+          results.push x
+        else
+          v = ''
+      results
+
 
     Array::popper = (e) ->
       popper = @[e..e]
@@ -66,7 +75,33 @@ onDeviceReady = ->
         type: 'action'
         cost: 3
         use: ->
-          actions.draw(
+          actions.mine
+            number: 1
+            callback: (new_card) ->
+              console.log 'calling callback'
+              log_msg = "<span class='name'>#{current.user.username}</span> used an <span class='item action'>Stone Pickaxe</span> and got a <span class='money'>#{new_card}</span>"
+              if typeof current.match.get('log') isnt 'Array'
+                log = []
+              else
+                log = current.match.get('log')
+              log.push log_msg
+              current.match.set('log', log)
+              console.log log_msg
+
+      iron_pickaxe:
+        name: 'iron pickaxe'
+        type: 'action'
+        cost: 5
+        use: ->
+          actions.mine
+            number: 2
+          
+      diamond_pickaxe:
+        name: 'diamond pickaxe'
+        type: 'action'
+        cost: 8
+        use: ->
+          actions.mine(
             number: 3
           )
 
@@ -74,9 +109,70 @@ onDeviceReady = ->
         name: 'copper'
         type: 'money'
         value: 1
+        use: ->
+          console.log 'copper used'
+          actions.discard
+            number: 2
+
+      silver:
+        name: 'silver'
+        type: 'money'
+        value: 2
+        use: ->
+          console.log 'copper used'
+          actions.discard
+            number: 2
+
+      gold:
+        name: 'gold'
+        type: 'money'
+        value: 3
+        use: ->
+          console.log 'copper used'
+          actions.discard
+            number: 2
+
+      diamond:
+        name: 'diamond'
+        type: 'money'
+        value: 5
+        use: ->
+          console.log 'copper used'
+          actions.discard
+            number: 2
+
+      tnt:
+        name: 'tnt'
+        type: 'action'
+        cost: 6
+
+      minecart:
+        name: 'minecart'
+        type: 'action'
+        cost: 5
+
+      headlamp:
+        name: 'headlamp'
+        type: 'action'
+        cost: 4
+
+      gopher:
+        name: 'gopher'
+        type: 'action'
+        cost: 6
+
+      magnet:
+        name: 'magnet'
+        type: 'action'
+        cost: 6
+
+      alchemy:
+        name: 'alchemy'
+        type: 'action'
+        cost: 5
 
     actions =
-      mine: (options, cb) ->
+      mine: (options) ->
         console.log 'mine'
         for i in [1..options.number]
           do ->
@@ -84,17 +180,19 @@ onDeviceReady = ->
             m = current.match.get('mine')
             h = current.deck.get('hand')
 
-            nc = c[0]
+            nc = m[0]
             m[0..0] = []
             h.push nc
 
-            current.match.set({mine: m})
-            current.deck.set({hand: h})
+            current.match.set('mine', m)
+            current.deck.set('mine', h)
 
             console.log "new card: #{nc}"
+            console.log current.deck.get('hand')
 
             view = new CardListView(cards[gsub(nc, ' ', '_')]) #TODO take the gsub out and change card names on serverside to use underscore
             current.hand.push view
+            options.callback(nc)
 
       draw: (options, callback) ->
         console.log 'draw from your deck'
@@ -121,9 +219,15 @@ onDeviceReady = ->
         # else
         #   return
         # do something
-      discard: (i, type, cb) ->
+      discard: (options, cb) ->
         # insert view that tells user to discard cards
         # add icon to click on each card that let's user discard that card
+        $('.discard').show()
+        console.log options.number
+        current.deck.set
+          amount_to_discard: options.number
+          amount_discarded: 0
+          discard_type: options.type
 
       trash: (i, type, cb) ->
         # do something
@@ -135,6 +239,7 @@ onDeviceReady = ->
       hand:  [] # array of CardListView
       turn: false
       user: 0
+      to_spend: 0
       before_turn: ->
         # do nothing
 
@@ -143,26 +248,71 @@ onDeviceReady = ->
 
     class Match extends Backbone.Model
       initialize: ->
-
+        @on 'change', =>
+          @save
+        # do something
 
     class Matches extends Backbone.Collection
       initialize: ->
         @fetch()
+        @on 'reset', =>
+          console.log @
 
       model: Match
       url: "#{server_url}/matches"
 
     class Deck extends Backbone.Model
       initialize: ->
-        @on 'change:actions change:buys', =>
-          if @actions is 0 and @buys is 0
-            # server request to change turn
-            if current.match.turn + 1 > current.match.players.length + 1
-              current.match.turn = 0
-            else
-              current.match.turn += 1
-            # end turn
-          # @save()
+        @on 'change', =>
+          @save()
+
+      amount_to_discard: 0
+      amount_discarded: 0
+      type: 0
+
+      to_spend: ->
+        to_spend = 0
+        console.log 'to spend'
+        console.log cards
+        for card in @get('hand')
+          do (card) ->
+            if cards[gsub(card, ' ', '_')].type == 'money'
+              to_spend += cards[gsub(card, ' ', '_')].value
+        to_spend
+
+      spend: (value) ->
+        console.log 'spend'
+        money_cards = []
+        for card in @get('hand')
+          do (card) ->
+            if cards[gsub(card, ' ', '_')].type == 'money'
+              money_cards.push(card)
+        money_cards = _.sortBy money_cards, (i) -> return i
+        console.log money_cards
+        new_hand = @get('hand')
+        for card in money_cards
+          do (card) ->
+            if value > 0
+              new_hand = new_hand.minus(card)
+              console.log new_hand
+              value = value - cards[gsub(card, ' ', '_')].value
+              console.log value
+        if value < 0
+          switch value
+            when -1
+              new_hand.push 'copper'
+            when -2 
+              new_hand.push 'silver'
+            when -3 
+              new_hand.push 'gold'
+            when -4 
+              new_hand.push 'silver'
+              new_hand.push 'silver'
+
+        console.log new_hand
+        @set('hand', new_hand)
+
+
 
     class Decks extends Backbone.Collection
       initialize: ->
@@ -176,25 +326,68 @@ onDeviceReady = ->
     # ============================================
 
     class ShopListView extends Backbone.View
-
-      initialize: () ->
+      initialize: (@card, @amount) ->
         console.log 'init ShopListView'
-        @render
+        @setElement $('#templates').find("#shop-item").clone()
+        @render()
+
+      events:
+        'click': 'buy'
+
+      render: ->
+        console.log 'ShopListView#render'
+        $('#shop').append(@el)
+        #@$el.find('img')
+        @$el.find('.count').html(@amount)
+        @$el.find('.price').html(@card.cost)
+        @$el.find('.name').html(@card.name)
+
+      buy: ->
+        console.log current.deck.to_spend()
+        if @card.cost <= current.deck.to_spend() and current.turn
+          console.log 'buy it'
+          console.log current.match.get('shop')
+          shop = current.match.get('shop')
+          shop = shop.minus(@card.name)
+          current.match.set('shop', shop)
+          curr_cards = current.deck.get('cards')
+          curr_cards.push @card.name
+          current.deck.set('cards', curr_cards)
+          console.log current.match.get('shop')
+          console.log current.deck.get('cards')
+          # Remove @card.name from current.match.shop
+          # Add @card.name to current.hand.cards
+          @amount--
+          current.deck.spend(@card.cost)
+        else
+          console.log 'not enough money'
+
+    class ShopView extends Backbone.View
+
+      initialize: (@card) ->
+        console.log 'init ShopView'
+        @render()
 
       el: '#shop'
 
-      render: =>
+      render: ->
         console.log 'ShopListView#render'
         shop = {}
         prev = ''
+        console.log current.match.get('shop')
         for card in current.match.get('shop')
           do (card) =>
+            console.log 'iterating shop cards'
             if card != prev
               shop[card] = 1
             else
-              shop[card]++
+              console.log 'dupe'
+              shop[card] = shop[card] + 1
             prev = card
 
+        console.log shop
+        for card, amount of shop
+          view = new ShopListView(cards[gsub(card, ' ', '_')], amount)
 
     class CardDetailView extends Backbone.View
       el: 'what'
@@ -245,30 +438,31 @@ onDeviceReady = ->
         @touch.y1 = e.originalEvent.pageY
 
       touchmove: (e) ->
-        @dx = e.originalEvent.pageX - @touch.x1
-        @dy = e.originalEvent.pageY - @touch.y1
-        if Math.abs(@dy) < 6 and Math.abs(@dx) > 0 and not @swiping and not @dragging
-          @swiping = true
-          window.inAction = true
-          @$el.addClass "drag"
-        if @swiping
-          if @dx > 0 and @dx < @w
-            @use = false
-            pct = @dx / @w
-            pct = 0  if pct < 0.05
-          else if @dx < 0 and @dx > -@w
-          else if @dx >= @w
-            @use = true
-            @dx = @w + (@dx - @w) * .25
-          else if @dx <= -@w
-            @dx = -@w + (@dx + @w) * .25
-          if @dx >= @w - 1
-            @$el.addClass "green"
-            @used = true
-            # trigger use event
-          else
-            @$el.removeClass "green"
-          @$el.css "-webkit-transform", "translate3d(" + @dx + "px, 0, 0)"  #if dx <= 0 #or list.todos.length > 0
+        if current.deck.get('actions') > 0 and current.turn
+          @dx = e.originalEvent.pageX - @touch.x1
+          @dy = e.originalEvent.pageY - @touch.y1
+          if Math.abs(@dy) < 6 and Math.abs(@dx) > 0 and not @swiping and not @dragging
+            @swiping = true
+            window.inAction = true
+            @$el.addClass "drag"
+          if @swiping
+            if @dx > 0 and @dx < @w
+              @use = false
+              pct = @dx / @w
+              pct = 0  if pct < 0.05
+            else if @dx < 0 and @dx > -@w
+            else if @dx >= @w
+              @use = true
+              @dx = @w + (@dx - @w) * .25
+            else if @dx <= -@w
+              @dx = -@w + (@dx + @w) * .25
+            if @dx >= @w - 1
+              @$el.addClass "green"
+              @used = true
+              # trigger use event
+            else
+              @$el.removeClass "green"
+            @$el.css "-webkit-transform", "translate3d(" + @dx + "px, 0, 0)"  #if dx <= 0 #or list.todos.length > 0
 
       swiperight: (e) ->
         console.log 'swiping right'
@@ -276,86 +470,28 @@ onDeviceReady = ->
       touchend: (e) ->
         console.log 'touch end'
         @$el.removeClass("drag green").css "-webkit-transform", "translate3d(0,0,0)"
-        if @use
+        if @use and @dx >= @w - 1
+          @dx = 0
           if current.turn
+            console.log 'using card'
             @card.use()
-          current.deck.set({ actions: current.deck.get('actions') - 1 }) if @card.type == 'action'
+            @discard()
+            current.deck.set('actions', current.deck.get('actions') - 1 ) if @card.type == 'action'
 
-        # @touch = {}
 
-      select: ->
-        if @selected
-          @selected = false
-          @$el.removeClass('selected')
-          @selection.minus @
-        else
-          @selected = true
-          @$el.addClass('selected')
-          current.match.selection.push @
-          if current.match.selection.length == match.selection_length
-            current.match.selection_callback()
-
-      discard: (e) ->
-        @$el.hide()
+      discard: () ->
+        @remove()
         nh = current.deck.get('hand')
         nh = nh.minus(@card.name)
         current.deck.set('hand', nh)
         console.log current.deck.get('hand')
+        current.deck.set('amount_discarded', current.deck.get('amount_discarded') + 1)
+        # console.log current.deck.get('amount_to_discard') # FIXME: some error happens here
+        # console.log current.deck.get('amount_discarded')
+        if current.deck.get('amount_discarded') == current.deck.get('amount_to_discard')
+          console.log 'discard limit reached'
+          $('.discard').hide()
 
-      discard2: (options,callback) ->
-        current.match.selection = []
-        current.match.selection_length = options.number
-        current.match.selection_callback = =>
-          if callback?
-            callback({
-              number: match.selection.length
-            })
-          else
-            return
-        for card in current.hand
-          do (card) =>
-            card.delegateEvents {
-              'click': 'select'
-            }
-
-
-      draw: (options,callback) ->
-        for i in [1..options.number]
-          do =>
-            c = current.deck.get('cards')
-            h = current.deck.get('hand')
-
-            nc = c[0]
-            c[0..0] = []
-            h.push nc
-
-            current.deck.set({cards: c})
-            current.deck.set({hand: h})
-
-            view = new CardListView(nc)
-            current.hand.push view
-
-            @parent.$el.find('#hand').append(view.el)
-
-        if callback?
-          callback()
-        else
-          return
-
-      cellar: =>
-        console.log 'clicked card'
-        # @discard({
-        #   number: 3
-        #   type: 'any'
-        # }, (returned) =>
-        #   console.log 'firing callback'
-        #   # @actions.draw({
-        #   #   number: returned.number  
-        #   # })
-        # )
-        @draw({
-          number: 3
-        })
 
     class MatchView extends Backbone.View
 
@@ -370,6 +506,10 @@ onDeviceReady = ->
         current.deck.on 'change:actions', =>
           console.log 'actions changed'
           @$el.find('#actions > .count').html(current.deck.get 'actions')
+        current.deck.on 'change:hand', =>
+          console.log 'hand changed'
+          @$el.find('#to_spend > .count').html(current.deck.to_spend())
+          @render()
 
       el: '#match'
 
@@ -378,13 +518,18 @@ onDeviceReady = ->
 
       render: ->
         console.log 'rendering MatchView'
+        console.log @$el.find('#hand')
         @$el.find('#hand').html('')
+        console.log current.deck
         for card in current.deck.get('hand')
           do (card) =>
+            console.log 'some card'
             view = new CardListView(cards[gsub(card, ' ', '_')]) #TODO take the gsub out and change card names on serverside to use underscore)
-            current.hand.push view # TODO should probably take this out.
+        #     current.hand.push view # TODO should probably take this out.
 
         @$el.find('#actions > .count').html(current.deck.get 'actions')
+        @$el.find('#to_spend > .count').html(current.deck.to_spend())
+        @$el.find('#turn > .count').html(current.match.get 'turn')
 
 
         $.mobile.changePage "#match",
@@ -396,6 +541,8 @@ onDeviceReady = ->
         console.log 'ending turn'
         $.post("#{server_url}/end_turn/#{current.match.get('id')}", (data) ->
           console.log data
+          current.match.fetch()
+          current.deck.fetch()
         )
         # do something
 
@@ -418,17 +565,20 @@ onDeviceReady = ->
         current.match = @match
         current.deck = @deck
         view = new MatchView()
+        shopview = new ShopView()
         
     class LobbyView extends Backbone.View
 
       initialize: () ->
         console.log 'init LobbyView'
+        # matches.on 'change', =>
+        #   @render()
         @render()
 
       el: '#lobby'
 
       events:
-        'click #refresh_lobby': 'refresh'
+        # 'click #refresh_lobby': 'refresh'
         'click .logout': 'logout'
 
       logout: ->
@@ -438,8 +588,11 @@ onDeviceReady = ->
 
       render: =>
         console.log 'LobbyView#render'
+        matches.fetch()
+        decks.fetch()
         matches.on 'reset', => # 'reset' event is triggered when Collection#fetch completes
           decks.on 'reset', =>
+            $('#matches').html('')
             console.log 'fetched data for matches and decks'
             $.mobile.changePage "#lobby",
             transition: "none"
@@ -449,9 +602,7 @@ onDeviceReady = ->
                 view = new MatchListView(match, d[0])
 
       refresh: ->
-        matches.fetch(add: true)
-        decks.fetch(add: true)
-        # Look for new matches
+        @render()
 
 
 
@@ -472,15 +623,20 @@ onDeviceReady = ->
     matches = new Matches
     decks = new Decks
 
+    $.cookie 'token', 'LollakwpnMXj54X6oWwt2g' #TODO: take this out and find out why cookies aren't persisting
+    
     if $.cookie("token")?
       # TODO: match token with user on server side, if match, execute the below block
       console.log 'cookie found'
       # TODO: add 'logging in' animation loader
       $.getJSON("#{server_url}/users/1", (user) ->
         current.user = user
+        console.log 'instantiating LobbyView'
+        current.lobby = new LobbyView()
       )
-      console.log 'instantiating LobbyView'
-      current.lobby = new LobbyView()
+    else
+      console.log 'cookie not found'
+      console.log $.cookie 'token'
 
     $("#facebook-auth").on 'click', ->
       console.log 'clicked facebook'
@@ -493,7 +649,9 @@ onDeviceReady = ->
           alert 'invalid username and/or password'
         else
           $.cookie 'token', user.token
+          console.log $.cookie 'token'
           current.user = user
+          current.lobby = new LobbyView()
           $.mobile.changePage '#lobby',
             transition: 'slidedown'
       , 'json')
@@ -531,6 +689,7 @@ onDeviceReady = ->
           alert error for error in data.errors
         else
           alert "match created"
+          current.lobby = new LobbyView()
       , 'json')
       e.preventDefault()
 
