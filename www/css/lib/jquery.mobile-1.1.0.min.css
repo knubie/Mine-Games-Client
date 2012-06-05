@@ -1737,14 +1737,6 @@ div.ui-mobile-viewport { overflow-x: hidden; }
 .ui-navbar-expanded .ui-navbar-noicons .ui-btn .ui-btn-inner { padding-top: 1.8em; padding-bottom: 1.9em; }
 .ui-btn { display: block; text-align: center; cursor:pointer;  position: relative; margin: 1em 36px; padding: 0; }
 
-/* Special Button Classes */
-.yellow{
-	background: #e8a22e;
-	border: solid 2px #4f3b29;
-	padding-top:5px;
-	padding-bottom:5px;
-
-}
 
 
 .ui-mini { margin: .25em 5px; }
@@ -1956,7 +1948,7 @@ label.ui-select { font-size: 16px; line-height: 1.4;  font-weight: normal; margi
 /* when no placeholder is defined in a multiple select, the header height doesn't even extend past the close button.  this shim's content in there */
 .ui-selectmenu .ui-header h1:after { content: '.'; visibility: hidden; }
 label.ui-input-text { font-size: 16px; line-height: 1.4; display: block; font-weight: normal; margin: 0 0 .3em; }
-input.ui-input-text, textarea.ui-input-text { background-image: none; padding: .4em; line-height: 1.4; font-size: 16px; display: block; width: 97%; outline: 0; }
+input.ui-input-text, textarea.ui-input-text { background-image: none; padding: .4em; line-height: 1.4; font-size: 16px; display: block; width: 85%; outline: 0; margin:auto;}
 .ui-header input.ui-input-text,
 .ui-footer input.ui-input-text { margin-left: 1.25%; padding: .4em 1%; width: 95.5% } /* Note that padding left/right on text inputs is factored into how the element is displayed in Firefox, but does not actually pad the text inside it. */
  input.ui-input-text { -webkit-appearance: none; }
@@ -2057,3 +2049,18 @@ span.ui-slider-label { position: absolute; text-align: center; width: 100%; over
 span.ui-slider-label-a { z-index: 1; left: 0; text-indent: -1.5em; }
 span.ui-slider-label-b { z-index: 0; right: 0; text-indent: 1.5em;}
 .ui-slider-inline { width: 120px; display: inline-block; }
+
+
+/* Special Button Classes */
+.yellow{
+	background: #e8a22e;
+	border: solid 4px #4f3b29;
+	padding-top:5px;
+	padding-bottom:5px;
+
+}
+
+
+
+
+
