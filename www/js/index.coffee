@@ -1,7 +1,7 @@
 # THIS FILE IS BARE.. NO CLOSURE WRAPPER
 
-# server_url = "http://mine-games.herokuapp.com" # TODO: replace with actual production server
-server_url = "http://localhost:3000" # TODO: replace with actual production server
+server_url = "http://mine-games.herokuapp.com"
+# server_url = "http://localhost:3000" # TODO: replace with actual production server
 
 # preventBehavior = (e) ->
 #   e.preventDefault()
@@ -95,15 +95,34 @@ onDeviceReady = ->
         use: ->
           actions.mine
             number: 2
+            callback: (new_card) ->
+              console.log 'calling callback'
+              log_msg = "<span class='name'>#{current.user.username}</span> used an <span class='item action'>Iron Pickaxe</span> and got a <span class='money'>#{new_card}</span>"
+              if typeof current.match.get('log') isnt 'Array'
+                log = []
+              else
+                log = current.match.get('log')
+              log.push log_msg
+              current.match.set('log', log)
+              console.log log_msg
           
       diamond_pickaxe:
         name: 'diamond pickaxe'
         type: 'action'
         cost: 8
         use: ->
-          actions.mine(
+          actions.mine
             number: 3
-          )
+            callback: (new_card) ->
+              console.log 'calling callback'
+              log_msg = "<span class='name'>#{current.user.username}</span> used an <span class='item action'>Diamond Pickaxe</span> and got a <span class='money'>#{new_card}</span>"
+              if typeof current.match.get('log') isnt 'Array'
+                log = []
+              else
+                log = current.match.get('log')
+              log.push log_msg
+              current.match.set('log', log)
+              console.log log_msg
 
       copper:
         name: 'copper'
@@ -141,15 +160,58 @@ onDeviceReady = ->
           actions.discard
             number: 2
 
+      coal:
+        name: 'coal'
+        type: 'coal'
+        value: 0
+        use: ->
+          console.log 'copper used'
+          actions.discard
+            number: 2
+
       tnt:
         name: 'tnt'
         type: 'action'
         cost: 6
+        use: ->
+          #do something
 
       minecart:
         name: 'minecart'
         type: 'action'
         cost: 5
+        use: ->
+          current.deck.set('actions', current.deck.get('actions')+1)
+          actions.draw
+            number: 1
+            callback: (new_card) ->
+              console.log 'calling callback'
+              log_msg = "<span class='name'>#{current.user.username}</span> used a <span class='item action'>Minecart</span> and got a <span class='money'>#{new_card}</span>"
+              if typeof current.match.get('log') isnt 'Array'
+                log = []
+              else
+                log = current.match.get('log')
+              log.push log_msg
+              current.match.set('log', log)
+              console.log log_msg
+
+      mule:
+        name: 'mule'
+        type: 'action'
+        cost: 5
+        use: ->
+          actions.draw
+            number: 3
+            callback: (new_card) ->
+              console.log 'calling callback'
+              log_msg = "<span class='name'>#{current.user.username}</span> used a <span class='item action'>Minecart</span> and got a <span class='money'>#{new_card}</span>"
+              if typeof current.match.get('log') isnt 'Array'
+                log = []
+              else
+                log = current.match.get('log')
+              log.push log_msg
+              current.match.set('log', log)
+              console.log log_msg
 
       headlamp:
         name: 'headlamp'
@@ -175,44 +237,45 @@ onDeviceReady = ->
       mine: (options) ->
         console.log 'mine'
         for i in [1..options.number]
-          do ->
-            console.log 'iterating..'
-            m = current.match.get('mine')
-            h = current.deck.get('hand')
+          console.log 'iterating..'
+          m = current.match.get('mine')
+          h = current.deck.get('hand')
 
-            nc = m[0]
-            m[0..0] = []
-            h.push nc
+          nc = m[0]
+          m[0..0] = []
+          h.push nc
 
-            current.match.set('mine', m)
-            current.deck.set('mine', h)
+          current.match.set('mine', m)
+          current.deck.set('mine', h)
 
-            console.log "new card: #{nc}"
-            console.log current.deck.get('hand')
+          console.log "new card: #{nc}"
+          console.log current.deck.get('hand')
 
-            view = new CardListView(cards[gsub(nc, ' ', '_')]) #TODO take the gsub out and change card names on serverside to use underscore
-            current.hand.push view
-            options.callback(nc)
+          view = new CardListView(cards[gsub(nc, ' ', '_')]) #TODO take the gsub out and change card names on serverside to use underscore
+          current.hand.push view
 
-      draw: (options, callback) ->
+          options.callback(nc)
+
+      draw: (options) ->
         console.log 'draw from your deck'
         for i in [1..options.number]
-          do ->
-            console.log 'iterating..'
-            c = current.deck.get('cards')
-            h = current.deck.get('hand')
+          console.log 'iterating..'
+          c = current.deck.get('cards')
+          h = current.deck.get('hand')
 
-            nc = c[0]
-            c[0..0] = []
-            h.push nc
+          nc = c[0]
+          c[0..0] = []
+          h.push nc
 
-            current.deck.set({cards: c})
-            current.deck.set({hand: h})
+          current.deck.set({cards: c})
+          current.deck.set({hand: h})
 
-            console.log "new card: #{nc}"
+          console.log "new card: #{nc}"
 
-            view = new CardListView(cards[gsub(nc, ' ', '_')]) #TODO take the gsub out and change card names on serverside to use underscore
-            current.hand.push view
+          view = new CardListView(cards[gsub(nc, ' ', '_')]) #TODO take the gsub out and change card names on serverside to use underscore
+          current.hand.push view
+
+          options.callback(nc)
 
         # if callback?
         #   callback()
@@ -248,8 +311,10 @@ onDeviceReady = ->
 
     class Match extends Backbone.Model
       initialize: ->
+        console.log @url()
         @on 'change', =>
-          @save
+          console.log 'saving match'
+          @save() #TODO: optimize so you don't send 1000 requests every time the deck changes
         # do something
 
     class Matches extends Backbone.Collection
@@ -264,6 +329,7 @@ onDeviceReady = ->
     class Deck extends Backbone.Model
       initialize: ->
         @on 'change', =>
+          console.log 'saving deck'
           @save()
 
       amount_to_discard: 0
@@ -273,7 +339,6 @@ onDeviceReady = ->
       to_spend: ->
         to_spend = 0
         console.log 'to spend'
-        console.log cards
         for card in @get('hand')
           do (card) ->
             if cards[gsub(card, ' ', '_')].type == 'money'
@@ -312,9 +377,7 @@ onDeviceReady = ->
         console.log new_hand
         @set('hand', new_hand)
 
-
-
-    class Decks extends Backbone.Collection
+    class Decks extends Backbone.Collection # FIXME: this doesn't seem right...
       initialize: ->
         @fetch()
 
@@ -374,18 +437,14 @@ onDeviceReady = ->
         console.log 'ShopListView#render'
         shop = {}
         prev = ''
-        console.log current.match.get('shop')
         for card in current.match.get('shop')
           do (card) =>
-            console.log 'iterating shop cards'
             if card != prev
               shop[card] = 1
             else
-              console.log 'dupe'
               shop[card] = shop[card] + 1
             prev = card
 
-        console.log shop
         for card, amount of shop
           view = new ShopListView(cards[gsub(card, ' ', '_')], amount)
 
@@ -396,7 +455,7 @@ onDeviceReady = ->
 
       initialize: (@card) ->
         console.log 'init CardListView'
-        @setElement $('#templates').find("##{gsub(@card.name, ' ', '_')}").clone()
+        @setElement $('#templates').find(".card").clone()
         @render()
 
       events:
@@ -411,13 +470,9 @@ onDeviceReady = ->
 
       render: ->
         console.log 'rendering CardListView'
+        # @$el.find('.thumb').attr('src', "images/#{gsub(@card.name, ' ', '_')}") # TODO: make this work
+        @$el.find('.name').html(@card.name)
         $('#hand').append(@el)
-
-      # use: ->
-      #   if current.turn
-      #     @card.use()
-      #   current.deck.set({ actions: current.deck.get('actions') - 1 }) if @card.type == 'action'
-
 
       w: 55
       touch:
@@ -497,6 +552,8 @@ onDeviceReady = ->
 
       initialize: () ->
         console.log 'init MatchView'
+        console.log current.match
+        console.log current.deck
         @render()
         if current.match.get('turn') == current.user.id
           current.turn = true
@@ -523,23 +580,22 @@ onDeviceReady = ->
         console.log current.deck
         for card in current.deck.get('hand')
           do (card) =>
-            console.log 'some card'
+            console.log 'some cards'
             view = new CardListView(cards[gsub(card, ' ', '_')]) #TODO take the gsub out and change card names on serverside to use underscore)
-        #     current.hand.push view # TODO should probably take this out.
 
         @$el.find('#actions > .count').html(current.deck.get 'actions')
         @$el.find('#to_spend > .count').html(current.deck.to_spend())
         @$el.find('#turn > .count').html(current.match.get 'turn')
 
 
-        $.mobile.changePage "#match",
-          transition: "slide"
+        # $.mobile.changePage "#match",
+        #   transition: "slide"
 
         # render all the other shit too
 
       end_turn: ->
         console.log 'ending turn'
-        $.post("#{server_url}/end_turn/#{current.match.get('id')}", (data) ->
+        $.post("#{server_url}/end_turn/#{current.match.get('id')}", (data) =>
           console.log data
           current.match.fetch()
           current.deck.fetch()
@@ -550,7 +606,10 @@ onDeviceReady = ->
 
       initialize: (@match, @deck) ->
         console.log 'init MatchListView'
-        @setElement templates.LobbyMatchListItem(@match.get('id'), @match.get('players'), @match.get('turn') == current.user.id)
+        console.log "match turn: #{@match.get('turn')}"
+        console.log "user id: #{current.user.id}"
+        @setElement $('#templates').find(".match-item-view").clone()
+        # @setElement templates.LobbyMatchListItem(@match.get('id'), @match.get('players'), @match.get('turn') == current.user.id)
         @render()
 
       events:
@@ -564,8 +623,19 @@ onDeviceReady = ->
         console.log 'rendering match'
         current.match = @match
         current.deck = @deck
-        view = new MatchView()
-        shopview = new ShopView()
+
+        if current.matchview
+          console.log 'refresh old matchview'
+          current.matchview.render()
+        else
+          console.log 'create new matchview'
+          current.matchview = new MatchView()
+
+        # if current.shopview
+        #   current.shopview.render()
+        # else
+        #   current.shopview = new ShopView()
+
         
     class LobbyView extends Backbone.View
 
@@ -586,16 +656,17 @@ onDeviceReady = ->
         $.mobile.changePage "#home",
           transition: "flip"
 
-      render: =>
+      render: ->
         console.log 'LobbyView#render'
         matches.fetch()
         decks.fetch()
+        console.log 'fetching decks/matches'
         matches.on 'reset', => # 'reset' event is triggered when Collection#fetch completes
           decks.on 'reset', =>
             $('#matches').html('')
             console.log 'fetched data for matches and decks'
             $.mobile.changePage "#lobby",
-            transition: "none"
+              transition: "none"
             for match in matches.models
               do (match) =>
                 d = decks.where(match_id: match.get('id'))
@@ -609,21 +680,28 @@ onDeviceReady = ->
     # Authorization
     # ============================================
     facebook_auth = (callback) ->
+      console.log 'facebook_auth function'
       window.plugins.childBrowser.showWebPage "#{server_url}/auth/facebook?display=touch"
+      console.log 1
       window.plugins.childBrowser.onLocationChange = (loc) ->
+        console.log 2
         if /access_token/.test(loc)
           # URL looks like: server.com/access_token/:access_token
+          console.log 3
           access_token = unescape(loc).split("access_token/")[1]
+          console.log 4
           $.cookie "token", access_token,
             expires: 7300
 
+          console.log 5
           window.plugins.childBrowser.close()
+          console.log 6
           callback()
 
     matches = new Matches
     decks = new Decks
 
-    $.cookie 'token', 'LollakwpnMXj54X6oWwt2g' #TODO: take this out and find out why cookies aren't persisting
+    # $.cookie 'token', 'LollakwpnMXj54X6oWwt2g' #TODO: take this out and find out why cookies aren't persisting
     
     if $.cookie("token")?
       # TODO: match token with user on server side, if match, execute the below block
@@ -636,12 +714,19 @@ onDeviceReady = ->
       )
     else
       console.log 'cookie not found'
-      console.log $.cookie 'token'
 
     $("#facebook-auth").on 'click', ->
       console.log 'clicked facebook'
       facebook_auth ->
-        current.lobby = new LobbyView()
+        console.log 7
+        $.getJSON "#{server_url}/users/1", (user) ->
+          console.log 8
+          current.user = user
+          console.log 'instantiating LobbyView'
+          if current.lobby # FIXME: perhaps render the lobby first and update it after sign in
+            current.lobby.render()
+          else
+            current.lobby = new LobbyView()
 
     $('#login-form').submit (e) ->
       $.post("#{server_url}/signin.json", $(this).serialize(), (user) ->
@@ -649,9 +734,15 @@ onDeviceReady = ->
           alert 'invalid username and/or password'
         else
           $.cookie 'token', user.token
-          console.log $.cookie 'token'
+          console.log $.cookie 'token',
+            expires: 7300
           current.user = user
-          current.lobby = new LobbyView()
+
+          if current.lobby # FIXME: perhaps render the lobby first and update it after sign in
+            current.lobby.render()
+          else
+            current.lobby = new LobbyView()
+
           $.mobile.changePage '#lobby',
             transition: 'slidedown'
       , 'json')

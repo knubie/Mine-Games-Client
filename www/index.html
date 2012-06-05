@@ -125,7 +125,7 @@
 
 		<div id="match" data-role="page"> 
       <div data-role="header" data-position="inline">
-				<a data-rel="back">back to lobby</a>
+				<a href="#lobby" data-transition="slide" data-direction="reverse">back to lobby</a>
 				<a data-icon="check" id="end_turn">end turn</a>
 				<h1>Match</h1>
 			</div>
@@ -167,25 +167,13 @@
 
 		<div id="templates" style="display: none;">
 			<!-- Cards -->
-			<li id='stone_pickaxe' class='card'>
-				<img src='images/_thumb.png' height='50' alt='' />
+			<li class='card'>
+				<img src='images/_thumb.png' class="thumb" height='50' alt='' />
 				<img src='images/discard.png' class='discard' alt='' />
-				stone pickaxe
+				<span class="name">stone pickaxe</span>
 			</li>
-			<li id='iron_pickaxe' class='card'>
-				<img src='images/_thumb.png' height='50' alt='' />
-				<img src='images/discard.png' class='discard' alt='' />
-				iron pickaxe
-			</li>
-			<li id='copper' class='card'><img src='images/_thumb.png' height='50' alt='' />
-				<img src='images/discard.png' class='discard' alt='' />
-				copper
-			</li>
-			<li id='silver' class='card'><img src='images/_thumb.png' height='50' alt='' />
-				<img src='images/discard.png' class='discard' alt='' />
-				silver
-			</li>
-
+			<!-- Match list item -->
+			<li class='match-item-view'><a href="#match" data-transition="slide">match</a></li>
 			<!-- Shop items -->
 			<div id='shop-item'>
 				<img src='images/_thumb.png' height='50' alt='' />
