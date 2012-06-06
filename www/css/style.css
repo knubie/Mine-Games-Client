@@ -4,13 +4,17 @@ ul {
 	list-style-type: none;
 }
 .card {
-	height: 60px;
+	height: 45px;
+	width:90%;
+	margin: auto;
+	margin-top: 5px;
+	-webkit-border-radius: 8px;	
 	-webkit-user-select: none;
 	-webkit-transition: all .1s ease;
 	-webkit-perspective: 0;
 	-webkit-backface-visibility: hidden;
 	position: relative;
-	background-color: #666;
+	background-color: #efebe1;
 	color: #fff;
 }
 .green {
