@@ -29,6 +29,7 @@ ul {
 #hand {
 	height: 200px;
 	overflow-y: scroll;
+}
 
 #imgCenter{
 	margin:auto;
@@ -41,34 +42,84 @@ ul {
 	width: 25%;
 	background: #4a3515;
 	float: left;
-	height:80px;
+	height:45px;
+	padding-top: 25px;
+}
+
+#lobby_header img{
+	display: block;
+    margin-left: auto;
+    margin-right: auto; 
 }
 
 #spend{
 	width: 25%;
 	background: #fbb032;
 	float: left;
-	height:80px;
+	height:55px;
+	padding-top: 15px;
+	text-align:center;
+	color: #fff;
+	font-size: 28px;
+	font-weight:bold;
+	line-height: 34px;
+}
+
+#spend img{
+	display: block;
+    margin-left: auto;
+    margin-right: auto; 
 }
 
 #actions{
 	width: 25%;
 	background: #ef6b56;
 	float: left;
-	height:80px;
+	height:55px;
+	padding-top: 15px;
+	text-align:center;
+	color: #fff;
+	font-size: 28px;
+	font-weight:bold;
+	line-height: 34px;	
+}
+
+#actions img{
+	display: block;
+    margin-left: auto;
+    margin-right: auto; 
 }
 
 #turn{
 	width: 25%;
 	background: #4a3515;
 	float: left;
-	height:80px;
+	height:55px;
+	padding-top: 15px;
+	text-align:center;
+	color: #fff;
+	font-size: 28px;
+	font-weight:bold;
+	line-height: 34px;	
+}
+
+#turn img{
+	display: block;
+    margin-left: auto;
+    margin-right: auto; 
 }
 
 /* Players Toolbar */
 
+.playersNumber{
+	font-size: 18px;
+	font-weight:bold;
+	color: #c4d7d2;
+	margin-top: 10px;
+}
+
 #players2 li{
-	height: 53px;
+	height: 28px;
 	width: 50%;
 	list-style-type: none;
 	float:left;
@@ -77,16 +128,23 @@ ul {
 }
 
 .players3 {
-	height: 53px;
+	height: 28px;
 	width: 33%;
 	list-style-type: none;
 	float:left;
 	text-align:center;
 	background: #424242;
+	color: #fff;
+	font-weight:300;
+	font-size:12px;
+}
+
+.playersSelected {
+	background: #898989;
 }
 
 #players4 li{
-	height: 53px;
+	height: 28px;
 	width: 25%;
 	list-style-type: none;
 	float:left;
