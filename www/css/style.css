@@ -22,3 +22,8 @@ ul {
 .discard {
 	display: none;
 }
+
+#imgCenter{
+	margin:auto;
+	text-align:center;
+}
