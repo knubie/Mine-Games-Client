@@ -62,6 +62,35 @@ ul {
 	height:80px;
 }
 
+/* Players Toolbar */
+
+#players2 li{
+	height: 53px;
+	width: 50%;
+	list-style-type: none;
+	float:left;
+	text-align:center;
+	background: #424242;
+}
+
+.players3 {
+	height: 53px;
+	width: 33%;
+	list-style-type: none;
+	float:left;
+	text-align:center;
+	background: #424242;
+}
+
+#players4 li{
+	height: 53px;
+	width: 25%;
+	list-style-type: none;
+	float:left;
+	text-align:center;
+	background: #424242;
+}
+
 /* Background Declarations */
 	
 #match{
