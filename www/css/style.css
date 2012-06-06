@@ -22,3 +22,7 @@ ul {
 .discard {
 	display: none;
 }
+#hand {
+	height: 200px;
+	overflow-y: scroll;
+}

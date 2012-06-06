@@ -11,7 +11,7 @@ onBodyLoad = function() {
 
 onDeviceReady = function() {
   return $(function() {
-    var CardDetailView, CardListView, Deck, Decks, LobbyView, Match, MatchListView, MatchView, Matches, ShopListView, ShopView, actions, cards, current, decks, facebook_auth, gsub, matches, templates;
+    var CardDetailView, CardListView, Deck, Decks, LobbyView, Match, MatchListView, MatchView, Matches, ShopListView, ShopView, actions, cards, current, decks, facebook_auth, gsub, matches;
     gsub = function(source, pattern, replacement) {
       var match, result;
       if (!((pattern != null) && (replacement != null))) {
@@ -48,23 +48,6 @@ onDeviceReady = function() {
       popper = this.slice(e, e + 1 || 9e9);
       [].splice.apply(this, [e, e - e + 1].concat(_ref = [])), _ref;
       return popper;
-    };
-    templates = {
-      LobbyMatchListItem: function(id, players, turn) {
-        var player;
-        return "<li><a>" + ((function() {
-          var _i, _len, _results;
-          _results = [];
-          for (_i = 0, _len = players.length; _i < _len; _i++) {
-            player = players[_i];
-            _results.push(player.username);
-          }
-          return _results;
-        })()) + " : " + (turn ? 'your turn' : 'their turn') + "</a></li>";
-      },
-      CardListItem: function(name, desc) {
-        return "<li class='card'><a href='#card-detail' class='card-list-item' data-transition='slide'><img src='" + (gsub(name, ' ', '_')) + "_thumb.png' alt='' />" + name + desc + "</a></li>";
-      }
     };
     cards = {
       stone_pickaxe: {

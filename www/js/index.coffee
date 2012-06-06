@@ -61,14 +61,6 @@ onDeviceReady = ->
     #   $('.matches').append("<li><a href='#match' class='match-list-item' data-transition='slide' data-id='#{data.match.id}'>#{user.username for user in data.match.users}</a></li>").listview('refresh')
     # )
 
-
-
-    templates =
-      LobbyMatchListItem: (id, players, turn) ->
-        "<li><a>#{player.username for player in players} : #{if turn then 'your turn' else 'their turn'}</a></li>"
-      CardListItem: (name, desc) ->
-        "<li class='card'><a href='#card-detail' class='card-list-item' data-transition='slide'><img src='#{gsub(name, ' ', '_')}_thumb.png' alt='' />#{name}#{desc}</a></li>"
-
     cards =
       stone_pickaxe:
         name: 'stone pickaxe'
@@ -470,7 +462,7 @@ onDeviceReady = ->
 
       render: ->
         console.log 'rendering CardListView'
-        # @$el.find('.thumb').attr('src', "images/#{gsub(@card.name, ' ', '_')}") # TODO: make this work
+        # @$el.find('.thumb').attr('src', "images/#{gsub(@card.name, ' ', '_')}") # FIXME: this breaks transition from lobby to matchview
         @$el.find('.name').html(@card.name)
         $('#hand').append(@el)
 
