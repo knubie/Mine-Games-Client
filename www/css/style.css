@@ -27,3 +27,46 @@ ul {
 	margin:auto;
 	text-align:center;
 }
+
+/* Game Page */
+
+#lobby_header{
+	width: 25%;
+	background: #4a3515;
+	float: left;
+	height:80px;
+}
+
+#spend{
+	width: 25%;
+	background: #fbb032;
+	float: left;
+	height:80px;
+}
+
+#actions{
+	width: 25%;
+	background: #ef6b56;
+	float: left;
+	height:80px;
+}
+
+#turn{
+	width: 25%;
+	background: #4a3515;
+	float: left;
+	height:80px;
+}
+
+/* Background Declarations */
+	
+#match{
+	background: url('../images/game_bg.jpg');
+	background-repeat: none;
+}
+
+
+
+.clear{
+	clear:both;
+}

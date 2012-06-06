@@ -39,6 +39,7 @@
 			<div id="imgCenter">
 				<img src="images/logo.jpg" border="0" >
 			</div>
+
 			<a href="#login" data-transition="fade" class="yellow" data-role="button">LOGIN</a>
 			<a href="#signup" data-transition="fade" class="yellow" data-role="button">SIGN UP</a>
 		</div>
@@ -77,10 +78,6 @@
 		</div>
 
 		<div id="lobby" data-role="page">
-      <div data-role="header" data-position="inline">
-				<a class="logout">Log Out</a>
-				<h1>Lobby!</h1>
-			</div>
 			<a href="#new_match" data-transition="slide" id="create_match" data-role="button">Create Match!</a>
 			<ul id="matches" data-role="listview">
 			</ul>
@@ -125,20 +122,27 @@
 		</div>
 
 		<div id="match" data-role="page"> 
-      <div data-role="header" data-position="inline">
-				<a href="#lobby" data-transition="slide" data-direction="reverse">back to lobby</a>
-				<a data-icon="check" id="end_turn">end turn</a>
-				<h1>Match</h1>
+			<div id="lobby_header">
+				<a href="#lobby">Lobby</a>
 			</div>
 			<div id="actions">
-				actions: <div class="count">0</div>
+				actions: 
+				<br />
+					0
 			</div>
-			<div id="to_spend">
-				to spend: <div class="count">0</div>
+			<div id="spend">
+				to spend 
+				<br />
+				0
 			</div>
 			<div id="turn">
-				turn: <div class="count">0</div>
+				turn: 
+				<br />
+				0
 			</div>
+			<div class="clear"></div>
+			<br />
+			<br />
 			<ul id="hand">
 				<li class='card'>test</li>
 			</ul>
