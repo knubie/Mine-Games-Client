@@ -17,17 +17,21 @@ ul {
 	background-color: #efebe1;
 	color: #fff;
 }
+
 .green {
 	background: #c4d7d2;
 }
+
 .selected {
 	opacity: 0.5;
 }
+
 .discard {
 	display: none;
 }
+
 #hand {
-	height: 200px;
+	height: 260px;
 	overflow-y: scroll;
 }
 
@@ -110,6 +114,10 @@ ul {
 }
 
 /* Players Toolbar */
+#players{
+	background: #424242;
+	width:100%;
+}
 
 .playersNumber{
 	font-size: 18px;
@@ -129,7 +137,7 @@ ul {
 
 .players3 {
 	height: 28px;
-	width: 33%;
+	width: 33.3%;
 	list-style-type: none;
 	float:left;
 	text-align:center;
@@ -143,13 +151,16 @@ ul {
 	background: #898989;
 }
 
-#players4 li{
+.players4 {
 	height: 28px;
 	width: 25%;
 	list-style-type: none;
 	float:left;
 	text-align:center;
 	background: #424242;
+	color: #fff;
+	font-weight:300;
+	font-size:12px;
 }
 
 /* Background Declarations */
@@ -159,7 +170,15 @@ ul {
 	background-repeat: none;
 }
 
+#shopBtn{
+	margin-top:20px;
+	float:left;
+}
 
+#itemsBtn{
+	margin-top:20px;
+	float:right;
+}
 
 .clear{
 	clear:both;
