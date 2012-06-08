@@ -745,7 +745,8 @@ onDeviceReady = ->
         if user.error?
           alert 'error'
         else
-          $.cookie 'token', user.token
+          console.log $.cookie 'token',
+            expires: 7300
           $.mobile.changePage '#lobby',
             transition: 'slidedown'
       , 'json')

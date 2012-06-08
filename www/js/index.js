@@ -962,7 +962,9 @@ onDeviceReady = function() {
         if (user.error != null) {
           return alert('error');
         } else {
-          $.cookie('token', user.token);
+          console.log($.cookie('token', {
+            expires: 7300
+          }));
           return $.mobile.changePage('#lobby', {
             transition: 'slidedown'
           });
