@@ -695,17 +695,17 @@ onDeviceReady = ->
 
     # $.cookie 'token', 'LollakwpnMXj54X6oWwt2g' #TODO: take this out and find out why cookies aren't persisting
     
-    if $.cookie("token")?
-      # TODO: match token with user on server side, if match, execute the below block
-      console.log 'cookie found'
-      # TODO: add 'logging in' animation loader
-      $.getJSON("#{server_url}/users/1", (user) ->
-        current.user = user
-        console.log 'instantiating LobbyView'
-        current.lobby = new LobbyView()
-      )
-    else
-      console.log 'cookie not found'
+    # if $.cookie("token")?
+    #   # TODO: match token with user on server side, if match, execute the below block
+    #   console.log 'cookie found'
+    #   # TODO: add 'logging in' animation loader
+    #   $.getJSON("#{server_url}/users/1", (user) ->
+    #     current.user = user
+    #     console.log 'instantiating LobbyView'
+    #     current.lobby = new LobbyView()
+    #   )
+    # else
+    #   console.log 'cookie not found'
 
     $("#facebook-auth").on 'click', ->
       console.log 'clicked facebook'
@@ -776,6 +776,20 @@ onDeviceReady = ->
           current.lobby = new LobbyView()
       , 'json')
       e.preventDefault()
+
+    $('a').click (e) ->
+      console.log $($(this).attr('href'))
+      console.log $(this).attr('href')
+      if $($(this).attr('href'))
+        console.log 'hi'
+        e.preventDefault()
+        $(this).closest('.page').addClass('slide out')
+        $($(this).attr('href')).addClass('slide in active')
+        setTimeout(=>
+          console.log 'settimeout'
+          $(this).closest('.page').removeClass('slide out active')
+          $($(this).attr('href')).removeClass('slide in')
+        , 350)
 
 
 

@@ -5,10 +5,6 @@
 	position: absolute;
 	top: 0px;
 	width: 100%;
-	display: none;
-}
-.active {
-	display: block;
 }
 .spin  {
 	-webkit-transform: rotate(360deg);
@@ -272,4 +268,4 @@ Built by David Kaneda and maintained by Jonathan Stark.
         -webkit-transform: scale(.2);
         opacity: 0;
     }
-}
+}/*

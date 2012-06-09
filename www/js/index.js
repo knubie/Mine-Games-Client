@@ -909,16 +909,6 @@ onDeviceReady = function() {
     };
     matches = new Matches;
     decks = new Decks;
-    if ($.cookie("token") != null) {
-      console.log('cookie found');
-      $.getJSON("" + server_url + "/users/1", function(user) {
-        current.user = user;
-        console.log('instantiating LobbyView');
-        return current.lobby = new LobbyView();
-      });
-    } else {
-      console.log('cookie not found');
-    }
     $("#facebook-auth").on('click', function() {
       console.log('clicked facebook');
       return facebook_auth(function() {
@@ -988,7 +978,7 @@ onDeviceReady = function() {
         return _results;
       });
     });
-    return $('#new-match-username-form').submit(function(e) {
+    $('#new-match-username-form').submit(function(e) {
       $.post("" + server_url + "/matches.json", $(this).serialize(), function(data) {
         var error, _i, _len, _ref, _results;
         if (data.errors.length > 0) {
@@ -1005,6 +995,22 @@ onDeviceReady = function() {
         }
       }, 'json');
       return e.preventDefault();
+    });
+    return $('a').click(function(e) {
+      var _this = this;
+      console.log($($(this).attr('href')));
+      console.log($(this).attr('href'));
+      if ($($(this).attr('href'))) {
+        console.log('hi');
+        e.preventDefault();
+        $(this).closest('.page').addClass('slide out');
+        $($(this).attr('href')).addClass('slide in active');
+        return setTimeout(function() {
+          console.log('settimeout');
+          $(_this).closest('.page').removeClass('slide out active');
+          return $($(_this).attr('href')).removeClass('slide in');
+        }, 350);
+      }
     });
   });
 };
