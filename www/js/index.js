@@ -11,7 +11,7 @@ onBodyLoad = function() {
 
 onDeviceReady = function() {
   return $(function() {
-    var CardDetailView, CardListView, Deck, Decks, LobbyView, Match, MatchListView, MatchView, Matches, ShopListView, ShopView, actions, cards, current, decks, facebook_auth, gsub, matches;
+    var CardDetailView, CardListView, Deck, Decks, LobbyView, Match, MatchListView, MatchView, Matches, ShopListView, ShopView, actions, cards, changePage, current, decks, facebook_auth, gsub, matches;
     gsub = function(source, pattern, replacement) {
       var match, result;
       if (!((pattern != null) && (replacement != null))) {
@@ -48,6 +48,22 @@ onDeviceReady = function() {
       popper = this.slice(e, e + 1 || 9e9);
       [].splice.apply(this, [e, e - e + 1].concat(_ref = [])), _ref;
       return popper;
+    };
+    changePage = function(page, options) {
+      var $curr, $page;
+      $curr = $('.active');
+      $page = $(page);
+      if (options.reverse === true) {
+        $curr.addClass('reverse');
+        $page.addClass('reverse');
+      }
+      $curr.addClass('slide out');
+      $page.addClass('slide in active');
+      return setTimeout(function() {
+        console.log('settimeout');
+        $curr.removeClass('slide out active reverse');
+        return $page.removeClass('slide in reverse');
+      }, 350);
     };
     cards = {
       stone_pickaxe: {
@@ -843,7 +859,7 @@ onDeviceReady = function() {
 
       LobbyView.prototype.logout = function() {
         $.cookie('token', null);
-        return $.mobile.changePage("#home", {
+        return changePage("#home", {
           transition: "flip"
         });
       };
@@ -859,7 +875,7 @@ onDeviceReady = function() {
             var match, _i, _len, _ref, _results;
             $('#matches').html('');
             console.log('fetched data for matches and decks');
-            $.mobile.changePage("#lobby", {
+            changePage("#lobby", {
               transition: "none"
             });
             _ref = matches.models;
@@ -909,6 +925,16 @@ onDeviceReady = function() {
     };
     matches = new Matches;
     decks = new Decks;
+    if ($.cookie("token") != null) {
+      console.log('cookie found');
+      $.getJSON("" + server_url + "/users/1", function(user) {
+        current.user = user;
+        console.log('instantiating LobbyView');
+        return current.lobby = new LobbyView();
+      });
+    } else {
+      console.log('cookie not found');
+    }
     $("#facebook-auth").on('click', function() {
       console.log('clicked facebook');
       return facebook_auth(function() {
@@ -940,7 +966,7 @@ onDeviceReady = function() {
           } else {
             current.lobby = new LobbyView();
           }
-          return $.mobile.changePage('#lobby', {
+          return changePage('#lobby', {
             transition: 'slidedown'
           });
         }
@@ -955,7 +981,7 @@ onDeviceReady = function() {
           console.log($.cookie('token', {
             expires: 7300
           }));
-          return $.mobile.changePage('#lobby', {
+          return changePage('#lobby', {
             transition: 'slidedown'
           });
         }

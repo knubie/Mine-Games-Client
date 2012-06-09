@@ -53,6 +53,22 @@ onDeviceReady = ->
       @[e..e] = []
       return popper
 
+    changePage = (page, options) ->
+      $curr = $('.active')
+      $page = $(page)
+      if options.reverse == true
+          $curr.addClass('reverse')
+          $page.addClass('reverse')
+
+      $curr.addClass('slide out')
+      $page.addClass('slide in active')
+      setTimeout(->
+        console.log 'settimeout'
+        $curr.removeClass('slide out active reverse')
+        $page.removeClass('slide in reverse')
+      , 350)
+
+
 
     # pusher = new Pusher('efc99ac7a3e488aaa691')
     # channel = pusher.subscribe('mine-games')
@@ -645,7 +661,7 @@ onDeviceReady = ->
 
       logout: ->
         $.cookie('token', null)
-        $.mobile.changePage "#home",
+        changePage "#home",
           transition: "flip"
 
       render: ->
@@ -657,7 +673,7 @@ onDeviceReady = ->
           decks.on 'reset', =>
             $('#matches').html('')
             console.log 'fetched data for matches and decks'
-            $.mobile.changePage "#lobby",
+            changePage "#lobby",
               transition: "none"
             for match in matches.models
               do (match) =>
@@ -695,17 +711,17 @@ onDeviceReady = ->
 
     # $.cookie 'token', 'LollakwpnMXj54X6oWwt2g' #TODO: take this out and find out why cookies aren't persisting
     
-    # if $.cookie("token")?
-    #   # TODO: match token with user on server side, if match, execute the below block
-    #   console.log 'cookie found'
-    #   # TODO: add 'logging in' animation loader
-    #   $.getJSON("#{server_url}/users/1", (user) ->
-    #     current.user = user
-    #     console.log 'instantiating LobbyView'
-    #     current.lobby = new LobbyView()
-    #   )
-    # else
-    #   console.log 'cookie not found'
+    if $.cookie("token")?
+      # TODO: match token with user on server side, if match, execute the below block
+      console.log 'cookie found'
+      # TODO: add 'logging in' animation loader
+      $.getJSON("#{server_url}/users/1", (user) ->
+        current.user = user
+        console.log 'instantiating LobbyView'
+        current.lobby = new LobbyView()
+      )
+    else
+      console.log 'cookie not found'
 
     $("#facebook-auth").on 'click', ->
       console.log 'clicked facebook'
@@ -735,7 +751,7 @@ onDeviceReady = ->
           else
             current.lobby = new LobbyView()
 
-          $.mobile.changePage '#lobby',
+          changePage '#lobby',
             transition: 'slidedown'
       , 'json')
       e.preventDefault()
@@ -747,7 +763,7 @@ onDeviceReady = ->
         else
           console.log $.cookie 'token',
             expires: 7300
-          $.mobile.changePage '#lobby',
+          changePage '#lobby',
             transition: 'slidedown'
       , 'json')
       e.preventDefault()
