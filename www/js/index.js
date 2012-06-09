@@ -1001,14 +1001,17 @@ onDeviceReady = function() {
       console.log($($(this).attr('href')));
       console.log($(this).attr('href'));
       if ($($(this).attr('href'))) {
-        console.log('hi');
         e.preventDefault();
+        if ($(this).attr('data-transition') === 'reverse') {
+          $(this).closest('.page').addClass('reverse');
+          $($(this).attr('href')).addClass('reverse');
+        }
         $(this).closest('.page').addClass('slide out');
         $($(this).attr('href')).addClass('slide in active');
         return setTimeout(function() {
           console.log('settimeout');
-          $(_this).closest('.page').removeClass('slide out active');
-          return $($(_this).attr('href')).removeClass('slide in');
+          $(_this).closest('.page').removeClass('slide out active reverse');
+          return $($(_this).attr('href')).removeClass('slide in reverse');
         }, 350);
       }
     });

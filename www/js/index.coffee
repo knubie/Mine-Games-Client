@@ -781,14 +781,17 @@ onDeviceReady = ->
       console.log $($(this).attr('href'))
       console.log $(this).attr('href')
       if $($(this).attr('href'))
-        console.log 'hi'
         e.preventDefault()
+        if $(this).attr('data-transition') == 'reverse'
+          $(this).closest('.page').addClass('reverse')
+          $($(this).attr('href')).addClass('reverse')
+
         $(this).closest('.page').addClass('slide out')
         $($(this).attr('href')).addClass('slide in active')
         setTimeout(=>
           console.log 'settimeout'
-          $(this).closest('.page').removeClass('slide out active')
-          $($(this).attr('href')).removeClass('slide in')
+          $(this).closest('.page').removeClass('slide out active reverse')
+          $($(this).attr('href')).removeClass('slide in reverse')
         , 350)
 
 
