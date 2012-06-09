@@ -61,10 +61,13 @@ onDeviceReady = ->
           $page.addClass('reverse')
 
       if options.transition == 'none'
+        console.log 'switch'
         console.log 'no transition'
-        $curr.removeClass 'active'
+        $curr.removeClass 'active reverse'
         $page.addClass 'active'
+        $page.removeClass 'reverse'
       else
+        console.log "changing page to #{page}"
         $curr.addClass('slide out')
         $page.addClass('slide in active')
         setTimeout(->
@@ -308,6 +311,8 @@ onDeviceReady = ->
       trash: (i, type, cb) ->
         # do something
 
+    decks = 0
+    matches = 0
     current =
       lobby: 0 # LobbyView
       match: 0 # Match model
@@ -327,12 +332,13 @@ onDeviceReady = ->
         console.log @url()
         @on 'change', =>
           console.log 'saving match'
-          @save() #TODO: optimize so you don't send 1000 requests every time the deck changes
+          # @save() #TODO: optimize so you don't send 1000 requests every time the deck changes
         # do something
 
     class Matches extends Backbone.Collection
       initialize: ->
         @fetch()
+        console.log 'new model'
         @on 'reset', =>
           console.log @
 
@@ -435,6 +441,7 @@ onDeviceReady = ->
           # Add @card.name to current.hand.cards
           @amount--
           current.deck.spend(@card.cost)
+          changePage '#match'
         else
           console.log 'not enough money'
 
@@ -598,9 +605,23 @@ onDeviceReady = ->
             console.log 'some cards'
             view = new CardListView(cards[gsub(card, ' ', '_')]) #TODO take the gsub out and change card names on serverside to use underscore)
 
+
+        console.log "current actions: #{current.deck.get 'actions'}"
+
         @$el.find('#actions > .count').html(current.deck.get 'actions')
         @$el.find('#to_spend > .count').html(current.deck.to_spend())
-        @$el.find('#turn > .count').html(current.match.get 'turn')
+        if current.match.get('turn') == current.user.id
+          @$el.find('#end_turn').show()
+          @$el.find('#turn').hide()
+        else
+          @$el.find('#end_turn').hide()
+          @$el.find('#turn').show()
+          console.log current.match.get 'players'
+          players = current.match.get('players')
+          player = _.find players, (player) ->
+            player.id == current.match.get('turn')
+          console.log player
+          @$el.find('#turn > .count').html(player.username)
 
 
         # changePage "#match",
@@ -610,10 +631,17 @@ onDeviceReady = ->
 
       end_turn: ->
         console.log 'ending turn'
+        $('#loader').show()
+        $('#loader').css('opacity', 1)
         $.post("#{server_url}/end_turn/#{current.match.get('id')}", (data) =>
           console.log data
           current.match.fetch()
           current.deck.fetch()
+          current.match.on 'reset', => # 'reset' event is triggered when Collection#fetch completes
+            current.deck.on 'reset', =>
+              $('#loader').hide()
+              $('#loader').css('opacity', 0)
+          @render()
         )
         # do something
 
@@ -633,6 +661,14 @@ onDeviceReady = ->
       render: ->
         console.log 'MatchListView#render'
         $('#matches').append(@el)
+        @$el.on 'click', (e) ->
+          e.preventDefault()
+          reverse = false
+          if $(this).attr('data-transition') == 'reverse'
+            reverse = true
+          changePage '#match',
+            transition: 'slide'
+            reverse: reverse
 
       render_match: ->
         console.log 'rendering match'
@@ -673,8 +709,15 @@ onDeviceReady = ->
 
       render: ->
         console.log 'LobbyView#render'
-        matches.fetch()
-        decks.fetch()
+        if matches
+          matches.fetch()
+        else
+          matches = new Matches
+
+        if decks
+          decks.fetch()
+        else
+          decks = new Decks
         console.log 'fetching decks/matches'
         matches.on 'reset', => # 'reset' event is triggered when Collection#fetch completes
           decks.on 'reset', =>
@@ -712,9 +755,6 @@ onDeviceReady = ->
           window.plugins.childBrowser.close()
           console.log 6
           callback()
-
-    matches = new Matches
-    decks = new Decks
 
     # $.cookie 'token', 'LollakwpnMXj54X6oWwt2g' #TODO: take this out and find out why cookies aren't persisting
     
@@ -804,22 +844,15 @@ onDeviceReady = ->
       , 'json')
       e.preventDefault()
 
-    $('a').on 'tap', (e) ->
-      console.log $($(this).attr('href'))
-      console.log $(this).attr('href')
+    $('a').on 'click', (e) ->
       if $($(this).attr('href'))
         e.preventDefault()
+        reverse = false
         if $(this).attr('data-transition') == 'reverse'
-          $(this).closest('.page').addClass('reverse')
-          $($(this).attr('href')).addClass('reverse')
-
-        $(this).closest('.page').addClass('slide out')
-        $($(this).attr('href')).addClass('slide in active')
-        setTimeout(=>
-          console.log 'settimeout'
-          $(this).closest('.page').removeClass('slide out active reverse')
-          $($(this).attr('href')).removeClass('slide in reverse')
-        , 350)
+          reverse = true
+        changePage $(this).attr('href'),
+          transition: 'slide'
+          reverse: reverse
 
 
 

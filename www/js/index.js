@@ -58,10 +58,13 @@ onDeviceReady = function() {
         $page.addClass('reverse');
       }
       if (options.transition === 'none') {
+        console.log('switch');
         console.log('no transition');
-        $curr.removeClass('active');
-        return $page.addClass('active');
+        $curr.removeClass('active reverse');
+        $page.addClass('active');
+        return $page.removeClass('reverse');
       } else {
+        console.log("changing page to " + page);
         $curr.addClass('slide out');
         $page.addClass('slide in active');
         return setTimeout(function() {
@@ -327,6 +330,8 @@ onDeviceReady = function() {
       },
       trash: function(i, type, cb) {}
     };
+    decks = 0;
+    matches = 0;
     current = {
       lobby: 0,
       match: 0,
@@ -349,8 +354,7 @@ onDeviceReady = function() {
         var _this = this;
         console.log(this.url());
         return this.on('change', function() {
-          console.log('saving match');
-          return _this.save();
+          return console.log('saving match');
         });
       };
 
@@ -368,6 +372,7 @@ onDeviceReady = function() {
       Matches.prototype.initialize = function() {
         var _this = this;
         this.fetch();
+        console.log('new model');
         return this.on('reset', function() {
           return console.log(_this);
         });
@@ -535,7 +540,8 @@ onDeviceReady = function() {
           console.log(current.match.get('shop'));
           console.log(current.deck.get('cards'));
           this.amount--;
-          return current.deck.spend(this.card.cost);
+          current.deck.spend(this.card.cost);
+          return changePage('#match');
         } else {
           return console.log('not enough money');
         }
@@ -769,7 +775,7 @@ onDeviceReady = function() {
       };
 
       MatchView.prototype.render = function() {
-        var card, _fn, _i, _len, _ref,
+        var card, player, players, _fn, _i, _len, _ref,
           _this = this;
         console.log('rendering MatchView');
         console.log(this.$el.find('#hand'));
@@ -785,18 +791,41 @@ onDeviceReady = function() {
           card = _ref[_i];
           _fn(card);
         }
+        console.log("current actions: " + (current.deck.get('actions')));
         this.$el.find('#actions > .count').html(current.deck.get('actions'));
         this.$el.find('#to_spend > .count').html(current.deck.to_spend());
-        return this.$el.find('#turn > .count').html(current.match.get('turn'));
+        if (current.match.get('turn') === current.user.id) {
+          this.$el.find('#end_turn').show();
+          return this.$el.find('#turn').hide();
+        } else {
+          this.$el.find('#end_turn').hide();
+          this.$el.find('#turn').show();
+          console.log(current.match.get('players'));
+          players = current.match.get('players');
+          player = _.find(players, function(player) {
+            return player.id === current.match.get('turn');
+          });
+          console.log(player);
+          return this.$el.find('#turn > .count').html(player.username);
+        }
       };
 
       MatchView.prototype.end_turn = function() {
         var _this = this;
         console.log('ending turn');
+        $('#loader').show();
+        $('#loader').css('opacity', 1);
         return $.post("" + server_url + "/end_turn/" + (current.match.get('id')), function(data) {
           console.log(data);
           current.match.fetch();
-          return current.deck.fetch();
+          current.deck.fetch();
+          current.match.on('reset', function() {
+            return current.deck.on('reset', function() {
+              $('#loader').hide();
+              return $('#loader').css('opacity', 0);
+            });
+          });
+          return _this.render();
         });
       };
 
@@ -827,7 +856,19 @@ onDeviceReady = function() {
 
       MatchListView.prototype.render = function() {
         console.log('MatchListView#render');
-        return $('#matches').append(this.el);
+        $('#matches').append(this.el);
+        return this.$el.on('click', function(e) {
+          var reverse;
+          e.preventDefault();
+          reverse = false;
+          if ($(this).attr('data-transition') === 'reverse') {
+            reverse = true;
+          }
+          return changePage('#match', {
+            transition: 'slide',
+            reverse: reverse
+          });
+        });
       };
 
       MatchListView.prototype.render_match = function() {
@@ -880,8 +921,16 @@ onDeviceReady = function() {
       LobbyView.prototype.render = function() {
         var _this = this;
         console.log('LobbyView#render');
-        matches.fetch();
-        decks.fetch();
+        if (matches) {
+          matches.fetch();
+        } else {
+          matches = new Matches;
+        }
+        if (decks) {
+          decks.fetch();
+        } else {
+          decks = new Decks;
+        }
         console.log('fetching decks/matches');
         return matches.on('reset', function() {
           return decks.on('reset', function() {
@@ -936,8 +985,6 @@ onDeviceReady = function() {
         }
       };
     };
-    matches = new Matches;
-    decks = new Decks;
     if ($.cookie("token") != null) {
       console.log('cookie found');
       $('#loader').show();
@@ -1039,23 +1086,18 @@ onDeviceReady = function() {
       }, 'json');
       return e.preventDefault();
     });
-    return $('a').on('tap', function(e) {
-      var _this = this;
-      console.log($($(this).attr('href')));
-      console.log($(this).attr('href'));
+    return $('a').on('click', function(e) {
+      var reverse;
       if ($($(this).attr('href'))) {
         e.preventDefault();
+        reverse = false;
         if ($(this).attr('data-transition') === 'reverse') {
-          $(this).closest('.page').addClass('reverse');
-          $($(this).attr('href')).addClass('reverse');
+          reverse = true;
         }
-        $(this).closest('.page').addClass('slide out');
-        $($(this).attr('href')).addClass('slide in active');
-        return setTimeout(function() {
-          console.log('settimeout');
-          $(_this).closest('.page').removeClass('slide out active reverse');
-          return $($(_this).attr('href')).removeClass('slide in reverse');
-        }, 350);
+        return changePage($(this).attr('href'), {
+          transition: 'slide',
+          reverse: reverse
+        });
       }
     });
   });
