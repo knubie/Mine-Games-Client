@@ -653,15 +653,17 @@ onDeviceReady = function() {
       };
 
       CardListView.prototype.touchstart = function(e) {
-        this.touch.x1 = e.originalEvent.pageX;
-        return this.touch.y1 = e.originalEvent.pageY;
+        console.log('touch start');
+        console.log(e);
+        this.touch.x1 = e.pageX;
+        return this.touch.y1 = e.pageY;
       };
 
       CardListView.prototype.touchmove = function(e) {
         var pct;
         if (current.deck.get('actions') > 0 && current.turn) {
-          this.dx = e.originalEvent.pageX - this.touch.x1;
-          this.dy = e.originalEvent.pageY - this.touch.y1;
+          this.dx = e.pageX - this.touch.x1;
+          this.dy = e.pageY - this.touch.y1;
           if (Math.abs(this.dy) < 6 && Math.abs(this.dx) > 0 && !this.swiping && !this.dragging) {
             this.swiping = true;
             window.inAction = true;
@@ -785,10 +787,7 @@ onDeviceReady = function() {
         }
         this.$el.find('#actions > .count').html(current.deck.get('actions'));
         this.$el.find('#to_spend > .count').html(current.deck.to_spend());
-        this.$el.find('#turn > .count').html(current.match.get('turn'));
-        return changePage("#match", {
-          transition: "slide"
-        });
+        return this.$el.find('#turn > .count').html(current.match.get('turn'));
       };
 
       MatchView.prototype.end_turn = function() {
@@ -837,10 +836,15 @@ onDeviceReady = function() {
         current.deck = this.deck;
         if (current.matchview) {
           console.log('refresh old matchview');
-          return current.matchview.render();
+          current.matchview.render();
         } else {
           console.log('create new matchview');
-          return current.matchview = new MatchView();
+          current.matchview = new MatchView();
+        }
+        if (current.shopview) {
+          return current.shopview.render();
+        } else {
+          return current.shopview = new ShopView();
         }
       };
 
@@ -1035,7 +1039,7 @@ onDeviceReady = function() {
       }, 'json');
       return e.preventDefault();
     });
-    return $('a').on('click', function(e) {
+    return $('a').on('tap', function(e) {
       var _this = this;
       console.log($($(this).attr('href')));
       console.log($(this).attr('href'));

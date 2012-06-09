@@ -83,6 +83,7 @@
 		</div>
 
 		<div id="lobby" class="page">
+			<a class="logout">log out</a>
 			<a href="#new_match" data-transition="slide" id="create_match" data-role="button">Create Match!</a>
 			<ul id="matches" data-role="listview">
 			</ul>
@@ -163,17 +164,18 @@
 				<li class='card'>test</li>
 			</ul>
 			
-			<div id="itemsBtn">
-				<a href="#shop"  data-transition="slide" data-direction="reverse">
-					<img src="images/buttons/itemsTMP.png" border="0">
-				</a>
-			</div>
-
 			<div id="shopBtn">
-				<a href="#deck" data-transition="slide">
+				<a href="#shop" data-transition="reverse">
 					<img src="images/buttons/shopTMP.png" border="0">
 				</a>
 			</div>
+
+			<div id="itemsBtn">
+				<a href="#deck">
+					<img src="images/buttons/itemsTMP.png" border="0">
+				</a>
+			</div>
+		</div>
 
 		<div id="card-detail" class="page">
 			card detail
@@ -181,7 +183,7 @@
 
 		<div id="shop" class="page">
       <div data-role="header" data-position="inline">
-				<a data-rel="back" data-direction="reverse">back</a>
+				<a href="#match">back</a>
 				<h1>Shop</h1>
 			</div>
 			shop screen
@@ -189,7 +191,7 @@
 
 		<div id="deck" class="page">
       <div data-role="header" data-position="inline">
-				<a data-rel="back">back</a>
+				<a href="#match" data-transition="reverse">back</a>
 				<h1>Deck</h1>
 			</div>
 			deck screen
@@ -203,7 +205,7 @@
 				<span class="name">stone pickaxe</span>
 			</li>
 			<!-- Match list item -->
-			<li class='match-item-view'><a>match</a></li>
+			<li class='match-item-view'><a href="#match">match</a></li>
 			<!-- Shop items -->
 			<div id='shop-item'>
 				<img src='images/_thumb.png' height='50' alt='' />

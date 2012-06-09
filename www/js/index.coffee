@@ -500,15 +500,17 @@ onDeviceReady = ->
         console.log 'render me!'
 
       touchstart: (e) ->
+        console.log 'touch start'
+        console.log e
         # touch.x1 = e.touches[0].pageX
         # touch.y1 = e.touches[0].pageY
-        @touch.x1 = e.originalEvent.pageX
-        @touch.y1 = e.originalEvent.pageY
+        @touch.x1 = e.pageX
+        @touch.y1 = e.pageY
 
       touchmove: (e) ->
         if current.deck.get('actions') > 0 and current.turn
-          @dx = e.originalEvent.pageX - @touch.x1
-          @dy = e.originalEvent.pageY - @touch.y1
+          @dx = e.pageX - @touch.x1
+          @dy = e.pageY - @touch.y1
           if Math.abs(@dy) < 6 and Math.abs(@dx) > 0 and not @swiping and not @dragging
             @swiping = true
             window.inAction = true
@@ -601,8 +603,8 @@ onDeviceReady = ->
         @$el.find('#turn > .count').html(current.match.get 'turn')
 
 
-        changePage "#match",
-          transition: "slide"
+        # changePage "#match",
+        #   transition: "slide"
 
         # render all the other shit too
 
@@ -644,10 +646,10 @@ onDeviceReady = ->
           console.log 'create new matchview'
           current.matchview = new MatchView()
 
-        # if current.shopview
-        #   current.shopview.render()
-        # else
-        #   current.shopview = new ShopView()
+        if current.shopview
+          current.shopview.render()
+        else
+          current.shopview = new ShopView()
 
         
     class LobbyView extends Backbone.View
@@ -802,7 +804,7 @@ onDeviceReady = ->
       , 'json')
       e.preventDefault()
 
-    $('a').on 'click', (e) ->
+    $('a').on 'tap', (e) ->
       console.log $($(this).attr('href'))
       console.log $(this).attr('href')
       if $($(this).attr('href'))
