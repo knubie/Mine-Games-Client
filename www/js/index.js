@@ -57,13 +57,19 @@ onDeviceReady = function() {
         $curr.addClass('reverse');
         $page.addClass('reverse');
       }
-      $curr.addClass('slide out');
-      $page.addClass('slide in active');
-      return setTimeout(function() {
-        console.log('settimeout');
-        $curr.removeClass('slide out active reverse');
-        return $page.removeClass('slide in reverse');
-      }, 350);
+      if (options.transition === 'none') {
+        console.log('no transition');
+        $curr.removeClass('active');
+        return $page.addClass('active');
+      } else {
+        $curr.addClass('slide out');
+        $page.addClass('slide in active');
+        return setTimeout(function() {
+          console.log('settimeout');
+          $curr.removeClass('slide out active reverse');
+          return $page.removeClass('slide in reverse');
+        }, 350);
+      }
     };
     cards = {
       stone_pickaxe: {
@@ -779,7 +785,10 @@ onDeviceReady = function() {
         }
         this.$el.find('#actions > .count').html(current.deck.get('actions'));
         this.$el.find('#to_spend > .count').html(current.deck.to_spend());
-        return this.$el.find('#turn > .count').html(current.match.get('turn'));
+        this.$el.find('#turn > .count').html(current.match.get('turn'));
+        return changePage("#match", {
+          transition: "slide"
+        });
       };
 
       MatchView.prototype.end_turn = function() {
@@ -819,7 +828,7 @@ onDeviceReady = function() {
 
       MatchListView.prototype.render = function() {
         console.log('MatchListView#render');
-        return $('#matches').append(this.el).listview('refresh');
+        return $('#matches').append(this.el);
       };
 
       MatchListView.prototype.render_match = function() {
@@ -927,10 +936,14 @@ onDeviceReady = function() {
     decks = new Decks;
     if ($.cookie("token") != null) {
       console.log('cookie found');
+      $('#loader').show();
+      $('#loader').css('opacity', 1);
       $.getJSON("" + server_url + "/users/1", function(user) {
         current.user = user;
         console.log('instantiating LobbyView');
-        return current.lobby = new LobbyView();
+        current.lobby = new LobbyView();
+        $('#loader').css('opacity', 0);
+        return $('#loader').hide();
       });
     } else {
       console.log('cookie not found');
@@ -1022,7 +1035,7 @@ onDeviceReady = function() {
       }, 'json');
       return e.preventDefault();
     });
-    return $('a').click(function(e) {
+    return $('a').on('click', function(e) {
       var _this = this;
       console.log($($(this).attr('href')));
       console.log($(this).attr('href'));

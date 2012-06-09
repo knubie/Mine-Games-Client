@@ -183,3 +183,16 @@ ul {
 .clear{
 	clear:both;
 }
+#loader {
+	min-height: 480px;
+	border: 0px;
+	left: 0px;
+	position: absolute;
+	top: 0px;
+	width: 100%;
+	background-color: rgba(0, 0, 0, 0.2);
+	z-index: 99;
+	opacity: 0;
+	display: none;
+	-webkit-transition: opacity .05s ease-in-out;
+}

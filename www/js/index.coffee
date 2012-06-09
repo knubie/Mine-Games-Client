@@ -60,13 +60,18 @@ onDeviceReady = ->
           $curr.addClass('reverse')
           $page.addClass('reverse')
 
-      $curr.addClass('slide out')
-      $page.addClass('slide in active')
-      setTimeout(->
-        console.log 'settimeout'
-        $curr.removeClass('slide out active reverse')
-        $page.removeClass('slide in reverse')
-      , 350)
+      if options.transition == 'none'
+        console.log 'no transition'
+        $curr.removeClass 'active'
+        $page.addClass 'active'
+      else
+        $curr.addClass('slide out')
+        $page.addClass('slide in active')
+        setTimeout(->
+          console.log 'settimeout'
+          $curr.removeClass('slide out active reverse')
+          $page.removeClass('slide in reverse')
+        , 350)
 
 
 
@@ -596,8 +601,8 @@ onDeviceReady = ->
         @$el.find('#turn > .count').html(current.match.get 'turn')
 
 
-        # $.mobile.changePage "#match",
-        #   transition: "slide"
+        changePage "#match",
+          transition: "slide"
 
         # render all the other shit too
 
@@ -625,7 +630,7 @@ onDeviceReady = ->
 
       render: ->
         console.log 'MatchListView#render'
-        $('#matches').append(@el).listview('refresh')
+        $('#matches').append(@el)
 
       render_match: ->
         console.log 'rendering match'
@@ -715,10 +720,14 @@ onDeviceReady = ->
       # TODO: match token with user on server side, if match, execute the below block
       console.log 'cookie found'
       # TODO: add 'logging in' animation loader
+      $('#loader').show()
+      $('#loader').css('opacity', 1)
       $.getJSON("#{server_url}/users/1", (user) ->
         current.user = user
         console.log 'instantiating LobbyView'
         current.lobby = new LobbyView()
+        $('#loader').css('opacity', 0)
+        $('#loader').hide()
       )
     else
       console.log 'cookie not found'
@@ -793,7 +802,7 @@ onDeviceReady = ->
       , 'json')
       e.preventDefault()
 
-    $('a').click (e) ->
+    $('a').on 'click', (e) ->
       console.log $($(this).attr('href'))
       console.log $(this).attr('href')
       if $($(this).attr('href'))
