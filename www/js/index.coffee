@@ -714,12 +714,13 @@ onDeviceReady = ->
         else
           matches = new Matches
 
-        if decks
-          decks.fetch()
-        else
-          decks = new Decks
         console.log 'fetching decks/matches'
         matches.on 'reset', => # 'reset' event is triggered when Collection#fetch completes
+          console.log 'matches reset, waiting on decks'
+          if decks
+            decks.fetch()
+          else
+            decks = new Decks
           decks.on 'reset', =>
             $('#matches').html('')
             console.log 'fetched data for matches and decks'

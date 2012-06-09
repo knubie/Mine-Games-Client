@@ -926,13 +926,14 @@ onDeviceReady = function() {
         } else {
           matches = new Matches;
         }
-        if (decks) {
-          decks.fetch();
-        } else {
-          decks = new Decks;
-        }
         console.log('fetching decks/matches');
         return matches.on('reset', function() {
+          console.log('matches reset, waiting on decks');
+          if (decks) {
+            decks.fetch();
+          } else {
+            decks = new Decks;
+          }
           return decks.on('reset', function() {
             var match, _i, _len, _ref, _results;
             $('#matches').html('');
