@@ -261,7 +261,8 @@ onDeviceReady = function() {
       gopher: {
         name: 'gopher',
         type: 'action',
-        cost: 6
+        cost: 6,
+        use: function() {}
       },
       magnet: {
         name: 'magnet',
@@ -331,8 +332,6 @@ onDeviceReady = function() {
       },
       trash: function(i, type, cb) {}
     };
-    decks = 0;
-    matches = 0;
     current = {
       lobby: 0,
       match: 0,
@@ -396,8 +395,14 @@ onDeviceReady = function() {
 
       Deck.prototype.initialize = function() {
         var _this = this;
-        return this.on('change', function() {
+        this.on('change', function() {
           return console.log('saving deck');
+        });
+        this.on('change:actions', function() {
+          return $('#actions > .count').html(current.deck.get('actions'));
+        });
+        return this.on('change:hand', function() {
+          return $('#to_spend > .count').html(current.deck.to_spend());
         });
       };
 
@@ -720,8 +725,9 @@ onDeviceReady = function() {
             this.card.use();
             this.discard();
             if (this.card.type === 'action') {
-              return current.deck.set('actions', current.deck.get('actions') - 1);
+              current.deck.set('actions', current.deck.get('actions') - 1);
             }
+            return current.deck.save();
           }
         }
       };
@@ -1025,10 +1031,16 @@ onDeviceReady = function() {
       });
     });
     $('#login-form').submit(function(e) {
+      $('#loader').show();
+      $('#loader').css('opacity', 1);
       $.post("" + server_url + "/signin.json", $(this).serialize(), function(user) {
         if (user.error != null) {
-          return alert('invalid username and/or password');
+          alert('invalid username and/or password');
+          $('#loader').hide();
+          return $('#loader').css('opacity', 0);
         } else {
+          $('#loader').hide();
+          $('#loader').css('opacity', 0);
           $.cookie('token', user.token);
           console.log($.cookie('token', {
             expires: 7300

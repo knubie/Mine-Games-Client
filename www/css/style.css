@@ -33,6 +33,7 @@ ul {
 #hand {
 	height: 260px;
 	overflow-y: scroll;
+	-webkit-overflow-scrolling: touch;
 }
 
 #imgCenter{
@@ -190,7 +191,7 @@ ul {
 	position: absolute;
 	top: 0px;
 	width: 100%;
-	background-color: rgba(0, 0, 0, 0.2);
+	background-color: rgba(0, 0, 0, 0.3);
 	z-index: 99;
 	opacity: 0;
 	display: none;

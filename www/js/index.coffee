@@ -86,7 +86,7 @@ onDeviceReady = ->
     #   $('.matches').append("<li><a href='#match' class='match-list-item' data-transition='slide' data-id='#{data.match.id}'>#{user.username for user in data.match.users}</a></li>").listview('refresh')
     # )
 
-    cards =
+    cards = # All card properties are definied client-side.
       stone_pickaxe:
         name: 'stone pickaxe'
         type: 'action'
@@ -239,6 +239,13 @@ onDeviceReady = ->
         name: 'gopher'
         type: 'action'
         cost: 6
+        use: ->
+          # choose opponent
+          # create new deck model from opponent
+          # choose random card
+          # remove card from opponent.deck.hand
+          # push card to current.deck.hand
+          # save both deck models
 
       magnet:
         name: 'magnet'
@@ -250,7 +257,7 @@ onDeviceReady = ->
         type: 'action'
         cost: 5
 
-    actions =
+    actions = # Actions are decoupled from cards.
       mine: (options) ->
         console.log 'mine'
         for i in [1..options.number]
@@ -312,9 +319,7 @@ onDeviceReady = ->
       trash: (i, type, cb) ->
         # do something
 
-    decks = 0
-    matches = 0
-    current =
+    current = # Global namespace.
       lobby: 0 # LobbyView
       match: 0 # Match model
       deck:  0 # Deck model
@@ -351,6 +356,12 @@ onDeviceReady = ->
         @on 'change', =>
           console.log 'saving deck'
           # @save()
+        @on 'change:actions', =>
+          $('#actions > .count').html(current.deck.get 'actions')
+        @on 'change:hand', =>
+          $('#to_spend > .count').html(current.deck.to_spend())
+
+
 
       amount_to_discard: 0
       amount_discarded: 0
@@ -397,6 +408,7 @@ onDeviceReady = ->
         console.log new_hand
         @set('hand', new_hand)
         @save
+
 
     class Decks extends Backbone.Collection # FIXME: this doesn't seem right...
       initialize: ->
@@ -561,6 +573,7 @@ onDeviceReady = ->
             @card.use()
             @discard()
             current.deck.set('actions', current.deck.get('actions') - 1 ) if @card.type == 'action'
+            current.deck.save()
 
 
       discard: () ->
@@ -798,10 +811,16 @@ onDeviceReady = ->
             current.lobby = new LobbyView()
 
     $('#login-form').submit (e) ->
+      $('#loader').show()
+      $('#loader').css('opacity', 1)
       $.post("#{server_url}/signin.json", $(this).serialize(), (user) ->
         if user.error?
           alert 'invalid username and/or password'
+          $('#loader').hide()
+          $('#loader').css('opacity', 0)
         else
+          $('#loader').hide()
+          $('#loader').css('opacity', 0)
           $.cookie 'token', user.token
           console.log $.cookie 'token',
             expires: 7300
@@ -845,10 +864,13 @@ onDeviceReady = ->
 
 
     $('#new-match-username-form').submit (e) ->
+      # show loader
       $.post("#{server_url}/matches.json", $(this).serialize(), (data) ->
         if data.errors.length > 0
+          # end loader
           alert error for error in data.errors
         else
+          # end loader
           alert "match created"
           current.lobby = new LobbyView()
       , 'json')
