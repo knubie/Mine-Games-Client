@@ -56,6 +56,7 @@ onDeviceReady = ->
     changePage = (page, options) ->
       $curr = $('.active')
       $page = $(page)
+      console.log page
       if options.reverse == true
           $curr.addClass('reverse')
           $page.addClass('reverse')
@@ -349,7 +350,7 @@ onDeviceReady = ->
       initialize: ->
         @on 'change', =>
           console.log 'saving deck'
-          @save()
+          # @save()
 
       amount_to_discard: 0
       amount_discarded: 0
@@ -395,6 +396,7 @@ onDeviceReady = ->
 
         console.log new_hand
         @set('hand', new_hand)
+        @save
 
     class Decks extends Backbone.Collection # FIXME: this doesn't seem right...
       initialize: ->
@@ -403,6 +405,9 @@ onDeviceReady = ->
       model: Deck
       url: "#{server_url}/decks"
 
+
+    matches = new Matches
+    decks = new Decks
 
     # Views
     # ============================================
@@ -442,6 +447,8 @@ onDeviceReady = ->
           @amount--
           current.deck.spend(@card.cost)
           changePage '#match'
+          current.match.save()
+          current.deck.save()
         else
           console.log 'not enough money'
 
@@ -587,7 +594,6 @@ onDeviceReady = ->
           @$el.find('#actions > .count').html(current.deck.get 'actions')
         current.deck.on 'change:hand', =>
           console.log 'hand changed'
-          @$el.find('#to_spend > .count').html(current.deck.to_spend())
           @render()
 
       el: '#match'
@@ -611,9 +617,11 @@ onDeviceReady = ->
         @$el.find('#actions > .count').html(current.deck.get 'actions')
         @$el.find('#to_spend > .count').html(current.deck.to_spend())
         if current.match.get('turn') == current.user.id
+          console.log 'its yo turn'
           @$el.find('#end_turn').show()
           @$el.find('#turn').hide()
         else
+          console.log 'aint yo turn nigga'
           @$el.find('#end_turn').hide()
           @$el.find('#turn').show()
           console.log current.match.get 'players'
@@ -635,15 +643,21 @@ onDeviceReady = ->
         $('#loader').css('opacity', 1)
         $.post("#{server_url}/end_turn/#{current.match.get('id')}", (data) =>
           console.log data
-          current.match.fetch()
-          current.deck.fetch()
-          current.match.on 'reset', => # 'reset' event is triggered when Collection#fetch completes
-            current.deck.on 'reset', =>
-              $('#loader').hide()
-              $('#loader').css('opacity', 0)
-          @render()
+          console.log 'fetching match data'
+          current.match.fetch(
+            success: =>
+              console.log 'got match data'
+              current.deck.fetch(
+                success: =>
+                  console.log 'got deck data'
+                  $('#loader').hide()
+                  $('#loader').css('opacity', 0)
+                  @render()
+              )
+            error: =>
+              console.log 'error getting match data'
+          )
         )
-        # do something
 
     class MatchListView extends Backbone.View
 
@@ -709,27 +723,24 @@ onDeviceReady = ->
 
       render: ->
         console.log 'LobbyView#render'
-        if matches
-          matches.fetch()
-        else
-          matches = new Matches
-
         console.log 'fetching decks/matches'
-        matches.on 'reset', => # 'reset' event is triggered when Collection#fetch completes
-          console.log 'matches reset, waiting on decks'
-          if decks
-            decks.fetch()
-          else
-            decks = new Decks
-          decks.on 'reset', =>
-            $('#matches').html('')
-            console.log 'fetched data for matches and decks'
-            changePage "#lobby",
-              transition: "none"
-            for match in matches.models
-              do (match) =>
-                d = decks.where(match_id: match.get('id'))
-                view = new MatchListView(match, d[0])
+        matches.fetch
+          success: =>
+            console.log 'got match data, waiting on decks'
+            decks.fetch
+              success: =>
+                $('#loader').css('opacity', 0)
+                $('#loader').hide()
+                $('#matches').html('')
+                console.log 'fetched data for matches and decks'
+                changePage "#lobby",
+                  transition: "none"
+                for match in matches.models
+                  do (match) =>
+                    d = decks.where(match_id: match.get('id'))
+                    view = new MatchListView(match, d[0])
+            
+        
 
       refresh: ->
         @render()
@@ -769,8 +780,6 @@ onDeviceReady = ->
         current.user = user
         console.log 'instantiating LobbyView'
         current.lobby = new LobbyView()
-        $('#loader').css('opacity', 0)
-        $('#loader').hide()
       )
     else
       console.log 'cookie not found'
@@ -846,7 +855,8 @@ onDeviceReady = ->
       e.preventDefault()
 
     $('a').on 'click', (e) ->
-      if $($(this).attr('href'))
+      console.log $($(this).attr('href')).length
+      if $($(this).attr('href')).length > 0
         e.preventDefault()
         reverse = false
         if $(this).attr('data-transition') == 'reverse'

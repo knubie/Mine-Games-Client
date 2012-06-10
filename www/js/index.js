@@ -53,6 +53,7 @@ onDeviceReady = function() {
       var $curr, $page;
       $curr = $('.active');
       $page = $(page);
+      console.log(page);
       if (options.reverse === true) {
         $curr.addClass('reverse');
         $page.addClass('reverse');
@@ -396,8 +397,7 @@ onDeviceReady = function() {
       Deck.prototype.initialize = function() {
         var _this = this;
         return this.on('change', function() {
-          console.log('saving deck');
-          return _this.save();
+          return console.log('saving deck');
         });
       };
 
@@ -472,7 +472,8 @@ onDeviceReady = function() {
           }
         }
         console.log(new_hand);
-        return this.set('hand', new_hand);
+        this.set('hand', new_hand);
+        return this.save;
       };
 
       return Deck;
@@ -497,6 +498,8 @@ onDeviceReady = function() {
       return Decks;
 
     })(Backbone.Collection);
+    matches = new Matches;
+    decks = new Decks;
     ShopListView = (function(_super) {
 
       __extends(ShopListView, _super);
@@ -541,7 +544,9 @@ onDeviceReady = function() {
           console.log(current.deck.get('cards'));
           this.amount--;
           current.deck.spend(this.card.cost);
-          return changePage('#match');
+          changePage('#match');
+          current.match.save();
+          return current.deck.save();
         } else {
           return console.log('not enough money');
         }
@@ -763,7 +768,6 @@ onDeviceReady = function() {
         });
         return current.deck.on('change:hand', function() {
           console.log('hand changed');
-          _this.$el.find('#to_spend > .count').html(current.deck.to_spend());
           return _this.render();
         });
       };
@@ -795,9 +799,11 @@ onDeviceReady = function() {
         this.$el.find('#actions > .count').html(current.deck.get('actions'));
         this.$el.find('#to_spend > .count').html(current.deck.to_spend());
         if (current.match.get('turn') === current.user.id) {
+          console.log('its yo turn');
           this.$el.find('#end_turn').show();
           return this.$el.find('#turn').hide();
         } else {
+          console.log('aint yo turn nigga');
           this.$el.find('#end_turn').hide();
           this.$el.find('#turn').show();
           console.log(current.match.get('players'));
@@ -817,15 +823,23 @@ onDeviceReady = function() {
         $('#loader').css('opacity', 1);
         return $.post("" + server_url + "/end_turn/" + (current.match.get('id')), function(data) {
           console.log(data);
-          current.match.fetch();
-          current.deck.fetch();
-          current.match.on('reset', function() {
-            return current.deck.on('reset', function() {
-              $('#loader').hide();
-              return $('#loader').css('opacity', 0);
-            });
+          console.log('fetching match data');
+          return current.match.fetch({
+            success: function() {
+              console.log('got match data');
+              return current.deck.fetch({
+                success: function() {
+                  console.log('got deck data');
+                  $('#loader').hide();
+                  $('#loader').css('opacity', 0);
+                  return _this.render();
+                }
+              });
+            },
+            error: function() {
+              return console.log('error getting match data');
+            }
           });
-          return _this.render();
         });
       };
 
@@ -921,40 +935,36 @@ onDeviceReady = function() {
       LobbyView.prototype.render = function() {
         var _this = this;
         console.log('LobbyView#render');
-        if (matches) {
-          matches.fetch();
-        } else {
-          matches = new Matches;
-        }
         console.log('fetching decks/matches');
-        return matches.on('reset', function() {
-          console.log('matches reset, waiting on decks');
-          if (decks) {
-            decks.fetch();
-          } else {
-            decks = new Decks;
-          }
-          return decks.on('reset', function() {
-            var match, _i, _len, _ref, _results;
-            $('#matches').html('');
-            console.log('fetched data for matches and decks');
-            changePage("#lobby", {
-              transition: "none"
-            });
-            _ref = matches.models;
-            _results = [];
-            for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-              match = _ref[_i];
-              _results.push((function(match) {
-                var d, view;
-                d = decks.where({
-                  match_id: match.get('id')
+        return matches.fetch({
+          success: function() {
+            console.log('got match data, waiting on decks');
+            return decks.fetch({
+              success: function() {
+                var match, _i, _len, _ref, _results;
+                $('#loader').css('opacity', 0);
+                $('#loader').hide();
+                $('#matches').html('');
+                console.log('fetched data for matches and decks');
+                changePage("#lobby", {
+                  transition: "none"
                 });
-                return view = new MatchListView(match, d[0]);
-              })(match));
-            }
-            return _results;
-          });
+                _ref = matches.models;
+                _results = [];
+                for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+                  match = _ref[_i];
+                  _results.push((function(match) {
+                    var d, view;
+                    d = decks.where({
+                      match_id: match.get('id')
+                    });
+                    return view = new MatchListView(match, d[0]);
+                  })(match));
+                }
+                return _results;
+              }
+            });
+          }
         });
       };
 
@@ -993,9 +1003,7 @@ onDeviceReady = function() {
       $.getJSON("" + server_url + "/users/1", function(user) {
         current.user = user;
         console.log('instantiating LobbyView');
-        current.lobby = new LobbyView();
-        $('#loader').css('opacity', 0);
-        return $('#loader').hide();
+        return current.lobby = new LobbyView();
       });
     } else {
       console.log('cookie not found');
@@ -1089,7 +1097,8 @@ onDeviceReady = function() {
     });
     return $('a').on('click', function(e) {
       var reverse;
-      if ($($(this).attr('href'))) {
+      console.log($($(this).attr('href')).length);
+      if ($($(this).attr('href')).length > 0) {
         e.preventDefault();
         reverse = false;
         if ($(this).attr('data-transition') === 'reverse') {
