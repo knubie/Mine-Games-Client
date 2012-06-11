@@ -197,3 +197,31 @@ ul {
 	display: none;
 	-webkit-transition: opacity .05s ease-in-out;
 }
+
+/* Buttons */
+
+#w90{
+	width: 90%;
+}
+
+.yellow{
+	background: #e8a22e;
+	border: solid 4px #4f3b29;
+	padding:10px;
+	margin:auto;
+	height: 25px;
+	width: 90%;
+	color: #fff;
+	font-family: 'Helvetica',sans-serif;
+	-webkit-border-radius: 10px;
+	text-align:center;
+	margin-bottom: 15px;
+	font-size: 20px;
+	font-weight: bold;
+}
+
+.yellow a{
+	color:#fff;
+	text-decoration: none;
+	display:block;
+}

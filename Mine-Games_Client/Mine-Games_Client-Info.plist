@@ -56,5 +56,7 @@
 	<string></string>
 	<key>UIStatusBarHidden</key>
 	<true/>
+	<key>LSApplicationCategoryType</key>
+	<string></string>
 </dict>
 </plist>
