@@ -39,9 +39,11 @@
 		</script>
   </head>
   <body onload="onBodyLoad()">
+
 		<div id="loader">
 			loading
 		</div>
+
 		<div id="home" class="green active page">
 			<div id="imgCenter">
 				<img src="images/logo.jpg" border="0" >
@@ -129,6 +131,7 @@
 			Invite friends:
 			<div id="invite_friends"></div>
 		</div>
+
 		<div id="new_match_random" class="page"> 
 			random
 		</div>
@@ -206,6 +209,11 @@
 			deck screen
 		</div>
 
+		<div id="choose-opponents" class="page">
+			<ul id="opponents">
+			</ul>
+		</div>
+
 		<div id="templates" style="display: none;">
 			<!-- Cards -->
 			<li class='card'>
@@ -215,6 +223,8 @@
 			</li>
 			<!-- Match list item -->
 			<li class='match-item-view'><a href="#match">match</a></li>
+			<!-- Opponent selection list item -->
+			<li class='opponent-item'></li>
 			<!-- Shop items -->
 			<div id='shop-item'>
 				<img src='images/_thumb.png' height='50' alt='' />

@@ -1,7 +1,7 @@
 # THIS FILE IS BARE.. NO CLOSURE WRAPPER
 
-server_url = "http://mine-games.herokuapp.com"
-# server_url = "http://localhost:3000" # TODO: replace with actual production server
+# server_url = "http://mine-games.herokuapp.com"
+server_url = "http://localhost:3000" # TODO: replace with actual production server
 
 # preventBehavior = (e) ->
 #   e.preventDefault()
@@ -57,6 +57,7 @@ onDeviceReady = ->
       $curr = $('.active')
       $page = $(page)
       console.log page
+      console.log 'options undefined' if typeof options == 'undefined'
       if options.reverse == true
           $curr.addClass('reverse')
           $page.addClass('reverse')
@@ -238,9 +239,11 @@ onDeviceReady = ->
       gopher:
         name: 'gopher'
         type: 'action'
-        cost: 6
+        cost: 1
         use: ->
-          # choose opponent
+          current.opponentsview = new ChooseOpponentsView()
+          changePage '#choose-opponents',
+            transition: 'slide'
           # create new deck model from opponent
           # choose random card
           # remove card from opponent.deck.hand
@@ -319,7 +322,7 @@ onDeviceReady = ->
       trash: (i, type, cb) ->
         # do something
 
-    current = # Global namespace.
+    current = # namespace.
       lobby: 0 # LobbyView
       match: 0 # Match model
       deck:  0 # Deck model
@@ -338,8 +341,6 @@ onDeviceReady = ->
         console.log @url()
         @on 'change', =>
           console.log 'saving match'
-          # @save() #TODO: optimize so you don't send 1000 requests every time the deck changes
-        # do something
 
     class Matches extends Backbone.Collection
       initialize: ->
@@ -380,9 +381,8 @@ onDeviceReady = ->
         console.log 'spend'
         money_cards = []
         for card in @get('hand')
-          do (card) ->
-            if cards[gsub(card, ' ', '_')].type == 'money'
-              money_cards.push(card)
+          if cards[gsub(card, ' ', '_')].type == 'money'
+            money_cards.push(card)
         money_cards = _.sortBy money_cards, (i) -> return i
         console.log money_cards
         new_hand = @get('hand')
@@ -409,8 +409,7 @@ onDeviceReady = ->
         @set('hand', new_hand)
         @save
 
-
-    class Decks extends Backbone.Collection # FIXME: this doesn't seem right...
+    class Decks extends Backbone.Collection 
       initialize: ->
         @fetch()
 
@@ -423,6 +422,37 @@ onDeviceReady = ->
 
     # Views
     # ============================================
+
+    class OpponentsListView extends Backbone.View
+
+      initialize: (@player) ->
+        @render()
+        @setElement $('#templates').find("#opponent-item").clone()
+
+      events:
+        'click': 'select'
+
+      render: ->
+        console.log 'OpponentsListView#render'
+        $('#opponents').append(@el)
+        @$el.html(@player.username)
+
+      select: ->
+
+
+
+    class ChooseOpponentsView extends Backbone.View
+
+      initialize: ->
+        @render()
+
+      el: '#choose-opponent'
+
+      render: ->
+        for player in current.match.get('players')
+          console.log player.username
+          view = new OpponentsListView(player)
+
 
     class ShopListView extends Backbone.View
       initialize: (@card, @amount) ->
@@ -454,11 +484,11 @@ onDeviceReady = ->
           current.deck.set('cards', curr_cards)
           console.log current.match.get('shop')
           console.log current.deck.get('cards')
-          # Remove @card.name from current.match.shop
-          # Add @card.name to current.hand.cards
           @amount--
+          @$el.find('.count').html(@amount)
           current.deck.spend(@card.cost)
-          changePage '#match'
+          changePage '#match',
+            transition: 'slide'
           current.match.save()
           current.deck.save()
         else
@@ -571,9 +601,10 @@ onDeviceReady = ->
           if current.turn
             console.log 'using card'
             @card.use()
-            @discard()
-            current.deck.set('actions', current.deck.get('actions') - 1 ) if @card.type == 'action'
-            current.deck.save()
+            # @discard()
+            # current.deck.set('actions', current.deck.get('actions') - 1 ) if @card.type == 'action'
+            # current.deck.save()
+
 
 
       discard: () ->
@@ -588,7 +619,6 @@ onDeviceReady = ->
         if current.deck.get('amount_discarded') == current.deck.get('amount_to_discard')
           console.log 'discard limit reached'
           $('.discard').hide()
-
 
     class MatchView extends Backbone.View
 
@@ -620,15 +650,15 @@ onDeviceReady = ->
         @$el.find('#hand').html('')
         console.log current.deck
         for card in current.deck.get('hand')
-          do (card) =>
-            console.log 'some cards'
-            view = new CardListView(cards[gsub(card, ' ', '_')]) #TODO take the gsub out and change card names on serverside to use underscore)
+          console.log 'some cards'
+          view = new CardListView(cards[gsub(card, ' ', '_')]) #TODO take the gsub out and change card names on serverside to use underscore)
 
 
         console.log "current actions: #{current.deck.get 'actions'}"
 
         @$el.find('#actions > .count').html(current.deck.get 'actions')
         @$el.find('#to_spend > .count').html(current.deck.to_spend())
+        console.log current.match.get('turn')
         if current.match.get('turn') == current.user.id
           console.log 'its yo turn'
           @$el.find('#end_turn').show()
@@ -637,6 +667,7 @@ onDeviceReady = ->
           console.log 'aint yo turn nigga'
           @$el.find('#end_turn').hide()
           @$el.find('#turn').show()
+          console.log current.user
           console.log current.match.get 'players'
           players = current.match.get('players')
           player = _.find players, (player) ->

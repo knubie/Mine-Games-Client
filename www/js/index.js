@@ -3,7 +3,7 @@ var onBodyLoad, onDeviceReady, server_url,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-server_url = "http://mine-games.herokuapp.com";
+server_url = "http://localhost:3000";
 
 onBodyLoad = function() {
   return document.addEventListener("deviceready", onDeviceReady, false);
@@ -11,7 +11,7 @@ onBodyLoad = function() {
 
 onDeviceReady = function() {
   return $(function() {
-    var CardDetailView, CardListView, Deck, Decks, LobbyView, Match, MatchListView, MatchView, Matches, ShopListView, ShopView, actions, cards, changePage, current, decks, facebook_auth, gsub, matches;
+    var CardDetailView, CardListView, ChooseOpponentsView, Deck, Decks, LobbyView, Match, MatchListView, MatchView, Matches, OpponentsListView, ShopListView, ShopView, actions, cards, changePage, current, decks, facebook_auth, gsub, matches;
     gsub = function(source, pattern, replacement) {
       var match, result;
       if (!((pattern != null) && (replacement != null))) {
@@ -54,6 +54,9 @@ onDeviceReady = function() {
       $curr = $('.active');
       $page = $(page);
       console.log(page);
+      if (typeof options === 'undefined') {
+        console.log('options undefined');
+      }
       if (options.reverse === true) {
         $curr.addClass('reverse');
         $page.addClass('reverse');
@@ -261,8 +264,13 @@ onDeviceReady = function() {
       gopher: {
         name: 'gopher',
         type: 'action',
-        cost: 6,
-        use: function() {}
+        cost: 1,
+        use: function() {
+          current.opponentsview = new ChooseOpponentsView();
+          return changePage('#choose-opponents', {
+            transition: 'slide'
+          });
+        }
       },
       magnet: {
         name: 'magnet',
@@ -430,25 +438,22 @@ onDeviceReady = function() {
       };
 
       Deck.prototype.spend = function(value) {
-        var card, money_cards, new_hand, _fn, _fn1, _i, _j, _len, _len1, _ref;
+        var card, money_cards, new_hand, _fn, _i, _j, _len, _len1, _ref;
         console.log('spend');
         money_cards = [];
         _ref = this.get('hand');
-        _fn = function(card) {
-          if (cards[gsub(card, ' ', '_')].type === 'money') {
-            return money_cards.push(card);
-          }
-        };
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           card = _ref[_i];
-          _fn(card);
+          if (cards[gsub(card, ' ', '_')].type === 'money') {
+            money_cards.push(card);
+          }
         }
         money_cards = _.sortBy(money_cards, function(i) {
           return i;
         });
         console.log(money_cards);
         new_hand = this.get('hand');
-        _fn1 = function(card) {
+        _fn = function(card) {
           if (value > 0) {
             new_hand = new_hand.minus(card);
             console.log(new_hand);
@@ -458,7 +463,7 @@ onDeviceReady = function() {
         };
         for (_j = 0, _len1 = money_cards.length; _j < _len1; _j++) {
           card = money_cards[_j];
-          _fn1(card);
+          _fn(card);
         }
         if (value < 0) {
           switch (value) {
@@ -505,6 +510,64 @@ onDeviceReady = function() {
     })(Backbone.Collection);
     matches = new Matches;
     decks = new Decks;
+    OpponentsListView = (function(_super) {
+
+      __extends(OpponentsListView, _super);
+
+      function OpponentsListView() {
+        return OpponentsListView.__super__.constructor.apply(this, arguments);
+      }
+
+      OpponentsListView.prototype.initialize = function(player) {
+        this.player = player;
+        this.render();
+        return this.setElement($('#templates').find("#opponent-item").clone());
+      };
+
+      OpponentsListView.prototype.events = {
+        'click': 'select'
+      };
+
+      OpponentsListView.prototype.render = function() {
+        console.log('OpponentsListView#render');
+        $('#opponents').append(this.el);
+        return this.$el.html(this.player.username);
+      };
+
+      OpponentsListView.prototype.select = function() {};
+
+      return OpponentsListView;
+
+    })(Backbone.View);
+    ChooseOpponentsView = (function(_super) {
+
+      __extends(ChooseOpponentsView, _super);
+
+      function ChooseOpponentsView() {
+        return ChooseOpponentsView.__super__.constructor.apply(this, arguments);
+      }
+
+      ChooseOpponentsView.prototype.initialize = function() {
+        return this.render();
+      };
+
+      ChooseOpponentsView.prototype.el = '#choose-opponent';
+
+      ChooseOpponentsView.prototype.render = function() {
+        var player, view, _i, _len, _ref, _results;
+        _ref = current.match.get('players');
+        _results = [];
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          player = _ref[_i];
+          console.log(player.username);
+          _results.push(view = new OpponentsListView(player));
+        }
+        return _results;
+      };
+
+      return ChooseOpponentsView;
+
+    })(Backbone.View);
     ShopListView = (function(_super) {
 
       __extends(ShopListView, _super);
@@ -548,8 +611,11 @@ onDeviceReady = function() {
           console.log(current.match.get('shop'));
           console.log(current.deck.get('cards'));
           this.amount--;
+          this.$el.find('.count').html(this.amount);
           current.deck.spend(this.card.cost);
-          changePage('#match');
+          changePage('#match', {
+            transition: 'slide'
+          });
           current.match.save();
           return current.deck.save();
         } else {
@@ -722,12 +788,7 @@ onDeviceReady = function() {
           this.dx = 0;
           if (current.turn) {
             console.log('using card');
-            this.card.use();
-            this.discard();
-            if (this.card.type === 'action') {
-              current.deck.set('actions', current.deck.get('actions') - 1);
-            }
-            return current.deck.save();
+            return this.card.use();
           }
         }
       };
@@ -785,25 +846,21 @@ onDeviceReady = function() {
       };
 
       MatchView.prototype.render = function() {
-        var card, player, players, _fn, _i, _len, _ref,
-          _this = this;
+        var card, player, players, view, _i, _len, _ref;
         console.log('rendering MatchView');
         console.log(this.$el.find('#hand'));
         this.$el.find('#hand').html('');
         console.log(current.deck);
         _ref = current.deck.get('hand');
-        _fn = function(card) {
-          var view;
-          console.log('some cards');
-          return view = new CardListView(cards[gsub(card, ' ', '_')]);
-        };
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           card = _ref[_i];
-          _fn(card);
+          console.log('some cards');
+          view = new CardListView(cards[gsub(card, ' ', '_')]);
         }
         console.log("current actions: " + (current.deck.get('actions')));
         this.$el.find('#actions > .count').html(current.deck.get('actions'));
         this.$el.find('#to_spend > .count').html(current.deck.to_spend());
+        console.log(current.match.get('turn'));
         if (current.match.get('turn') === current.user.id) {
           console.log('its yo turn');
           this.$el.find('#end_turn').show();
@@ -812,6 +869,7 @@ onDeviceReady = function() {
           console.log('aint yo turn nigga');
           this.$el.find('#end_turn').hide();
           this.$el.find('#turn').show();
+          console.log(current.user);
           console.log(current.match.get('players'));
           players = current.match.get('players');
           player = _.find(players, function(player) {
