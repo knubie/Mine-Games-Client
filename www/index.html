@@ -63,11 +63,9 @@
 				<h1>Log In</h1>
 			</div>
       <form accept-charset="UTF-8" data-ajax="false" id="login-form">
-        <label for="session_email">Email</label>
-        <input id="session_email" name="session[email]" size="30" type="text" />
-        <label for="session_password">Password</label>
-        <input id="session_password" name="session[password]" size="30" type="password" />
-        <input name="commit" type="submit" value="Sign in"  />
+        <input id="session_email" class="f90" name="session[email]" size="30" type="text" placeholder="Email"/>
+        <input id="session_password" name="session[password]" size="30" type="password" class="f90" placeholder="Password" />
+        <input id="w90" class="yellow" name="commit" type="submit" value="Sign in"  />
       </form>
       <a id="facebook-auth">Sign in with facebook</a>
 		</div>
@@ -78,14 +76,11 @@
 				<h1>Sign Up</h1>
 			</div>
 			<form accept-charset="UTF-8" id="signup-form" data-ajax="false">
-        <label for="user_username">Username</label>
-        <input id="user_username" name="user[username]" size="30" type="text" />
-        <label for="user_email">Email</label>
-        <input id="user_email" name="user[email]" size="30" type="text" />
-        <label for="user_password">Password</label>
-        <input id="user_password" name="user[password]" size="30" type="password" />
-        <label for="user_password_confirmation">Password confirmation</label>
-        <input id="user_password_confirmation" name="user[password_confirmation]" size="30" type="password" />
+        <input id="user_username" name="user[username]" size="30" type="text" class="f90" placeholder="User Name" />
+        <input id="user_email" name="user[email]" size="30" type="text" class="f90" placeholder="Email"/>
+        <input id="user_password" name="user[password]" size="30" type="password" class="f90" placeholder="Password" />
+ 
+        <input id="user_password_confirmation" name="user[password_confirmation]" size="30" type="password" class="f90" placeholder="Password Confirmation" />
         <input name="commit" type="submit" value="Sign Up" />
       </form>
 		</div>
