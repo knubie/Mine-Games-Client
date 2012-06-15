@@ -1142,7 +1142,6 @@ onDeviceReady = function() {
         }
       };
     };
-    $.cookie('token', 'LollakwpnMXj54X6oWwt2g');
     if ($.cookie("token") != null) {
       console.log('cookie found');
       $('#loader').show();
