@@ -1,7 +1,7 @@
 # THIS FILE IS BARE.. NO CLOSURE WRAPPER
 
-# server_url = "http://mine-games.herokuapp.com"
-server_url = "http://localhost:3000" # TODO: replace with actual production server
+server_url = "http://mine-games.herokuapp.com"
+# server_url = "http://localhost:3000" # TODO: replace with actual production server
 
 # preventBehavior = (e) ->
 #   e.preventDefault()
@@ -311,7 +311,7 @@ onDeviceReady = ->
         # do something
       discard: (options, cb) ->
         # insert view that tells user to discard cards
-        # add icon to click on each card that let's user discard that card
+        # add icon to click on each card that lets user discard that card
         $('.discard').show()
         console.log options.number
         current.deck.set
@@ -812,7 +812,7 @@ onDeviceReady = ->
           console.log 6
           callback()
 
-    # $.cookie 'token', 'LollakwpnMXj54X6oWwt2g' #TODO: take this out and find out why cookies aren't persisting
+    # $.cookie 'token', 'LollakwpnMXj54X6oWwt2g' #TODO: take this out and find out why cookies arent persisting
     
     if $.cookie("token")?
       # TODO: match token with user on server side, if match, execute the below block

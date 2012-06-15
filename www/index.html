@@ -57,33 +57,42 @@
 				<a href="#signup"> SIGN UP</a>
 			</div>
 		</div>
-		<div id="login" class="green page">
-      <div data-role="header" data-position="inline">
-				<a href="#home" data-transition="reverse">Cancel</a>
-				<h1>Log In</h1>
+		<div id="login" class="brown page">
+			<div id="lobby_header">
+				<a href="#home" data-transition="reverse"><img src="images/titles/cancel.png"> </a>
 			</div>
-      <form accept-charset="UTF-8" data-ajax="false" id="login-form">
-        <input id="session_email" class="f90" name="session[email]" size="30" type="text" placeholder="Email"/>
-        <input id="session_password" name="session[password]" size="30" type="password" class="f90" placeholder="Password" />
-        <input id="w90" class="yellow" name="commit" type="submit" value="Sign in"  />
-      </form>
-      <a id="facebook-auth">Sign in with facebook</a>
-		</div>
+			<div id="divTitle">
+				<img src="images/titles/login.png"> 
+			</div>
+	
 
-		<div id="signup" class="green page">
-      <div data-role="header" data-position="inline">
-				<a href="#home" data-transition="reverse">Cancel</a>
-				<h1>Sign Up</h1>
-			</div>
-			<form accept-charset="UTF-8" id="signup-form" data-ajax="false">
-        <input id="user_username" name="user[username]" size="30" type="text" class="f90" placeholder="User Name" />
-        <input id="user_email" name="user[email]" size="30" type="text" class="f90" placeholder="Email"/>
-        <input id="user_password" name="user[password]" size="30" type="password" class="f90" placeholder="Password" />
- 
-        <input id="user_password_confirmation" name="user[password_confirmation]" size="30" type="password" class="f90" placeholder="Password Confirmation" />
-        <input name="commit" type="submit" value="Sign Up" />
-      </form>
+			<div id="signForm">
+			    <form accept-charset="UTF-8" data-ajax="false" id="login-form">
+			        <input id="session_email" class="f90" name="session[email]" size="30" type="text" placeholder="Email"/>
+			        <input id="session_password" name="session[password]" size="30" type="password" class="f90" placeholder="Password" />
+			        <input id="w90" class="bigButton" name="commit" type="submit" value="Sign in"  />
+			    </form>
+			</div>    
+    
+    <a id="facebook-auth"><img src="images/signin_fb.png" border="0"></a>
+	</div>
+
+	<div id="signup" class="green page">
+      	<div data-role="header" data-position="inline">
+			<a href="#home" data-transition="reverse">Cancel</a>
+			<h1>Sign Up</h1>
 		</div>
+			<div id="signForm">
+				<form accept-charset="UTF-8" id="signup-form" data-ajax="false">
+			        <input id="user_username" name="user[username]" size="30" type="text" class="f90" placeholder="User Name" />
+			        <input id="user_email" name="user[email]" size="30" type="text" class="f90" placeholder="Email"/>
+			        <input id="user_password" name="user[password]" size="30" type="password" class="f90" placeholder="Password" />
+			 
+			        <input id="user_password_confirmation" name="user[password_confirmation]" size="30" type="password" class="f90" placeholder="Password Confirmation" />
+			        <input name="commit" type="submit" value="Sign Up" />
+	      		</form>
+	      	</div>	
+	</div>
 
 		<div id="lobby" class="page">
 			<a class="logout">log out</a>

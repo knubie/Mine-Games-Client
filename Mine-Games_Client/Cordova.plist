@@ -56,8 +56,6 @@
 		<string>CDVSplashScreen</string>
 		<key>Battery</key>
 		<string>CDVBattery</string>
-		<key>org.apache.cordova.WebInspector</key>
-		<string>CDVWebInspector</string>
 	</dict>
 </dict>
 </plist>
