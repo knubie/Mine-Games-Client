@@ -1,7 +1,7 @@
 # THIS FILE IS BARE.. NO CLOSURE WRAPPER
 
-# server_url = "http://mine-games.herokuapp.com"
-server_url = "http://localhost:3000" # TODO: replace with actual production server
+server_url = "http://mine-games.herokuapp.com"
+# server_url = "http://localhost:3000" # TODO: replace with actual production server
 
 # preventBehavior = (e) ->
 #   e.preventDefault()
@@ -241,11 +241,26 @@ onDeviceReady = ->
         type: 'action'
         cost: 1
         use: ->
+          console.log "gopher#use"
           current.opponentsview = new ChooseOpponentsView()
           changePage '#choose-opponents',
             transition: 'slide'
-          # create new deck model from opponent
-          # choose random card
+
+          current.attack = (player) ->
+            console.log "current#attack"
+            console.log "chosen opponent: #{player}"
+            # create new deck model from selected opponent
+            opponents_decks = new Decks()
+            opponents_decks.url = "#{server_url}/decks_by_user/#{player.id}"
+            console.log "fetching decks"
+            opponents_decks.fetch
+              success: ->
+                console.log 'fetch success'
+                target_deck = opponents_decks.where(match_id: current.match.get('id'))[0]
+                actions.draw2 target_deck, 'hand',
+                  random: true
+                  number: 1
+
           # remove card from opponent.deck.hand
           # push card to current.deck.hand
           # save both deck models
@@ -273,7 +288,7 @@ onDeviceReady = ->
           h.push nc
 
           current.match.set('mine', m)
-          current.deck.set('mine', h)
+          current.deck.set('hand', h)
 
           console.log "new card: #{nc}"
           console.log current.deck.get('hand')
@@ -282,6 +297,56 @@ onDeviceReady = ->
           current.hand.push view
 
           options.callback(nc)
+
+      draw2: (model, attribute, options) ->
+        # default options
+        console.log "setting defaults"
+        optoins.number = 1 if typeof options.number == 'undefined'
+        optoins.random = false if typeof options.number == 'undefined'
+
+        for i in [1..options.number]
+          console.log "#{i}: iterating.."      
+          console.log "gtting source and hand"
+          console.log "model:"
+          console.log model
+          console.log "attribute:"
+          console.log attribute
+          source = model.get(attribute)
+          console.log "source: #{source}"
+          hand = current.deck.get('hand')
+          console.log "hand: #{hand}"
+
+          if options.random == true
+            console.log "drawing random card"
+            r = Math.floor(Math.random()*source.length-1)
+            console.log "r: #{r}"
+            newcard = source[r]
+            console.log "new card: #{newcard}"
+            source[r..r] = []
+          else
+            console.log "drawing first card"
+            newcard = source[0]
+            source[0..0] = []
+
+          console.log "pushing new card to hand"
+          hand.push newcard
+
+          console.log "source before draw: #{model.get(attribute)}"
+          console.log "hand before draw: #{current.deck.get('hand')}"
+
+          model.set(attribute, source)
+          current.deck.set('hand', hand)
+
+          console.log "source after draw: #{model.get(attribute)}"
+          console.log "hand after draw: #{current.deck.get('hand')}"
+          console.log "new card: #{newcard}"
+
+          view = new CardListView(cards[gsub(newcard, ' ', '_')]) #TODO take the gsub out and change card names on serverside to use underscore
+
+          model.save()
+          current.deck.save()
+
+          options.callback(newcard) if typeof callback == 'function'
 
       draw: (options) ->
         console.log 'draw from your deck'
@@ -294,8 +359,8 @@ onDeviceReady = ->
           c[0..0] = []
           h.push nc
 
-          current.deck.set({cards: c})
-          current.deck.set({hand: h})
+          current.deck.set('cards', c)
+          current.deck.set('hand', h)
 
           console.log "new card: #{nc}"
 
@@ -338,16 +403,14 @@ onDeviceReady = ->
 
     class Match extends Backbone.Model
       initialize: ->
-        console.log @url()
+        console.log "initializing Match model"
         @on 'change', =>
-          console.log 'saving match'
+          console.log "#{@} model changed"
 
     class Matches extends Backbone.Collection
       initialize: ->
         @fetch()
-        console.log 'new model'
-        @on 'reset', =>
-          console.log @
+        console.log 'initializing Matches collection'
 
       model: Match
       url: "#{server_url}/matches"
@@ -355,14 +418,17 @@ onDeviceReady = ->
     class Deck extends Backbone.Model
       initialize: ->
         @on 'change', =>
-          console.log 'saving deck'
+          console.log "#{@} model changed"
           # @save()
         @on 'change:actions', =>
+          console.log "actions changed, updating DOM"
           $('#actions > .count').html(current.deck.get 'actions')
         @on 'change:hand', =>
+          console.log "hand changed, updating DOM"
           $('#to_spend > .count').html(current.deck.to_spend())
 
 
+      urlRoot: "#{server_url}/decks"
 
       amount_to_discard: 0
       amount_discarded: 0
@@ -370,7 +436,7 @@ onDeviceReady = ->
 
       to_spend: ->
         to_spend = 0
-        console.log 'to spend'
+        console.log "calculating to_spend"
         for card in @get('hand')
           do (card) ->
             if cards[gsub(card, ' ', '_')].type == 'money'
@@ -378,13 +444,13 @@ onDeviceReady = ->
         to_spend
 
       spend: (value) ->
-        console.log 'spend'
+        console.log 'Deck#spend'
         money_cards = []
         for card in @get('hand')
           if cards[gsub(card, ' ', '_')].type == 'money'
             money_cards.push(card)
         money_cards = _.sortBy money_cards, (i) -> return i
-        console.log money_cards
+        console.log "current money cards in hand: #{money_cards}"
         new_hand = @get('hand')
         for card in money_cards
           do (card) ->
@@ -396,29 +462,38 @@ onDeviceReady = ->
         if value < 0
           switch value
             when -1
+              console.log "returning copper as change"
               new_hand.push 'copper'
             when -2 
+              console.log "returning silver as change"
               new_hand.push 'silver'
             when -3 
+              console.log "returning gold as change"
               new_hand.push 'gold'
             when -4 
+              console.log "returning two silvers as change"
               new_hand.push 'silver'
               new_hand.push 'silver'
 
-        console.log new_hand
+        console.log "new hand: #{new_hand}"
         @set('hand', new_hand)
+        console.log "saving hand.."
         @save
 
     class Decks extends Backbone.Collection 
       initialize: ->
+        console.log "initializing Decks collection"
         @fetch()
 
       model: Deck
       url: "#{server_url}/decks"
 
 
+    console.log "creating new decks and matches collections"
     matches = new Matches
     decks = new Decks
+    console.log matches
+    console.log decks
 
     # Views
     # ============================================
@@ -426,8 +501,9 @@ onDeviceReady = ->
     class OpponentsListView extends Backbone.View
 
       initialize: (@player) ->
+        console.log "initializing opponentslistview"
+        @setElement $('#templates').find(".opponent-item").clone()
         @render()
-        @setElement $('#templates').find("#opponent-item").clone()
 
       events:
         'click': 'select'
@@ -438,26 +514,29 @@ onDeviceReady = ->
         @$el.html(@player.username)
 
       select: ->
+        console.log "opponentlistview#select"
+        current.attack(@player)
 
 
 
     class ChooseOpponentsView extends Backbone.View
 
       initialize: ->
+        console.log "initializing ChooseOpponentsView"
         @render()
 
       el: '#choose-opponent'
 
       render: ->
         for player in current.match.get('players')
-          console.log player.username
+          console.log "opponent: #{player.username}"
           view = new OpponentsListView(player)
 
 
     class ShopListView extends Backbone.View
       initialize: (@card, @amount) ->
-        console.log 'init ShopListView'
-        @setElement $('#templates').find("#shop-item").clone()
+        console.log 'initializing ShopListView'
+        @setElement $('#templates').find(".shop-item").clone()
         @render()
 
       events:
@@ -472,9 +551,9 @@ onDeviceReady = ->
         @$el.find('.name').html(@card.name)
 
       buy: ->
-        console.log current.deck.to_spend()
+        console.log "ShopListView#buy"
         if @card.cost <= current.deck.to_spend() and current.turn
-          console.log 'buy it'
+          console.log 'buying card..'
           console.log current.match.get('shop')
           shop = current.match.get('shop')
           shop = shop.minus(@card.name)
@@ -777,12 +856,11 @@ onDeviceReady = ->
                 $('#loader').hide()
                 $('#matches').html('')
                 console.log 'fetched data for matches and decks'
-                changePage "#lobby",
-                  transition: "none"
+                console.log 'about to iterate matches in LobbyView#render'
                 for match in matches.models
-                  do (match) =>
-                    d = decks.where(match_id: match.get('id'))
-                    view = new MatchListView(match, d[0])
+                  console.log 'iterating matches in LobbyView#render'
+                  d = decks.where(match_id: match.get('id'))
+                  view = new MatchListView(match, d[0])
             
         
 
@@ -793,6 +871,9 @@ onDeviceReady = ->
 
     # Authorization
     # ============================================
+
+    current.lobby = new LobbyView
+
     facebook_auth = (callback) ->
       console.log 'facebook_auth function'
       window.plugins.childBrowser.showWebPage "#{server_url}/auth/facebook?display=touch"
@@ -812,7 +893,7 @@ onDeviceReady = ->
           console.log 6
           callback()
 
-    # $.cookie 'token', 'LollakwpnMXj54X6oWwt2g' #TODO: take this out and find out why cookies aren't persisting
+    $.cookie 'token', 'LollakwpnMXj54X6oWwt2g' #TODO: take this out and find out why cookies aren't persisting
     
     if $.cookie("token")?
       # TODO: match token with user on server side, if match, execute the below block
@@ -820,10 +901,12 @@ onDeviceReady = ->
       # TODO: add 'logging in' animation loader
       $('#loader').show()
       $('#loader').css('opacity', 1)
-      $.getJSON("#{server_url}/users/1", (user) ->
+      $.getJSON("#{server_url}/users/99", (user) ->
         current.user = user
         console.log 'instantiating LobbyView'
-        current.lobby = new LobbyView()
+        current.lobby.render()
+        changePage "#lobby",
+          transition: "none"
       )
     else
       console.log 'cookie not found'
@@ -836,34 +919,36 @@ onDeviceReady = ->
           console.log 8
           current.user = user
           console.log 'instantiating LobbyView'
-          if current.lobby # FIXME: perhaps render the lobby first and update it after sign in
-            current.lobby.render()
-          else
-            current.lobby = new LobbyView()
+          current.lobby.render()
+          changePage "#lobby",
+            transition: "none"
 
     $('#login-form').submit (e) ->
       $('#loader').show()
       $('#loader').css('opacity', 1)
       $.post("#{server_url}/signin.json", $(this).serialize(), (user) ->
+        console.log '930'
         if user.error?
           alert 'invalid username and/or password'
           $('#loader').hide()
           $('#loader').css('opacity', 0)
         else
+          console.log '936'
           $('#loader').hide()
           $('#loader').css('opacity', 0)
-          $.cookie 'token', user.token
-          console.log $.cookie 'token',
+          $.cookie 'token', user.token,
             expires: 7300
+          console.log $.cookie 'token'
+          console.log '942'
           current.user = user
 
-          if current.lobby # FIXME: perhaps render the lobby first and update it after sign in
-            current.lobby.render()
-          else
-            current.lobby = new LobbyView()
+          console.log '945'
+          current.lobby.render()
 
-          changePage '#lobby',
-            transition: 'slidedown'
+          console.log '948'
+          changePage "#lobby",
+            transition: "none"
+
       , 'json')
       e.preventDefault()
 
@@ -874,6 +959,7 @@ onDeviceReady = ->
         else
           console.log $.cookie 'token',
             expires: 7300
+          current.lobby.render()
           changePage '#lobby',
             transition: 'slidedown'
       , 'json')
@@ -903,7 +989,9 @@ onDeviceReady = ->
         else
           # end loader
           alert "match created"
-          current.lobby = new LobbyView()
+          current.lobby.render()
+          changePage "#lobby",
+            transition: "none"
       , 'json')
       e.preventDefault()
 

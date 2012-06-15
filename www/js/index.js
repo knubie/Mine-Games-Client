@@ -3,7 +3,7 @@ var onBodyLoad, onDeviceReady, server_url,
   __hasProp = {}.hasOwnProperty,
   __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-server_url = "http://localhost:3000";
+server_url = "http://mine-games.herokuapp.com";
 
 onBodyLoad = function() {
   return document.addEventListener("deviceready", onDeviceReady, false);
@@ -266,10 +266,32 @@ onDeviceReady = function() {
         type: 'action',
         cost: 1,
         use: function() {
+          console.log("gopher#use");
           current.opponentsview = new ChooseOpponentsView();
-          return changePage('#choose-opponents', {
+          changePage('#choose-opponents', {
             transition: 'slide'
           });
+          return current.attack = function(player) {
+            var opponents_decks;
+            console.log("current#attack");
+            console.log("chosen opponent: " + player);
+            opponents_decks = new Decks();
+            opponents_decks.url = "" + server_url + "/decks_by_user/" + player.id;
+            console.log("fetching decks");
+            return opponents_decks.fetch({
+              success: function() {
+                var target_deck;
+                console.log('fetch success');
+                target_deck = opponents_decks.where({
+                  match_id: current.match.get('id')
+                })[0];
+                return actions.draw2(target_deck, 'hand', {
+                  random: true,
+                  number: 1
+                });
+              }
+            });
+          };
         }
       },
       magnet: {
@@ -296,12 +318,65 @@ onDeviceReady = function() {
           [].splice.apply(m, [0, 1].concat(_ref1 = [])), _ref1;
           h.push(nc);
           current.match.set('mine', m);
-          current.deck.set('mine', h);
+          current.deck.set('hand', h);
           console.log("new card: " + nc);
           console.log(current.deck.get('hand'));
           view = new CardListView(cards[gsub(nc, ' ', '_')]);
           current.hand.push(view);
           _results.push(options.callback(nc));
+        }
+        return _results;
+      },
+      draw2: function(model, attribute, options) {
+        var hand, i, newcard, r, source, view, _i, _ref, _ref1, _ref2, _results;
+        console.log("setting defaults");
+        if (typeof options.number === 'undefined') {
+          optoins.number = 1;
+        }
+        if (typeof options.number === 'undefined') {
+          optoins.random = false;
+        }
+        _results = [];
+        for (i = _i = 1, _ref = options.number; 1 <= _ref ? _i <= _ref : _i >= _ref; i = 1 <= _ref ? ++_i : --_i) {
+          console.log("" + i + ": iterating..");
+          console.log("gtting source and hand");
+          console.log("model:");
+          console.log(model);
+          console.log("attribute:");
+          console.log(attribute);
+          source = model.get(attribute);
+          console.log("source: " + source);
+          hand = current.deck.get('hand');
+          console.log("hand: " + hand);
+          if (options.random === true) {
+            console.log("drawing random card");
+            r = Math.floor(Math.random() * source.length - 1);
+            console.log("r: " + r);
+            newcard = source[r];
+            console.log("new card: " + newcard);
+            [].splice.apply(source, [r, r - r + 1].concat(_ref1 = [])), _ref1;
+          } else {
+            console.log("drawing first card");
+            newcard = source[0];
+            [].splice.apply(source, [0, 1].concat(_ref2 = [])), _ref2;
+          }
+          console.log("pushing new card to hand");
+          hand.push(newcard);
+          console.log("source before draw: " + (model.get(attribute)));
+          console.log("hand before draw: " + (current.deck.get('hand')));
+          model.set(attribute, source);
+          current.deck.set('hand', hand);
+          console.log("source after draw: " + (model.get(attribute)));
+          console.log("hand after draw: " + (current.deck.get('hand')));
+          console.log("new card: " + newcard);
+          view = new CardListView(cards[gsub(newcard, ' ', '_')]);
+          model.save();
+          current.deck.save();
+          if (typeof callback === 'function') {
+            _results.push(options.callback(newcard));
+          } else {
+            _results.push(void 0);
+          }
         }
         return _results;
       },
@@ -316,12 +391,8 @@ onDeviceReady = function() {
           nc = c[0];
           [].splice.apply(c, [0, 1].concat(_ref1 = [])), _ref1;
           h.push(nc);
-          current.deck.set({
-            cards: c
-          });
-          current.deck.set({
-            hand: h
-          });
+          current.deck.set('cards', c);
+          current.deck.set('hand', h);
           console.log("new card: " + nc);
           view = new CardListView(cards[gsub(nc, ' ', '_')]);
           current.hand.push(view);
@@ -360,9 +431,9 @@ onDeviceReady = function() {
 
       Match.prototype.initialize = function() {
         var _this = this;
-        console.log(this.url());
+        console.log("initializing Match model");
         return this.on('change', function() {
-          return console.log('saving match');
+          return console.log("" + _this + " model changed");
         });
       };
 
@@ -378,12 +449,8 @@ onDeviceReady = function() {
       }
 
       Matches.prototype.initialize = function() {
-        var _this = this;
         this.fetch();
-        console.log('new model');
-        return this.on('reset', function() {
-          return console.log(_this);
-        });
+        return console.log('initializing Matches collection');
       };
 
       Matches.prototype.model = Match;
@@ -404,15 +471,19 @@ onDeviceReady = function() {
       Deck.prototype.initialize = function() {
         var _this = this;
         this.on('change', function() {
-          return console.log('saving deck');
+          return console.log("" + _this + " model changed");
         });
         this.on('change:actions', function() {
+          console.log("actions changed, updating DOM");
           return $('#actions > .count').html(current.deck.get('actions'));
         });
         return this.on('change:hand', function() {
+          console.log("hand changed, updating DOM");
           return $('#to_spend > .count').html(current.deck.to_spend());
         });
       };
+
+      Deck.prototype.urlRoot = "" + server_url + "/decks";
 
       Deck.prototype.amount_to_discard = 0;
 
@@ -423,7 +494,7 @@ onDeviceReady = function() {
       Deck.prototype.to_spend = function() {
         var card, to_spend, _fn, _i, _len, _ref;
         to_spend = 0;
-        console.log('to spend');
+        console.log("calculating to_spend");
         _ref = this.get('hand');
         _fn = function(card) {
           if (cards[gsub(card, ' ', '_')].type === 'money') {
@@ -439,7 +510,7 @@ onDeviceReady = function() {
 
       Deck.prototype.spend = function(value) {
         var card, money_cards, new_hand, _fn, _i, _j, _len, _len1, _ref;
-        console.log('spend');
+        console.log('Deck#spend');
         money_cards = [];
         _ref = this.get('hand');
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
@@ -451,7 +522,7 @@ onDeviceReady = function() {
         money_cards = _.sortBy(money_cards, function(i) {
           return i;
         });
-        console.log(money_cards);
+        console.log("current money cards in hand: " + money_cards);
         new_hand = this.get('hand');
         _fn = function(card) {
           if (value > 0) {
@@ -468,21 +539,26 @@ onDeviceReady = function() {
         if (value < 0) {
           switch (value) {
             case -1:
+              console.log("returning copper as change");
               new_hand.push('copper');
               break;
             case -2:
+              console.log("returning silver as change");
               new_hand.push('silver');
               break;
             case -3:
+              console.log("returning gold as change");
               new_hand.push('gold');
               break;
             case -4:
+              console.log("returning two silvers as change");
               new_hand.push('silver');
               new_hand.push('silver');
           }
         }
-        console.log(new_hand);
+        console.log("new hand: " + new_hand);
         this.set('hand', new_hand);
+        console.log("saving hand..");
         return this.save;
       };
 
@@ -498,6 +574,7 @@ onDeviceReady = function() {
       }
 
       Decks.prototype.initialize = function() {
+        console.log("initializing Decks collection");
         return this.fetch();
       };
 
@@ -508,8 +585,11 @@ onDeviceReady = function() {
       return Decks;
 
     })(Backbone.Collection);
+    console.log("creating new decks and matches collections");
     matches = new Matches;
     decks = new Decks;
+    console.log(matches);
+    console.log(decks);
     OpponentsListView = (function(_super) {
 
       __extends(OpponentsListView, _super);
@@ -520,8 +600,9 @@ onDeviceReady = function() {
 
       OpponentsListView.prototype.initialize = function(player) {
         this.player = player;
-        this.render();
-        return this.setElement($('#templates').find("#opponent-item").clone());
+        console.log("initializing opponentslistview");
+        this.setElement($('#templates').find(".opponent-item").clone());
+        return this.render();
       };
 
       OpponentsListView.prototype.events = {
@@ -534,7 +615,10 @@ onDeviceReady = function() {
         return this.$el.html(this.player.username);
       };
 
-      OpponentsListView.prototype.select = function() {};
+      OpponentsListView.prototype.select = function() {
+        console.log("opponentlistview#select");
+        return current.attack(this.player);
+      };
 
       return OpponentsListView;
 
@@ -548,6 +632,7 @@ onDeviceReady = function() {
       }
 
       ChooseOpponentsView.prototype.initialize = function() {
+        console.log("initializing ChooseOpponentsView");
         return this.render();
       };
 
@@ -559,7 +644,7 @@ onDeviceReady = function() {
         _results = [];
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           player = _ref[_i];
-          console.log(player.username);
+          console.log("opponent: " + player.username);
           _results.push(view = new OpponentsListView(player));
         }
         return _results;
@@ -579,8 +664,8 @@ onDeviceReady = function() {
       ShopListView.prototype.initialize = function(card, amount) {
         this.card = card;
         this.amount = amount;
-        console.log('init ShopListView');
-        this.setElement($('#templates').find("#shop-item").clone());
+        console.log('initializing ShopListView');
+        this.setElement($('#templates').find(".shop-item").clone());
         return this.render();
       };
 
@@ -598,9 +683,9 @@ onDeviceReady = function() {
 
       ShopListView.prototype.buy = function() {
         var curr_cards, shop;
-        console.log(current.deck.to_spend());
+        console.log("ShopListView#buy");
         if (this.card.cost <= current.deck.to_spend() && current.turn) {
-          console.log('buy it');
+          console.log('buying card..');
           console.log(current.match.get('shop'));
           shop = current.match.get('shop');
           shop = shop.minus(this.card.name);
@@ -1005,25 +1090,21 @@ onDeviceReady = function() {
             console.log('got match data, waiting on decks');
             return decks.fetch({
               success: function() {
-                var match, _i, _len, _ref, _results;
+                var d, match, view, _i, _len, _ref, _results;
                 $('#loader').css('opacity', 0);
                 $('#loader').hide();
                 $('#matches').html('');
                 console.log('fetched data for matches and decks');
-                changePage("#lobby", {
-                  transition: "none"
-                });
+                console.log('about to iterate matches in LobbyView#render');
                 _ref = matches.models;
                 _results = [];
                 for (_i = 0, _len = _ref.length; _i < _len; _i++) {
                   match = _ref[_i];
-                  _results.push((function(match) {
-                    var d, view;
-                    d = decks.where({
-                      match_id: match.get('id')
-                    });
-                    return view = new MatchListView(match, d[0]);
-                  })(match));
+                  console.log('iterating matches in LobbyView#render');
+                  d = decks.where({
+                    match_id: match.get('id')
+                  });
+                  _results.push(view = new MatchListView(match, d[0]));
                 }
                 return _results;
               }
@@ -1039,6 +1120,7 @@ onDeviceReady = function() {
       return LobbyView;
 
     })(Backbone.View);
+    current.lobby = new LobbyView;
     facebook_auth = function(callback) {
       console.log('facebook_auth function');
       window.plugins.childBrowser.showWebPage("" + server_url + "/auth/facebook?display=touch");
@@ -1060,14 +1142,18 @@ onDeviceReady = function() {
         }
       };
     };
+    $.cookie('token', 'LollakwpnMXj54X6oWwt2g');
     if ($.cookie("token") != null) {
       console.log('cookie found');
       $('#loader').show();
       $('#loader').css('opacity', 1);
-      $.getJSON("" + server_url + "/users/1", function(user) {
+      $.getJSON("" + server_url + "/users/99", function(user) {
         current.user = user;
         console.log('instantiating LobbyView');
-        return current.lobby = new LobbyView();
+        current.lobby.render();
+        return changePage("#lobby", {
+          transition: "none"
+        });
       });
     } else {
       console.log('cookie not found');
@@ -1080,11 +1166,10 @@ onDeviceReady = function() {
           console.log(8);
           current.user = user;
           console.log('instantiating LobbyView');
-          if (current.lobby) {
-            return current.lobby.render();
-          } else {
-            return current.lobby = new LobbyView();
-          }
+          current.lobby.render();
+          return changePage("#lobby", {
+            transition: "none"
+          });
         });
       });
     });
@@ -1092,25 +1177,26 @@ onDeviceReady = function() {
       $('#loader').show();
       $('#loader').css('opacity', 1);
       $.post("" + server_url + "/signin.json", $(this).serialize(), function(user) {
+        console.log('930');
         if (user.error != null) {
           alert('invalid username and/or password');
           $('#loader').hide();
           return $('#loader').css('opacity', 0);
         } else {
+          console.log('936');
           $('#loader').hide();
           $('#loader').css('opacity', 0);
-          $.cookie('token', user.token);
-          console.log($.cookie('token', {
+          $.cookie('token', user.token, {
             expires: 7300
-          }));
+          });
+          console.log($.cookie('token'));
+          console.log('942');
           current.user = user;
-          if (current.lobby) {
-            current.lobby.render();
-          } else {
-            current.lobby = new LobbyView();
-          }
-          return changePage('#lobby', {
-            transition: 'slidedown'
+          console.log('945');
+          current.lobby.render();
+          console.log('948');
+          return changePage("#lobby", {
+            transition: "none"
           });
         }
       }, 'json');
@@ -1124,6 +1210,7 @@ onDeviceReady = function() {
           console.log($.cookie('token', {
             expires: 7300
           }));
+          current.lobby.render();
           return changePage('#lobby', {
             transition: 'slidedown'
           });
@@ -1160,7 +1247,10 @@ onDeviceReady = function() {
           return _results;
         } else {
           alert("match created");
-          return current.lobby = new LobbyView();
+          current.lobby.render();
+          return changePage("#lobby", {
+            transition: "none"
+          });
         }
       }, 'json');
       return e.preventDefault();
