@@ -77,11 +77,13 @@
     <a id="facebook-auth"><img src="images/signin_fb.png" border="0"></a>
 	</div>
 
-	<div id="signup" class="green page">
-      	<div data-role="header" data-position="inline">
-			<a href="#home" data-transition="reverse">Cancel</a>
-			<h1>Sign Up</h1>
-		</div>
+	<div id="signup" class="brown page">
+			<div id="lobby_header">
+				<a href="#home" data-transition="reverse"><img src="images/titles/cancel.png"> </a>
+			</div>
+			<div id="divTitle">
+				<img src="images/titles/signup.png"> 
+			</div>
 			<div id="signForm">
 				<form accept-charset="UTF-8" id="signup-form" data-ajax="false">
 			        <input id="user_username" name="user[username]" size="30" type="text" class="f90" placeholder="User Name" />
@@ -89,7 +91,7 @@
 			        <input id="user_password" name="user[password]" size="30" type="password" class="f90" placeholder="Password" />
 			 
 			        <input id="user_password_confirmation" name="user[password_confirmation]" size="30" type="password" class="f90" placeholder="Password Confirmation" />
-			        <input name="commit" type="submit" value="Sign Up" />
+			        <input name="commit" type="submit" class="bigButton" value="Sign Up" />
 	      		</form>
 	      	</div>	
 	</div>
