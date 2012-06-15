@@ -7,6 +7,9 @@
 		<meta charset="utf-8">
 
     <!-- <link rel="stylesheet"  href="css/lib/jquery.mobile-1.1.0.min.css" /> -->
+  
+
+
     <link rel="stylesheet" href="css/style.css" />
     <link rel="stylesheet" href="css/transitions.css" />
 		<!-- iPad/iPhone specific css below, add after your main css >
@@ -17,6 +20,8 @@
 		<script src="http://localhost:8080/target/target-script-min.js#anonymous"></script>
 		<script src="js/lib/thumbs.js"></script>
 		<script src="js/lib/cordova-1.7.0.js"></script>
+		<script src="cordova-WebInspector.js"></script>		
+
 		<!-- // <script src="js/lib/jquery-1.7.2.min.js"></script> -->
 		<!-- // <script src="js/lib/jquery.mobile-1.1.0.min.js"></script> -->
 		<script src="js/lib/zepto.min.js"></script>
@@ -38,51 +43,58 @@
   </head>
   <body onload="onBodyLoad()">
 
-		<div id="loader">
-			loading
-		</div>
 
 		<div id="home" class="green active page">
 			<div id="imgCenter">
 				<img src="images/logo.jpg" border="0" >
 			</div>
 
-			<a href="#login" data-transition="fade" class="yellow" data-role="button">LOGIN</a>
-			<a href="#signup" data-transition="fade" class="yellow" data-role="button">SIGN UP</a>
-		</div>
+			<div id="w90" class="yellow">
+				<a href="#login"> LOGIN</a>
+			</div>	
 
-		<div id="login" class="green page">
-      <div data-role="header" data-position="inline">
-				<a href="#home" data-transition="reverse">Cancel</a>
-				<h1>Log In</h1>
+			<div id="w90" class="yellow">
+				<a href="#signup"> SIGN UP</a>
 			</div>
-      <form accept-charset="UTF-8" data-ajax="false" id="login-form">
-        <label for="session_email">Email</label>
-        <input id="session_email" name="session[email]" size="30" type="text" />
-        <label for="session_password">Password</label>
-        <input id="session_password" name="session[password]" size="30" type="password" />
-        <input name="commit" type="submit" value="Sign in"  />
-      </form>
-      <a id="facebook-auth">Sign in with facebook</a>
 		</div>
+		<div id="login" class="brown page">
+			<div id="lobby_header">
+				<a href="#home" data-transition="reverse"><img src="images/titles/cancel.png"> </a>
+			</div>
+			<div id="divTitle">
+				<img src="images/titles/login.png"> 
+			</div>
+	
 
-		<div id="signup" class="green page">
-      <div data-role="header" data-position="inline">
-				<a href="#home" data-transition="reverse">Cancel</a>
-				<h1>Sign Up</h1>
+			<div id="signForm">
+			    <form accept-charset="UTF-8" data-ajax="false" id="login-form">
+			        <input id="session_email" class="f90" name="session[email]" size="30" type="text" placeholder="Email"/>
+			        <input id="session_password" name="session[password]" size="30" type="password" class="f90" placeholder="Password" />
+			        <input id="w90" class="bigButton" name="commit" type="submit" value="Sign in"  />
+			    </form>
+			</div>    
+    
+    <a id="facebook-auth"><img src="images/signin_fb.png" border="0"></a>
+	</div>
+
+	<div id="signup" class="brown page">
+			<div id="lobby_header">
+				<a href="#home" data-transition="reverse"><img src="images/titles/cancel.png"> </a>
 			</div>
-			<form accept-charset="UTF-8" id="signup-form" data-ajax="false">
-        <label for="user_username">Username</label>
-        <input id="user_username" name="user[username]" size="30" type="text" />
-        <label for="user_email">Email</label>
-        <input id="user_email" name="user[email]" size="30" type="text" />
-        <label for="user_password">Password</label>
-        <input id="user_password" name="user[password]" size="30" type="password" />
-        <label for="user_password_confirmation">Password confirmation</label>
-        <input id="user_password_confirmation" name="user[password_confirmation]" size="30" type="password" />
-        <input name="commit" type="submit" value="Sign Up" />
-      </form>
-		</div>
+			<div id="divTitle">
+				<img src="images/titles/signup.png"> 
+			</div>
+			<div id="signForm">
+				<form accept-charset="UTF-8" id="signup-form" data-ajax="false">
+			        <input id="user_username" name="user[username]" size="30" type="text" class="f90" placeholder="User Name" />
+			        <input id="user_email" name="user[email]" size="30" type="text" class="f90" placeholder="Email"/>
+			        <input id="user_password" name="user[password]" size="30" type="password" class="f90" placeholder="Password" />
+			 
+			        <input id="user_password_confirmation" name="user[password_confirmation]" size="30" type="password" class="f90" placeholder="Password Confirmation" />
+			        <input name="commit" type="submit" class="bigButton" value="Sign Up" />
+	      		</form>
+	      	</div>	
+	</div>
 
 		<div id="lobby" class="page">
 			<a class="logout">log out</a>
@@ -94,20 +106,16 @@
 		</div>
 
 		<div id="new_match" class="page">
-      <div data-role="header" data-position="inline">
 				<a data-rel="back">back</a>
 				<h1>New Match</h1>
-			</div>
 			<a href="#new_match_username" data-role="button" data-transition="slide">enter username</a>
 			<a href="#new_match_facebook" data-role="button" data-transition="slide">find friends on facebook</a>
 			<a href="#new_match_random" data-role="button" data-transition="slide">play random opponents</a>
 		</div>
 
 		<div id="new_match_username" class="page"> 
-      <div data-role="header" data-position="inline">
 				<a data-rel="back">back</a>
 				<h1>usernames</h1>
-			</div>
       <form accept-charset="UTF-8" id="new-match-username-form">
         <label>enter username</label>
         <input name="user" size="30" type="text" />
@@ -116,10 +124,8 @@
 		</div>
 
 		<div id="new_match_facebook" class="page"> 
-      <div data-role="header" data-position="inline">
 				<a data-rel="back">back</a>
 				<h1>Facebook</h1>
-			</div>
 			Play friends:
 			<div id="play_friends"></div>
 			Invite friends:
@@ -171,7 +177,7 @@
 			</ul>
 			
 			<div id="shopBtn">
-				<a href="#shop" data-transition="reverse">
+				<a href="#shop">
 					<img src="images/buttons/shopTMP.png" border="0">
 				</a>
 			</div>
@@ -188,18 +194,14 @@
 		</div>
 
 		<div id="shop" class="page">
-      <div data-role="header" data-position="inline">
 				<a href="#match">back</a>
 				<h1>Shop</h1>
-			</div>
 			shop screen
 		</div>
 
 		<div id="deck" class="page">
-      <div data-role="header" data-position="inline">
 				<a href="#match" data-transition="reverse">back</a>
 				<h1>Deck</h1>
-			</div>
 			deck screen
 		</div>
 

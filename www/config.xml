@@ -20,14 +20,13 @@ Christopher Carter
  <icon src="assets/icons/48.png" gap:role="default" />
  
  <!-- iOS icons -->
-<icon src="images/_thumb.png" width="57" height="57" />
-<icon src="images/_thumb.png" gap:platform="ios" width="72" height="72" />
-<icon src="images/_thumb.png" width="114" height="114" />
- 
+
  <!-- if a single splash screen is specified it will be used for all platforms -->
  <gap:splash src="assets/images/table_01.png" />
 
-<gap:splash src="images/Default~iphone.png" width="320" height="480" />
-<gap:splash src="images/Default@2x~iphone.png" width="640" height="960" />
+<gap:splash src="images/Default.png" width="640" height="960" />
+
+<gap:splash 
+src="splash/ios/Default~iphone.png" width="320" height="480" />
 
 </widget>
