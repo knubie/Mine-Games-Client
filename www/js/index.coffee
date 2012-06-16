@@ -37,7 +37,6 @@ onDeviceReady = ->
           v = ''
       results
 
-
     Array::popper = (e) ->
       popper = @[e..e]
       @[e..e] = []
@@ -82,6 +81,8 @@ onDeviceReady = ->
         name: 'stone pickaxe'
         type: 'action'
         cost: 3
+        short_desc: 'short description'
+        long_desc: 'long description'
         use: ->
           actions.mine
             number: 1
@@ -100,6 +101,8 @@ onDeviceReady = ->
         name: 'iron pickaxe'
         type: 'action'
         cost: 5
+        short_desc: 'short description'
+        long_desc: 'long description'
         use: ->
           actions.mine
             number: 2
@@ -118,6 +121,8 @@ onDeviceReady = ->
         name: 'diamond pickaxe'
         type: 'action'
         cost: 8
+        short_desc: 'short description'
+        long_desc: 'long description'
         use: ->
           actions.mine
             number: 3
@@ -136,6 +141,8 @@ onDeviceReady = ->
         name: 'copper'
         type: 'money'
         value: 1
+        short_desc: 'short description'
+        long_desc: 'long description'
         use: ->
           console.log 'copper used'
           actions.discard
@@ -145,6 +152,8 @@ onDeviceReady = ->
         name: 'silver'
         type: 'money'
         value: 2
+        short_desc: 'short description'
+        long_desc: 'long description'
         use: ->
           console.log 'copper used'
           actions.discard
@@ -154,6 +163,8 @@ onDeviceReady = ->
         name: 'gold'
         type: 'money'
         value: 3
+        short_desc: 'short description'
+        long_desc: 'long description'
         use: ->
           console.log 'copper used'
           actions.discard
@@ -163,6 +174,8 @@ onDeviceReady = ->
         name: 'diamond'
         type: 'money'
         value: 5
+        short_desc: 'short description'
+        long_desc: 'long description'
         use: ->
           console.log 'copper used'
           actions.discard
@@ -172,6 +185,8 @@ onDeviceReady = ->
         name: 'coal'
         type: 'coal'
         value: 0
+        short_desc: 'short description'
+        long_desc: 'long description'
         use: ->
           console.log 'copper used'
           actions.discard
@@ -181,6 +196,8 @@ onDeviceReady = ->
         name: 'tnt'
         type: 'action'
         cost: 6
+        short_desc: 'short description'
+        long_desc: 'long description'
         use: ->
           #do something
 
@@ -188,6 +205,8 @@ onDeviceReady = ->
         name: 'minecart'
         type: 'action'
         cost: 5
+        short_desc: 'short description'
+        long_desc: 'long description'
         use: ->
           current.deck.set('actions', current.deck.get('actions')+1)
           actions.draw
@@ -207,6 +226,8 @@ onDeviceReady = ->
         name: 'mule'
         type: 'action'
         cost: 5
+        short_desc: 'short description'
+        long_desc: 'long description'
         use: ->
           actions.draw
             number: 3
@@ -225,11 +246,15 @@ onDeviceReady = ->
         name: 'headlamp'
         type: 'action'
         cost: 4
+        short_desc: 'short description'
+        long_desc: 'long description'
 
       gopher:
         name: 'gopher'
         type: 'action'
         cost: 1
+        short_desc: 'short description'
+        long_desc: 'long description'
         use: ->
           console.log "gopher#use"
           current.opponentsview = new ChooseOpponentsView()
@@ -259,11 +284,15 @@ onDeviceReady = ->
         name: 'magnet'
         type: 'action'
         cost: 6
+        short_desc: 'short description'
+        long_desc: 'long description'
 
       alchemy:
         name: 'alchemy'
         type: 'action'
         cost: 5
+        short_desc: 'short description'
+        long_desc: 'long description'
 
     actions = # Actions are decoupled from cards.
       mine: (options) ->
@@ -507,8 +536,6 @@ onDeviceReady = ->
         console.log "opponentlistview#select"
         current.attack(@player)
 
-
-
     class ChooseOpponentsView extends Backbone.View
 
       initialize: ->
@@ -521,7 +548,6 @@ onDeviceReady = ->
         for player in current.match.get('players')
           console.log "opponent: #{player.username}"
           view = new OpponentsListView(player)
-
 
     class ShopListView extends Backbone.View
       initialize: (@card, @amount) ->
@@ -587,7 +613,14 @@ onDeviceReady = ->
           view = new ShopListView(cards[gsub(card, ' ', '_')], amount)
 
     class CardDetailView extends Backbone.View
-      el: 'what'
+
+      initialize: ->
+
+      el: '#card-detail'
+
+      render: (card) ->
+        @$el.find('#card-detail-name').html(card.name)
+        @$el.find('#card-detail-desc').html(card.long_desc)
 
     class CardListView extends Backbone.View
 
@@ -597,7 +630,7 @@ onDeviceReady = ->
         @render()
 
       events:
-        # 'click': 'use'
+        'click': 'render_card'
         'touchstart': 'touchstart'
         'touchmove': 'touchmove'
         'swiperight': 'swiperight'
@@ -622,7 +655,10 @@ onDeviceReady = ->
       use: false
 
       render_card: ->
-        console.log 'render me!'
+        console.log 'CardListView#render_card'
+        current.carddetailview.render(@card)
+        changePage '#card-detail',
+          transition: 'slide'
 
       touchstart: (e) ->
         console.log 'touch start'
@@ -695,6 +731,7 @@ onDeviceReady = ->
         console.log 'init MatchView'
         console.log current.match
         console.log current.deck
+        current.carddetailview = new CardDetailView
         @render()
         if current.match.get('turn') == current.user.id
           current.turn = true
@@ -814,7 +851,6 @@ onDeviceReady = ->
         else
           current.shopview = new ShopView()
 
-        
     class LobbyView extends Backbone.View
 
       initialize: () ->
@@ -883,7 +919,7 @@ onDeviceReady = ->
           console.log 6
           callback()
 
-    # $.cookie 'token', 'LollakwpnMXj54X6oWwt2g' #TODO: take this out and find out why cookies arent persisting
+    # $.cookie 'token', 'LollakwpnMXj54X6oWwt2g'
     
     if $.cookie("token")?
       # TODO: match token with user on server side, if match, execute the below block
@@ -986,7 +1022,6 @@ onDeviceReady = ->
       e.preventDefault()
 
     $('a').on 'click', (e) ->
-      console.log $($(this).attr('href')).length
       if $($(this).attr('href')).length > 0
         e.preventDefault()
         reverse = false

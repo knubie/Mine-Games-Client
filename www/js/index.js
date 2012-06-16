@@ -83,6 +83,8 @@ onDeviceReady = function() {
         name: 'stone pickaxe',
         type: 'action',
         cost: 3,
+        short_desc: 'short description',
+        long_desc: 'long description',
         use: function() {
           return actions.mine({
             number: 1,
@@ -106,6 +108,8 @@ onDeviceReady = function() {
         name: 'iron pickaxe',
         type: 'action',
         cost: 5,
+        short_desc: 'short description',
+        long_desc: 'long description',
         use: function() {
           return actions.mine({
             number: 2,
@@ -129,6 +133,8 @@ onDeviceReady = function() {
         name: 'diamond pickaxe',
         type: 'action',
         cost: 8,
+        short_desc: 'short description',
+        long_desc: 'long description',
         use: function() {
           return actions.mine({
             number: 3,
@@ -152,6 +158,8 @@ onDeviceReady = function() {
         name: 'copper',
         type: 'money',
         value: 1,
+        short_desc: 'short description',
+        long_desc: 'long description',
         use: function() {
           console.log('copper used');
           return actions.discard({
@@ -163,6 +171,8 @@ onDeviceReady = function() {
         name: 'silver',
         type: 'money',
         value: 2,
+        short_desc: 'short description',
+        long_desc: 'long description',
         use: function() {
           console.log('copper used');
           return actions.discard({
@@ -174,6 +184,8 @@ onDeviceReady = function() {
         name: 'gold',
         type: 'money',
         value: 3,
+        short_desc: 'short description',
+        long_desc: 'long description',
         use: function() {
           console.log('copper used');
           return actions.discard({
@@ -185,6 +197,8 @@ onDeviceReady = function() {
         name: 'diamond',
         type: 'money',
         value: 5,
+        short_desc: 'short description',
+        long_desc: 'long description',
         use: function() {
           console.log('copper used');
           return actions.discard({
@@ -196,6 +210,8 @@ onDeviceReady = function() {
         name: 'coal',
         type: 'coal',
         value: 0,
+        short_desc: 'short description',
+        long_desc: 'long description',
         use: function() {
           console.log('copper used');
           return actions.discard({
@@ -207,12 +223,16 @@ onDeviceReady = function() {
         name: 'tnt',
         type: 'action',
         cost: 6,
+        short_desc: 'short description',
+        long_desc: 'long description',
         use: function() {}
       },
       minecart: {
         name: 'minecart',
         type: 'action',
         cost: 5,
+        short_desc: 'short description',
+        long_desc: 'long description',
         use: function() {
           current.deck.set('actions', current.deck.get('actions') + 1);
           return actions.draw({
@@ -237,6 +257,8 @@ onDeviceReady = function() {
         name: 'mule',
         type: 'action',
         cost: 5,
+        short_desc: 'short description',
+        long_desc: 'long description',
         use: function() {
           return actions.draw({
             number: 3,
@@ -259,12 +281,16 @@ onDeviceReady = function() {
       headlamp: {
         name: 'headlamp',
         type: 'action',
-        cost: 4
+        cost: 4,
+        short_desc: 'short description',
+        long_desc: 'long description'
       },
       gopher: {
         name: 'gopher',
         type: 'action',
         cost: 1,
+        short_desc: 'short description',
+        long_desc: 'long description',
         use: function() {
           console.log("gopher#use");
           current.opponentsview = new ChooseOpponentsView();
@@ -297,12 +323,16 @@ onDeviceReady = function() {
       magnet: {
         name: 'magnet',
         type: 'action',
-        cost: 6
+        cost: 6,
+        short_desc: 'short description',
+        long_desc: 'long description'
       },
       alchemy: {
         name: 'alchemy',
         type: 'action',
-        cost: 5
+        cost: 5,
+        short_desc: 'short description',
+        long_desc: 'long description'
       }
     };
     actions = {
@@ -765,7 +795,14 @@ onDeviceReady = function() {
         return CardDetailView.__super__.constructor.apply(this, arguments);
       }
 
-      CardDetailView.prototype.el = 'what';
+      CardDetailView.prototype.initialize = function() {};
+
+      CardDetailView.prototype.el = '#card-detail';
+
+      CardDetailView.prototype.render = function(card) {
+        this.$el.find('#card-detail-name').html(card.name);
+        return this.$el.find('#card-detail-desc').html(card.long_desc);
+      };
 
       return CardDetailView;
 
@@ -786,6 +823,7 @@ onDeviceReady = function() {
       };
 
       CardListView.prototype.events = {
+        'click': 'render_card',
         'touchstart': 'touchstart',
         'touchmove': 'touchmove',
         'swiperight': 'swiperight',
@@ -816,7 +854,11 @@ onDeviceReady = function() {
       CardListView.prototype.use = false;
 
       CardListView.prototype.render_card = function() {
-        return console.log('render me!');
+        console.log('CardListView#render_card');
+        current.carddetailview.render(this.card);
+        return changePage('#card-detail', {
+          transition: 'slide'
+        });
       };
 
       CardListView.prototype.touchstart = function(e) {
@@ -908,6 +950,7 @@ onDeviceReady = function() {
         console.log('init MatchView');
         console.log(current.match);
         console.log(current.deck);
+        current.carddetailview = new CardDetailView;
         this.render();
         if (current.match.get('turn') === current.user.id) {
           current.turn = true;
@@ -1256,7 +1299,6 @@ onDeviceReady = function() {
     });
     return $('a').on('click', function(e) {
       var reverse;
-      console.log($($(this).attr('href')).length);
       if ($($(this).attr('href')).length > 0) {
         e.preventDefault();
         reverse = false;
