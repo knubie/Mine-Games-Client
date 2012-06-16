@@ -3,40 +3,21 @@ ul {
 	padding: 0;
 	list-style-type: none;
 }
-.card {
-	height: 45px;
-	width:90%;
-	margin: auto;
-	margin-top: 10px;
-	-webkit-border-radius: 8px;	
-	-webkit-user-select: none;
-	-webkit-transition: all .1s ease;
-	-webkit-perspective: 0;
-	-webkit-backface-visibility: hidden;
-	position: relative;
-	background-color: #efebe1;
-	color: #fff;
+/* Global Attributes */
+
+@font-face {
+  font-family: Gotham-Medium;
+  src: url('../fonts/Gotham-Medium.otf');
 }
 
-
-
-.selected {
-	opacity: 0.5;
+@font-face {
+  font-family: Gotham-Bold;
+  src: url('../fonts/Gotham-Bold.otf');
 }
 
-.discard {
-	display: none;
-}
-
-#hand {
-	height: 260px;
-	overflow-y: scroll;
-	-webkit-overflow-scrolling: touch;
-}
-
-#imgCenter{
-	margin:auto;
-	text-align:center;
+@font-face {
+  font-family: Gotham-Book;
+  src: url('../fonts/Gotham-Book.otf');
 }
 
 /* Game Page */
@@ -59,13 +40,14 @@ ul {
 	width: 25%;
 	background: #fbb032;
 	float: left;
-	height:55px;
-	padding-top: 15px;
-	text-align:center;
+	height:70px;
+ 	text-align:center;
 	color: #fff;
 	font-size: 28px;
 	font-weight:bold;
-	line-height: 34px;
+	line-height: 28px;
+	font-family: 'Helvetica', sans-serif;
+
 }
 
 #spend img{
@@ -85,6 +67,8 @@ ul {
 	font-size: 28px;
 	font-weight:bold;
 	line-height: 34px;	
+	font-family: 'Helvetica', sans-serif;
+
 }
 
 #actions img{
@@ -101,9 +85,11 @@ ul {
 	padding-top: 15px;
 	text-align:center;
 	color: #fff;
-	font-size: 28px;
+	font-size: 12px;
 	font-weight:bold;
 	line-height: 34px;	
+	text-transform: uppercase;
+	font-family: 'Helvetica', sans-serif;
 }
 
 #turn img{
@@ -112,11 +98,62 @@ ul {
     margin-right: auto; 
 }
 
+/* Cards */
+
+.card {
+	height: 45px;
+	width:90%;
+	margin: auto;
+	margin-top: 10px;
+	-webkit-border-radius: 8px;	
+	-webkit-user-select: none;
+	-webkit-transition: all .1s ease;
+	-webkit-perspective: 0;
+	-webkit-backface-visibility: hidden;
+	position: relative;
+	background-color: #efebe1;
+}
+
+.selected {
+	opacity: 0.5;
+}
+
+.discard {
+	display: none;
+}
+
+#hand {
+	height: 260px;
+	overflow-y: scroll;
+	-webkit-overflow-scrolling: touch;
+}
+
+.name{
+	color: #4f4f4f;
+	font-family: 'Gotham-Bold';
+	float: left;	
+	font-weight: bold;
+	text-transform: uppercase;
+}
+
+
+#imgCenter{
+	margin:auto;
+	text-align:center;
+}
+
+.card .thumb{
+	margin-left:5px;
+	float: left;	
+
+}
+
 /* Players Toolbar */
 
 #players{
 	background: #424242;
 	width:100%;
+	height: 28px;
 }
 
 .playersNumber{
@@ -133,6 +170,8 @@ ul {
 	float:left;
 	text-align:center;
 	background: #424242;
+	font-family: 'Helvetica',sans-serif;
+
 }
 
 .players3 {
@@ -145,6 +184,8 @@ ul {
 	color: #fff;
 	font-weight:300;
 	font-size:12px;
+	font-family: 'Helvetica',sans-serif;
+
 }
 
 .playersSelected {
@@ -161,6 +202,8 @@ ul {
 	color: #fff;
 	font-weight:300;
 	font-size:12px;
+	font-family: 'Helvetica',sans-serif;
+
 }
 /* Other Pages */
 
@@ -188,7 +231,6 @@ ul {
 .brown {
 	background: #33250e;
 }
-
 
 
 
