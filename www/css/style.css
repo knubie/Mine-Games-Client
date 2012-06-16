@@ -24,7 +24,7 @@ ul {
 
 #lobby_header{
 	width: 25%;
-	background: #4a3515;
+	background: #75553c;
 	float: left;
 	height:45px;
 	padding-top: 25px;
@@ -112,6 +112,19 @@ ul {
 	background-position: left;
 }
 
+#notification{
+	width: 90%;
+	height: 25px;
+	margin: auto;
+	margin-top: 10px;
+	margin-bottom: 10px;
+	-webkit-border-radius: 5px;
+	background-color: #efebe1;	
+	-webkit-transition: opacity 1s linear;	
+}
+
+
+
 .card {
 	width: 90%;
 	height: 51px;
@@ -152,7 +165,7 @@ ul {
 }
 
 #hand {
-	height: 260px;
+	height: 244px;
 	overflow-y: scroll;
 	-webkit-overflow-scrolling: touch;
 }
@@ -161,7 +174,7 @@ ul {
 	color: #ef6b56;
 	font-family: 'Gotham-Bold';
 	float: left;
-	font-size: 20px;	
+	font-size: 20px;
 	font-weight: bold;
 	text-transform: uppercase;
 	margin-top: 4px;
