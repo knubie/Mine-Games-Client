@@ -560,6 +560,7 @@ onDeviceReady = ->
 
       render: ->
         console.log 'ShopListView#render'
+        console.log @card
         $('#shop').append(@el)
         #@$el.find('img')
         @$el.find('.count').html(@amount)
@@ -598,18 +599,19 @@ onDeviceReady = ->
       el: '#shop'
 
       render: ->
-        console.log 'ShopListView#render'
+        console.log 'ShopView#render'
         shop = {}
         prev = ''
+        console.log current.match.get('shop')
         for card in current.match.get('shop')
-          do (card) =>
-            if card != prev
-              shop[card] = 1
-            else
-              shop[card] = shop[card] + 1
-            prev = card
+          if card != prev
+            shop[card] = 1
+          else
+            shop[card] = shop[card] + 1
+          prev = card
 
         for card, amount of shop
+          console.log cards[gsub(card, ' ', '_')]
           view = new ShopListView(cards[gsub(card, ' ', '_')], amount)
 
     class CardDetailView extends Backbone.View
@@ -706,8 +708,8 @@ onDeviceReady = ->
           if current.turn
             console.log 'using card'
             @card.use()
-            # @discard()
-            # current.deck.set('actions', current.deck.get('actions') - 1 ) if @card.type == 'action'
+            @discard()
+            current.deck.set('actions', current.deck.get('actions') - 1 ) if @card.type == 'action'
             # current.deck.save()
 
 
@@ -743,6 +745,7 @@ onDeviceReady = ->
           @$el.find('#actions > .count').html(current.deck.get 'actions')
         current.deck.on 'change:hand', =>
           console.log 'hand changed'
+          @$el.find('#to_spend > .count').html(current.deck.get 'actions')
           @render()
 
       el: '#match'
@@ -1023,7 +1026,7 @@ onDeviceReady = ->
 
     $('a').on 'click', (e) ->
         e.preventDefault()
-        
+
     $('a').on 'tap', (e) ->
       if $($(this).attr('href')).length > 0
         reverse = false

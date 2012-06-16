@@ -705,6 +705,7 @@ onDeviceReady = function() {
 
       ShopListView.prototype.render = function() {
         console.log('ShopListView#render');
+        console.log(this.card);
         $('#shop').append(this.el);
         this.$el.find('.count').html(this.amount);
         this.$el.find('.price').html(this.card.cost);
@@ -758,27 +759,25 @@ onDeviceReady = function() {
       ShopView.prototype.el = '#shop';
 
       ShopView.prototype.render = function() {
-        var amount, card, prev, shop, view, _fn, _i, _len, _ref, _results,
-          _this = this;
-        console.log('ShopListView#render');
+        var amount, card, prev, shop, view, _i, _len, _ref, _results;
+        console.log('ShopView#render');
         shop = {};
         prev = '';
+        console.log(current.match.get('shop'));
         _ref = current.match.get('shop');
-        _fn = function(card) {
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          card = _ref[_i];
           if (card !== prev) {
             shop[card] = 1;
           } else {
             shop[card] = shop[card] + 1;
           }
-          return prev = card;
-        };
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          card = _ref[_i];
-          _fn(card);
+          prev = card;
         }
         _results = [];
         for (card in shop) {
           amount = shop[card];
+          console.log(cards[gsub(card, ' ', '_')]);
           _results.push(view = new ShopListView(cards[gsub(card, ' ', '_')], amount));
         }
         return _results;
@@ -915,7 +914,11 @@ onDeviceReady = function() {
           this.dx = 0;
           if (current.turn) {
             console.log('using card');
-            return this.card.use();
+            this.card.use();
+            this.discard();
+            if (this.card.type === 'action') {
+              return current.deck.set('actions', current.deck.get('actions') - 1);
+            }
           }
         }
       };
@@ -963,6 +966,7 @@ onDeviceReady = function() {
         });
         return current.deck.on('change:hand', function() {
           console.log('hand changed');
+          _this.$el.find('#to_spend > .count').html(current.deck.get('actions'));
           return _this.render();
         });
       };
