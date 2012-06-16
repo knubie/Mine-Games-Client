@@ -28,15 +28,6 @@ onDeviceReady = ->
 
       result
 
-    # String::gsub =  (re, replStr) ->
-    #   while (i = @indexOf(re)) != -1 # Do this block while 're' is found in the string
-    #     pre  = @substr(0, i) # pre = the string up until 're' is found
-    #     post = @substr(i+_.size(re),_.size(@)) # post = the string after the 're'
-    #     @ = pre + replStr + post # put pre and post together with the replStr in between
-
-    # Array::minus = (v) ->
-    #   x for x in @ when x isnt v
-
     Array::minus = (v) ->
       results = []
       for x in @

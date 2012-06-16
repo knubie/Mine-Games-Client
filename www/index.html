@@ -4,11 +4,7 @@
   <title></title>
   
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no;" />
-		<meta charset="utf-8">
-
-    <!-- <link rel="stylesheet"  href="css/lib/jquery.mobile-1.1.0.min.css" /> -->
-  
-
+	<meta charset="utf-8">
 
     <link rel="stylesheet" href="css/style.css" />
     <link rel="stylesheet" href="css/transitions.css" />
@@ -20,10 +16,6 @@
 		<script src="http://localhost:8080/target/target-script-min.js#anonymous"></script>
 		<script src="js/lib/thumbs.js"></script>
 		<script src="js/lib/cordova-1.7.0.js"></script>
-		<script src="cordova-WebInspector.js"></script>		
-
-		<!-- // <script src="js/lib/jquery-1.7.2.min.js"></script> -->
-		<!-- // <script src="js/lib/jquery.mobile-1.1.0.min.js"></script> -->
 		<script src="js/lib/zepto.min.js"></script>
 		<script src="js/lib/underscore-min.js"></script>
 		<script src="js/lib/backbone-min.js"></script>
@@ -33,16 +25,15 @@
 		<script src="js/index.js"></script>
 		<script type="text/javascript">
 			// Enable pusher logging - don't include this in production
-	    Pusher.log = function(message) {
-	      if (window.console && window.console.log) window.console.log(message);
-	    };
+		    Pusher.log = function(message) {
+		      if (window.console && window.console.log) window.console.log(message);
+		    };
 
-	    // Flash fallback logging - don't include this in production
-	    WEB_SOCKET_DEBUG = true;
+		    // Flash fallback logging - don't include this in production
+		    WEB_SOCKET_DEBUG = true;
 		</script>
   </head>
   <body onload="onBodyLoad()">
-
 
 		<div id="home" class="green active page">
 			<div id="imgCenter">
