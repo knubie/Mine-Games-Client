@@ -1,7 +1,6 @@
 # THIS FILE IS BARE.. NO CLOSURE WRAPPER
 
 server_url = "http://mine-games.herokuapp.com"
-# server_url = "http://localhost:3000" # TODO: replace with actual production server
 
 # preventBehavior = (e) ->
 #   e.preventDefault()
