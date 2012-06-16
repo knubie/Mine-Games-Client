@@ -1022,8 +1022,10 @@ onDeviceReady = ->
       e.preventDefault()
 
     $('a').on 'click', (e) ->
-      if $($(this).attr('href')).length > 0
         e.preventDefault()
+        
+    $('a').on 'tap', (e) ->
+      if $($(this).attr('href')).length > 0
         reverse = false
         if $(this).attr('data-transition') == 'reverse'
           reverse = true
