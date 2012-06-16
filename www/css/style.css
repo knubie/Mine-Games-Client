@@ -106,6 +106,12 @@ ul {
 	margin-top: 10px;
 }
 
+.card .yellow{
+	background: url('../images/cards/red.jpg');
+	background-repeat: repeat-y;
+	background-position: left;
+}
+
 .card {
 	width: 90%;
 	height: 51px;
@@ -117,8 +123,13 @@ ul {
 	-webkit-perspective: 0;
 	-webkit-backface-visibility: hidden;
 	position: relative;
+	background-image: url('../images/cards/red.jpg'); /* Remember to move to own classes + yellow */
 	background-color: #efebe1;
+	background-repeat: repeat-y;
+	background-position: left;
+	overflow: hidden;
 }
+
 
 
 .cardClass{
