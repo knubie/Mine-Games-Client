@@ -100,18 +100,36 @@ ul {
 
 /* Cards */
 
-.card {
-	height: 45px;
-	width:90%;
+.cardContainer{
+	width: 90%;
 	margin: auto;
 	margin-top: 10px;
-	-webkit-border-radius: 8px;	
+}
+
+.card {
+	width: 90%;
+	height: 51px;
+	margin: auto;
+	margin-top: 10px;
+	-webkit-border-radius: 8px;
 	-webkit-user-select: none;
 	-webkit-transition: all .1s ease;
 	-webkit-perspective: 0;
 	-webkit-backface-visibility: hidden;
 	position: relative;
 	background-color: #efebe1;
+}
+
+
+.cardClass{
+	height: 51px;	
+	width: 5px;
+	-webkit-border-radius: 8px;
+	background-color: #ef6b56;
+	position: absolute;
+	left:0;
+	top:0;
+	z-index:99;
 }
 
 .selected {
@@ -129,11 +147,13 @@ ul {
 }
 
 .name{
-	color: #4f4f4f;
+	color: #ef6b56;
 	font-family: 'Gotham-Bold';
-	float: left;	
+	float: left;
+	font-size: 20px;	
 	font-weight: bold;
 	text-transform: uppercase;
+	margin-top: 4px;
 }
 
 
@@ -143,9 +163,9 @@ ul {
 }
 
 .card .thumb{
-	margin-left:5px;
+	margin-left:19px;
+	margin-top:2px;
 	float: left;	
-
 }
 
 /* Players Toolbar */
