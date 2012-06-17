@@ -95,8 +95,9 @@ onDeviceReady = function() {
         short_desc: 'short description',
         long_desc: 'long description',
         use: function() {
-          return actions.mine({
+          return actions.draw(current.match, 'mine', {
             number: 1,
+            random: true,
             callback: function(new_card) {
               console.log('calling callback');
               return pushLog("<span class='name'>" + current.user.username + "</span> used an <span class='item action'>Stone Pickaxe</span> and got a <span class='money'>" + new_card + "</span>");
@@ -111,8 +112,9 @@ onDeviceReady = function() {
         short_desc: 'short description',
         long_desc: 'long description',
         use: function() {
-          return actions.mine({
+          return actions.draw(current.match, 'mine', {
             number: 2,
+            random: true,
             callback: function(new_card) {
               console.log('calling callback');
               return pushLog("<span class='name'>" + current.user.username + "</span> used an <span class='item action'>Iron Pickaxe</span> and got a <span class='money'>" + new_card + "</span>");
@@ -127,8 +129,9 @@ onDeviceReady = function() {
         short_desc: 'short description',
         long_desc: 'long description',
         use: function() {
-          return actions.mine({
+          return actions.draw(current.match, 'mine', {
             number: 3,
+            random: true,
             callback: function(new_card) {
               console.log('calling callback');
               return pushLog("<span class='name'>" + current.user.username + "</span> used an <span class='item action'>Diamond Pickaxe</span> and got a <span class='money'>" + new_card + "</span>");
@@ -219,6 +222,7 @@ onDeviceReady = function() {
           current.deck.set('actions', current.deck.get('actions') + 1);
           return actions.draw({
             number: 1,
+            random: true,
             callback: function(new_card) {
               console.log('calling callback');
               return pushLog("<span class='name'>" + current.user.username + "</span> used a <span class='item action'>Minecart</span> and got a <span class='money'>" + new_card + "</span>");
@@ -235,6 +239,7 @@ onDeviceReady = function() {
         use: function() {
           return actions.draw({
             number: 3,
+            random: true,
             callback: function(new_card) {
               console.log('calling callback');
               return pushLog("<span class='name'>" + current.user.username + "</span> used a <span class='item action'>Minecart</span> and got a <span class='money'>" + new_card + "</span>");
@@ -276,7 +281,7 @@ onDeviceReady = function() {
                 target_deck = opponents_decks.where({
                   match_id: current.match.get('id')
                 })[0];
-                return actions.draw2(target_deck, 'hand', {
+                return actions.draw(target_deck, 'hand', {
                   random: true,
                   number: 1,
                   callback: function(new_card) {
@@ -308,28 +313,7 @@ onDeviceReady = function() {
       }
     };
     actions = {
-      mine: function(options) {
-        var h, i, m, nc, view, _i, _ref, _ref1, _results;
-        console.log('mine');
-        _results = [];
-        for (i = _i = 1, _ref = options.number; 1 <= _ref ? _i <= _ref : _i >= _ref; i = 1 <= _ref ? ++_i : --_i) {
-          console.log('iterating..');
-          m = current.match.get('mine');
-          h = current.deck.get('hand');
-          nc = m[0];
-          [].splice.apply(m, [0, 1].concat(_ref1 = [])), _ref1;
-          h.push(nc);
-          current.match.set('mine', m);
-          current.deck.set('hand', h);
-          console.log("new card: " + nc);
-          console.log(current.deck.get('hand'));
-          view = new CardListView(cards[gsub(nc, ' ', '_')]);
-          current.hand.push(view);
-          _results.push(options.callback(nc));
-        }
-        return _results;
-      },
-      draw2: function(model, attribute, options) {
+      draw: function(model, attribute, options) {
         var hand, i, newcard, r, source, view, _i, _ref, _ref1, _ref2, _results;
         console.log("actions#draw2");
         console.log("setting defaults");
@@ -381,26 +365,6 @@ onDeviceReady = function() {
           } else {
             _results.push(void 0);
           }
-        }
-        return _results;
-      },
-      draw: function(options) {
-        var c, h, i, nc, view, _i, _ref, _ref1, _results;
-        console.log('draw from your deck');
-        _results = [];
-        for (i = _i = 1, _ref = options.number; 1 <= _ref ? _i <= _ref : _i >= _ref; i = 1 <= _ref ? ++_i : --_i) {
-          console.log('iterating..');
-          c = current.deck.get('cards');
-          h = current.deck.get('hand');
-          nc = c[0];
-          [].splice.apply(c, [0, 1].concat(_ref1 = [])), _ref1;
-          h.push(nc);
-          current.deck.set('cards', c);
-          current.deck.set('hand', h);
-          console.log("new card: " + nc);
-          view = new CardListView(cards[gsub(nc, ' ', '_')]);
-          current.hand.push(view);
-          _results.push(options.callback(nc));
         }
         return _results;
       },
@@ -829,6 +793,10 @@ onDeviceReady = function() {
 
       CardListView.prototype.clicked = false;
 
+      CardListView.prototype.dx = 0;
+
+      CardListView.prototype.dy = 0;
+
       CardListView.prototype.render_card = function() {
         console.log('CardListView#render_card');
         current.carddetailview.render(this.card);
@@ -853,9 +821,9 @@ onDeviceReady = function() {
         console.log('actions:');
         console.log(current.deck.get('actions'));
         console.log("turn: " + current.turn);
+        this.dx = e.pageX - this.touch.x1;
+        this.dy = e.pageY - this.touch.y1;
         if (current.deck.get('actions') > 0 && current.turn) {
-          this.dx = e.pageX - this.touch.x1;
-          this.dy = e.pageY - this.touch.y1;
           if (Math.abs(this.dy) < 6 && Math.abs(this.dx) > 0 && !this.swiping && !this.dragging) {
             this.swiping = true;
             window.inAction = true;
@@ -892,6 +860,7 @@ onDeviceReady = function() {
       };
 
       CardListView.prototype.touchend = function(e) {
+        console.log("dy: " + this.dy);
         console.log('touch end');
         this.$el.removeClass("drag green").css("-webkit-transform", "translate3d(0,0,0)");
         if (this.use && this.dx >= this.w - 1) {
@@ -901,16 +870,17 @@ onDeviceReady = function() {
             this.card.use();
             this.discard();
             if (this.card.type === 'action') {
-              return current.deck.set('actions', current.deck.get('actions') - 1);
+              current.deck.set('actions', current.deck.get('actions') - 1);
             }
           }
         } else {
-          if (this.clicked) {
+          if (this.clicked && Math.abs(this.dy) < 6) {
             this.clicked = false;
             console.log('clicked');
-            return this.render_card();
+            this.render_card();
           }
         }
+        return this.dx = this.dy = 0;
       };
 
       CardListView.prototype.discard = function() {

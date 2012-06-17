@@ -90,8 +90,9 @@ onDeviceReady = ->
         short_desc: 'short description'
         long_desc: 'long description'
         use: ->
-          actions.mine
+          actions.draw current.match, 'mine'
             number: 1
+            random: true
             callback: (new_card) ->
               console.log 'calling callback'
               pushLog "<span class='name'>#{current.user.username}</span> used an <span class='item action'>Stone Pickaxe</span> and got a <span class='money'>#{new_card}</span>"
@@ -104,8 +105,9 @@ onDeviceReady = ->
         short_desc: 'short description'
         long_desc: 'long description'
         use: ->
-          actions.mine
+          actions.draw current.match, 'mine'
             number: 2
+            random: true
             callback: (new_card) ->
               console.log 'calling callback'
               pushLog "<span class='name'>#{current.user.username}</span> used an <span class='item action'>Iron Pickaxe</span> and got a <span class='money'>#{new_card}</span>"
@@ -117,8 +119,9 @@ onDeviceReady = ->
         short_desc: 'short description'
         long_desc: 'long description'
         use: ->
-          actions.mine
+          actions.draw current.match, 'mine'
             number: 3
+            random: true
             callback: (new_card) ->
               console.log 'calling callback'
               pushLog "<span class='name'>#{current.user.username}</span> used an <span class='item action'>Diamond Pickaxe</span> and got a <span class='money'>#{new_card}</span>"
@@ -197,6 +200,7 @@ onDeviceReady = ->
           current.deck.set('actions', current.deck.get('actions')+1)
           actions.draw
             number: 1
+            random: true
             callback: (new_card) ->
               console.log 'calling callback'
               pushLog "<span class='name'>#{current.user.username}</span> used a <span class='item action'>Minecart</span> and got a <span class='money'>#{new_card}</span>"
@@ -210,6 +214,7 @@ onDeviceReady = ->
         use: ->
           actions.draw
             number: 3
+            random: true
             callback: (new_card) ->
               console.log 'calling callback'
               pushLog "<span class='name'>#{current.user.username}</span> used a <span class='item action'>Minecart</span> and got a <span class='money'>#{new_card}</span>"
@@ -245,7 +250,7 @@ onDeviceReady = ->
               success: ->
                 console.log 'fetch success'
                 target_deck = opponents_decks.where(match_id: current.match.get('id'))[0]
-                actions.draw2 target_deck, 'hand',
+                actions.draw target_deck, 'hand',
                   random: true
                   number: 1
                   callback: (new_card) ->
@@ -274,29 +279,8 @@ onDeviceReady = ->
         long_desc: 'long description'
 
     actions = # Actions are decoupled from cards.
-      mine: (options) ->
-        console.log 'mine'
-        for i in [1..options.number]
-          console.log 'iterating..'
-          m = current.match.get('mine')
-          h = current.deck.get('hand')
 
-          nc = m[0]
-          m[0..0] = []
-          h.push nc
-
-          current.match.set('mine', m)
-          current.deck.set('hand', h)
-
-          console.log "new card: #{nc}"
-          console.log current.deck.get('hand')
-
-          view = new CardListView(cards[gsub(nc, ' ', '_')]) #TODO take the gsub out and change card names on serverside to use underscore
-          current.hand.push view
-
-          options.callback(nc)
-
-      draw2: (model, attribute, options) ->
+      draw: (model, attribute, options) ->
         # default options
         console.log "actions#draw2"
         console.log "setting defaults"
@@ -348,32 +332,6 @@ onDeviceReady = ->
 
           options.callback(newcard) if typeof options.callback == 'function'
 
-      draw: (options) ->
-        console.log 'draw from your deck'
-        for i in [1..options.number]
-          console.log 'iterating..'
-          c = current.deck.get('cards')
-          h = current.deck.get('hand')
-
-          nc = c[0]
-          c[0..0] = []
-          h.push nc
-
-          current.deck.set('cards', c)
-          current.deck.set('hand', h)
-
-          console.log "new card: #{nc}"
-
-          view = new CardListView(cards[gsub(nc, ' ', '_')]) #TODO take the gsub out and change card names on serverside to use underscore
-          current.hand.push view
-
-          options.callback(nc)
-
-        # if callback?
-        #   callback()
-        # else
-        #   return
-        # do something
       discard: (options, cb) ->
         # insert view that tells user to discard cards
         # add icon to click on each card that lets user discard that card
@@ -638,6 +596,8 @@ onDeviceReady = ->
       selected: false
       use: false
       clicked: false
+      dx: 0
+      dy: 0
 
       render_card: ->
         console.log 'CardListView#render_card'
@@ -660,9 +620,9 @@ onDeviceReady = ->
         console.log 'actions:'
         console.log current.deck.get('actions')
         console.log "turn: #{current.turn}"
+        @dx = e.pageX - @touch.x1
+        @dy = e.pageY - @touch.y1
         if current.deck.get('actions') > 0 and current.turn
-          @dx = e.pageX - @touch.x1
-          @dy = e.pageY - @touch.y1
           if Math.abs(@dy) < 6 and Math.abs(@dx) > 0 and not @swiping and not @dragging
             @swiping = true
             window.inAction = true
@@ -690,6 +650,7 @@ onDeviceReady = ->
         console.log 'swiping right'
 
       touchend: (e) ->
+        console.log "dy: #{@dy}"
         console.log 'touch end'
         @$el.removeClass("drag green").css "-webkit-transform", "translate3d(0,0,0)"
         if @use and @dx >= @w - 1
@@ -701,10 +662,12 @@ onDeviceReady = ->
             current.deck.set('actions', current.deck.get('actions') - 1 ) if @card.type == 'action'
             # current.deck.save()
         else
-          if @clicked
+          if @clicked and Math.abs(@dy) < 6
             @clicked = false
             console.log 'clicked'
             @render_card()
+
+        @dx = @dy = 0
 
 
 
