@@ -11,7 +11,7 @@ onBodyLoad = function() {
 
 onDeviceReady = function() {
   return $(function() {
-    var CardDetailView, CardListView, ChooseOpponentsView, Deck, Decks, LobbyView, Match, MatchListView, MatchView, Matches, OpponentsListView, ShopListView, ShopView, actions, cards, changePage, current, decks, facebook_auth, gsub, matches;
+    var CardDetailView, CardListView, ChooseOpponentsView, Deck, Decks, LobbyView, Match, MatchListView, MatchView, Matches, OpponentsListView, ShopListView, ShopView, actions, cards, changePage, current, decks, facebook_auth, gsub, matches, pushLog;
     gsub = function(source, pattern, replacement) {
       var match, result;
       if (!((pattern != null) && (replacement != null))) {
@@ -69,14 +69,23 @@ onDeviceReady = function() {
         return $page.removeClass('reverse');
       } else {
         console.log("changing page to " + page);
-        $curr.addClass('slide out');
-        $page.addClass('slide in active');
+        $curr.addClass("" + options.transition + " out");
+        $page.addClass("" + options.transition + " in active");
         return setTimeout(function() {
-          console.log('settimeout');
-          $curr.removeClass('slide out active reverse');
-          return $page.removeClass('slide in reverse');
-        }, 350);
+          $curr.removeClass("" + options.transition + " out active reverse");
+          return $page.removeClass("" + options.transition + " in reverse");
+        }, 500);
       }
+    };
+    pushLog = function(msg) {
+      var log;
+      if (typeof current.match.get('log') !== 'Array') {
+        log = [];
+      } else {
+        log = current.match.get('log');
+      }
+      log.push(msg);
+      return current.match.set('log', log);
     };
     cards = {
       stone_pickaxe: {
@@ -86,20 +95,12 @@ onDeviceReady = function() {
         short_desc: 'short description',
         long_desc: 'long description',
         use: function() {
-          return actions.mine({
+          return actions.draw(current.match, 'mine', {
             number: 1,
-            callback: function(new_card) {
-              var log, log_msg;
+            random: true,
+            callback: function(newcards) {
               console.log('calling callback');
-              log_msg = "<span class='name'>" + current.user.username + "</span> used an <span class='item action'>Stone Pickaxe</span> and got a <span class='money'>" + new_card + "</span>";
-              if (typeof current.match.get('log') !== 'Array') {
-                log = [];
-              } else {
-                log = current.match.get('log');
-              }
-              log.push(log_msg);
-              current.match.set('log', log);
-              return console.log(log_msg);
+              return pushLog("<span class='name'>" + current.user.username + "</span> used an <span class='item action'>Stone Pickaxe</span> and got a <span class='money'>" + newcards[0] + "</span>");
             }
           });
         }
@@ -111,20 +112,12 @@ onDeviceReady = function() {
         short_desc: 'short description',
         long_desc: 'long description',
         use: function() {
-          return actions.mine({
+          return actions.draw(current.match, 'mine', {
             number: 2,
-            callback: function(new_card) {
-              var log, log_msg;
+            random: true,
+            callback: function(newcards) {
               console.log('calling callback');
-              log_msg = "<span class='name'>" + current.user.username + "</span> used an <span class='item action'>Iron Pickaxe</span> and got a <span class='money'>" + new_card + "</span>";
-              if (typeof current.match.get('log') !== 'Array') {
-                log = [];
-              } else {
-                log = current.match.get('log');
-              }
-              log.push(log_msg);
-              current.match.set('log', log);
-              return console.log(log_msg);
+              return pushLog("<span class='name'>" + current.user.username + "</span> used an <span class='item action'>Iron Pickaxe</span> and got a <span class='money'>" + newcards[0] + "</span> and <span class='money'>" + newcards[1] + "</span>");
             }
           });
         }
@@ -136,20 +129,12 @@ onDeviceReady = function() {
         short_desc: 'short description',
         long_desc: 'long description',
         use: function() {
-          return actions.mine({
+          return actions.draw(current.match, 'mine', {
             number: 3,
-            callback: function(new_card) {
-              var log, log_msg;
+            random: true,
+            callback: function(newcards) {
               console.log('calling callback');
-              log_msg = "<span class='name'>" + current.user.username + "</span> used an <span class='item action'>Diamond Pickaxe</span> and got a <span class='money'>" + new_card + "</span>";
-              if (typeof current.match.get('log') !== 'Array') {
-                log = [];
-              } else {
-                log = current.match.get('log');
-              }
-              log.push(log_msg);
-              current.match.set('log', log);
-              return console.log(log_msg);
+              return pushLog("<span class='name'>" + current.user.username + "</span> used an <span class='item action'>Diamond Pickaxe</span> and got a <span class='money'>" + newcards[0] + "</span>, <span class='money'>" + newcards[1] + "</span> and <span class='money'>" + newcards[2] + "</span>");
             }
           });
         }
@@ -237,18 +222,10 @@ onDeviceReady = function() {
           current.deck.set('actions', current.deck.get('actions') + 1);
           return actions.draw({
             number: 1,
-            callback: function(new_card) {
-              var log, log_msg;
+            random: true,
+            callback: function(newcards) {
               console.log('calling callback');
-              log_msg = "<span class='name'>" + current.user.username + "</span> used a <span class='item action'>Minecart</span> and got a <span class='money'>" + new_card + "</span>";
-              if (typeof current.match.get('log') !== 'Array') {
-                log = [];
-              } else {
-                log = current.match.get('log');
-              }
-              log.push(log_msg);
-              current.match.set('log', log);
-              return console.log(log_msg);
+              return pushLog("<span class='name'>" + current.user.username + "</span> used a <span class='item action'>Minecart</span> and got a <span class='money'>" + newcards[0] + "</span>");
             }
           });
         }
@@ -262,18 +239,10 @@ onDeviceReady = function() {
         use: function() {
           return actions.draw({
             number: 3,
-            callback: function(new_card) {
-              var log, log_msg;
+            random: true,
+            callback: function(newcards) {
               console.log('calling callback');
-              log_msg = "<span class='name'>" + current.user.username + "</span> used a <span class='item action'>Minecart</span> and got a <span class='money'>" + new_card + "</span>";
-              if (typeof current.match.get('log') !== 'Array') {
-                log = [];
-              } else {
-                log = current.match.get('log');
-              }
-              log.push(log_msg);
-              current.match.set('log', log);
-              return console.log(log_msg);
+              return pushLog("<span class='name'>" + current.user.username + "</span> used a <span class='item action'>Minecart</span> and got a <span class='money'>" + newcards[0] + "</span>, <span class='money'>" + newcards[1] + "</span> and <span class='money'>" + newcards[2] + "</span>");
             }
           });
         }
@@ -293,31 +262,45 @@ onDeviceReady = function() {
         long_desc: 'long description',
         use: function() {
           console.log("gopher#use");
-          current.opponentsview = new ChooseOpponentsView();
-          changePage('#choose-opponents', {
-            transition: 'slide'
-          });
-          return current.attack = function(player) {
+          current.attack = function(player) {
             var opponents_decks;
             console.log("current#attack");
-            console.log("chosen opponent: " + player);
+            console.log("chosen opponent:");
+            console.log(player);
             opponents_decks = new Decks();
             opponents_decks.url = "" + server_url + "/decks_by_user/" + player.id;
             console.log("fetching decks");
-            return opponents_decks.fetch({
+            opponents_decks.fetch({
               success: function() {
                 var target_deck;
                 console.log('fetch success');
                 target_deck = opponents_decks.where({
                   match_id: current.match.get('id')
                 })[0];
-                return actions.draw2(target_deck, 'hand', {
+                return actions.draw(target_deck, 'hand', {
                   random: true,
-                  number: 1
+                  number: 1,
+                  callback: function(new_card) {
+                    console.log('calling callback');
+                    return pushLog("<span class='name'>" + current.user.username + "</span> used a <span class='item action'>Gopher</span> on " + player.username + " and got a <span class='money'>" + new_card + "</span>");
+                  }
                 });
               }
             });
+            if (current.match.get('players').length > 1) {
+              return changePage('#match', {
+                transition: 'slide'
+              });
+            }
           };
+          if (current.match.get('players').length > 1) {
+            current.opponentsview = new ChooseOpponentsView();
+            return changePage('#choose-opponents', {
+              transition: 'slideup'
+            });
+          } else {
+            return current.attack(current.match.get('players')[0]);
+          }
         }
       },
       magnet: {
@@ -336,97 +319,38 @@ onDeviceReady = function() {
       }
     };
     actions = {
-      mine: function(options) {
-        var h, i, m, nc, view, _i, _ref, _ref1, _results;
-        console.log('mine');
-        _results = [];
-        for (i = _i = 1, _ref = options.number; 1 <= _ref ? _i <= _ref : _i >= _ref; i = 1 <= _ref ? ++_i : --_i) {
-          console.log('iterating..');
-          m = current.match.get('mine');
-          h = current.deck.get('hand');
-          nc = m[0];
-          [].splice.apply(m, [0, 1].concat(_ref1 = [])), _ref1;
-          h.push(nc);
-          current.match.set('mine', m);
-          current.deck.set('hand', h);
-          console.log("new card: " + nc);
-          console.log(current.deck.get('hand'));
-          view = new CardListView(cards[gsub(nc, ' ', '_')]);
-          current.hand.push(view);
-          _results.push(options.callback(nc));
-        }
-        return _results;
-      },
-      draw2: function(model, attribute, options) {
-        var hand, i, newcard, r, source, view, _i, _ref, _ref1, _ref2, _results;
-        console.log("setting defaults");
+      draw: function(model, attribute, options) {
+        var hand, i, newcard, newcards, r, source, view, _i, _ref, _ref1, _ref2, _results;
+        console.log("actions#draw");
         if (typeof options.number === 'undefined') {
           optoins.number = 1;
         }
         if (typeof options.number === 'undefined') {
           optoins.random = false;
         }
+        newcards = [];
         _results = [];
         for (i = _i = 1, _ref = options.number; 1 <= _ref ? _i <= _ref : _i >= _ref; i = 1 <= _ref ? ++_i : --_i) {
-          console.log("" + i + ": iterating..");
-          console.log("gtting source and hand");
-          console.log("model:");
-          console.log(model);
-          console.log("attribute:");
-          console.log(attribute);
           source = model.get(attribute);
-          console.log("source: " + source);
           hand = current.deck.get('hand');
-          console.log("hand: " + hand);
           if (options.random === true) {
-            console.log("drawing random card");
-            r = Math.floor(Math.random() * source.length - 1);
-            console.log("r: " + r);
+            r = Math.floor(Math.floor(Math.random() * source.length - 1));
             newcard = source[r];
-            console.log("new card: " + newcard);
             [].splice.apply(source, [r, r - r + 1].concat(_ref1 = [])), _ref1;
           } else {
-            console.log("drawing first card");
             newcard = source[0];
             [].splice.apply(source, [0, 1].concat(_ref2 = [])), _ref2;
           }
-          console.log("pushing new card to hand");
           hand.push(newcard);
-          console.log("source before draw: " + (model.get(attribute)));
-          console.log("hand before draw: " + (current.deck.get('hand')));
+          newcards.push(newcard);
           model.set(attribute, source);
           current.deck.set('hand', hand);
-          console.log("source after draw: " + (model.get(attribute)));
-          console.log("hand after draw: " + (current.deck.get('hand')));
-          console.log("new card: " + newcard);
           view = new CardListView(cards[gsub(newcard, ' ', '_')]);
-          model.save();
-          current.deck.save();
-          if (typeof callback === 'function') {
-            _results.push(options.callback(newcard));
+          if (typeof options.callback === 'function') {
+            _results.push(options.callback(newcards));
           } else {
             _results.push(void 0);
           }
-        }
-        return _results;
-      },
-      draw: function(options) {
-        var c, h, i, nc, view, _i, _ref, _ref1, _results;
-        console.log('draw from your deck');
-        _results = [];
-        for (i = _i = 1, _ref = options.number; 1 <= _ref ? _i <= _ref : _i >= _ref; i = 1 <= _ref ? ++_i : --_i) {
-          console.log('iterating..');
-          c = current.deck.get('cards');
-          h = current.deck.get('hand');
-          nc = c[0];
-          [].splice.apply(c, [0, 1].concat(_ref1 = [])), _ref1;
-          h.push(nc);
-          current.deck.set('cards', c);
-          current.deck.set('hand', h);
-          console.log("new card: " + nc);
-          view = new CardListView(cards[gsub(nc, ' ', '_')]);
-          current.hand.push(view);
-          _results.push(options.callback(nc));
         }
         return _results;
       },
@@ -463,7 +387,7 @@ onDeviceReady = function() {
         var _this = this;
         console.log("initializing Match model");
         return this.on('change', function() {
-          return console.log("" + _this + " model changed");
+          return console.log("match changed");
         });
       };
 
@@ -705,6 +629,7 @@ onDeviceReady = function() {
 
       ShopListView.prototype.render = function() {
         console.log('ShopListView#render');
+        console.log(this.card);
         $('#shop').append(this.el);
         this.$el.find('.count').html(this.amount);
         this.$el.find('.price').html(this.card.cost);
@@ -734,7 +659,8 @@ onDeviceReady = function() {
           current.match.save();
           return current.deck.save();
         } else {
-          return console.log('not enough money');
+          console.log('not enough money');
+          return alert("not enough money!");
         }
       };
 
@@ -758,27 +684,25 @@ onDeviceReady = function() {
       ShopView.prototype.el = '#shop';
 
       ShopView.prototype.render = function() {
-        var amount, card, prev, shop, view, _fn, _i, _len, _ref, _results,
-          _this = this;
-        console.log('ShopListView#render');
+        var amount, card, prev, shop, view, _i, _len, _ref, _results;
+        console.log('ShopView#render');
         shop = {};
         prev = '';
+        console.log(current.match.get('shop'));
         _ref = current.match.get('shop');
-        _fn = function(card) {
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          card = _ref[_i];
           if (card !== prev) {
             shop[card] = 1;
           } else {
             shop[card] = shop[card] + 1;
           }
-          return prev = card;
-        };
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          card = _ref[_i];
-          _fn(card);
+          prev = card;
         }
         _results = [];
         for (card in shop) {
           amount = shop[card];
+          console.log(cards[gsub(card, ' ', '_')]);
           _results.push(view = new ShopListView(cards[gsub(card, ' ', '_')], amount));
         }
         return _results;
@@ -823,7 +747,6 @@ onDeviceReady = function() {
       };
 
       CardListView.prototype.events = {
-        'click': 'render_card',
         'touchstart': 'touchstart',
         'touchmove': 'touchmove',
         'swiperight': 'swiperight',
@@ -835,6 +758,7 @@ onDeviceReady = function() {
       CardListView.prototype.render = function() {
         console.log('rendering CardListView');
         this.$el.find('.name').html(this.card.name);
+        this.$el.find('.desc').html(this.card.short_desc);
         return $('#hand').append(this.el);
       };
 
@@ -853,26 +777,39 @@ onDeviceReady = function() {
 
       CardListView.prototype.use = false;
 
+      CardListView.prototype.clicked = false;
+
+      CardListView.prototype.dx = 0;
+
+      CardListView.prototype.dy = 0;
+
       CardListView.prototype.render_card = function() {
         console.log('CardListView#render_card');
         current.carddetailview.render(this.card);
         return changePage('#card-detail', {
-          transition: 'slide'
+          transition: 'flip'
         });
       };
 
       CardListView.prototype.touchstart = function(e) {
+        var _this = this;
+        this.clicked = true;
+        setTimeout(function() {
+          return _this.clicked = false;
+        }, 650);
         console.log('touch start');
-        console.log(e);
         this.touch.x1 = e.pageX;
         return this.touch.y1 = e.pageY;
       };
 
       CardListView.prototype.touchmove = function(e) {
         var pct;
+        console.log('actions:');
+        console.log(current.deck.get('actions'));
+        console.log("turn: " + current.turn);
+        this.dx = e.pageX - this.touch.x1;
+        this.dy = e.pageY - this.touch.y1;
         if (current.deck.get('actions') > 0 && current.turn) {
-          this.dx = e.pageX - this.touch.x1;
-          this.dy = e.pageY - this.touch.y1;
           if (Math.abs(this.dy) < 6 && Math.abs(this.dx) > 0 && !this.swiping && !this.dragging) {
             this.swiping = true;
             window.inAction = true;
@@ -909,15 +846,27 @@ onDeviceReady = function() {
       };
 
       CardListView.prototype.touchend = function(e) {
+        console.log("dy: " + this.dy);
         console.log('touch end');
         this.$el.removeClass("drag green").css("-webkit-transform", "translate3d(0,0,0)");
         if (this.use && this.dx >= this.w - 1) {
           this.dx = 0;
           if (current.turn) {
             console.log('using card');
-            return this.card.use();
+            this.card.use();
+            this.discard();
+            if (this.card.type === 'action') {
+              current.deck.set('actions', current.deck.get('actions') - 1);
+            }
+          }
+        } else {
+          if (this.clicked && Math.abs(this.dy) < 6) {
+            this.clicked = false;
+            console.log('clicked');
+            this.render_card();
           }
         }
+        return this.dx = this.dy = 0;
       };
 
       CardListView.prototype.discard = function() {
@@ -957,12 +906,16 @@ onDeviceReady = function() {
         } else {
           current.turn = false;
         }
+        current.match.on('change:log', function() {
+          return _this.$el.find('#log').html(_.last(current.match.get('log')));
+        });
         current.deck.on('change:actions', function() {
           console.log('actions changed');
           return _this.$el.find('#actions > .count').html(current.deck.get('actions'));
         });
         return current.deck.on('change:hand', function() {
           console.log('hand changed');
+          _this.$el.find('#to_spend > .count').html(current.deck.get('actions'));
           return _this.render();
         });
       };
@@ -1078,20 +1031,21 @@ onDeviceReady = function() {
       };
 
       MatchListView.prototype.render_match = function() {
-        console.log('rendering match');
+        console.log('MatchListView#render_match');
         current.match = this.match;
         current.deck = this.deck;
+        console.log("checking if MatchView instance exists.");
         if (current.matchview) {
-          console.log('refresh old matchview');
+          console.log('MatchView instance exists. Refreshing');
           current.matchview.render();
         } else {
-          console.log('create new matchview');
-          current.matchview = new MatchView();
+          console.log('MatchView instance doesnt exist. Creating new matchview');
+          current.matchview = new MatchView;
         }
         if (current.shopview) {
           return current.shopview.render();
         } else {
-          return current.shopview = new ShopView();
+          return current.shopview = new ShopView;
         }
       };
 
@@ -1118,6 +1072,7 @@ onDeviceReady = function() {
       };
 
       LobbyView.prototype.logout = function() {
+        console.log("LobbyView#logout");
         $.cookie('token', null);
         return changePage("#home", {
           transition: "flip"

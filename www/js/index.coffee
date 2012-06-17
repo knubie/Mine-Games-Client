@@ -59,14 +59,20 @@ onDeviceReady = ->
         $page.removeClass 'reverse'
       else
         console.log "changing page to #{page}"
-        $curr.addClass('slide out')
-        $page.addClass('slide in active')
-        setTimeout(->
-          console.log 'settimeout'
-          $curr.removeClass('slide out active reverse')
-          $page.removeClass('slide in reverse')
-        , 350)
+        $curr.addClass("#{options.transition} out")
+        $page.addClass("#{options.transition} in active")
+        setTimeout ->
+          $curr.removeClass("#{options.transition} out active reverse")
+          $page.removeClass("#{options.transition} in reverse")
+        , 500
 
+    pushLog = (msg) ->
+      if typeof current.match.get('log') isnt 'Array'
+        log = []
+      else
+        log = current.match.get('log')
+      log.push msg
+      current.match.set('log', log)
 
 
     # pusher = new Pusher('efc99ac7a3e488aaa691')
@@ -84,18 +90,13 @@ onDeviceReady = ->
         short_desc: 'short description'
         long_desc: 'long description'
         use: ->
-          actions.mine
+          actions.draw current.match, 'mine'
             number: 1
-            callback: (new_card) ->
+            random: true
+            callback: (newcards) ->
               console.log 'calling callback'
-              log_msg = "<span class='name'>#{current.user.username}</span> used an <span class='item action'>Stone Pickaxe</span> and got a <span class='money'>#{new_card}</span>"
-              if typeof current.match.get('log') isnt 'Array'
-                log = []
-              else
-                log = current.match.get('log')
-              log.push log_msg
-              current.match.set('log', log)
-              console.log log_msg
+              pushLog "<span class='name'>#{current.user.username}</span> used an <span class='item action'>Stone Pickaxe</span> and got a <span class='money'>#{newcards[0]}</span>"
+
 
       iron_pickaxe:
         name: 'iron pickaxe'
@@ -104,18 +105,12 @@ onDeviceReady = ->
         short_desc: 'short description'
         long_desc: 'long description'
         use: ->
-          actions.mine
+          actions.draw current.match, 'mine'
             number: 2
-            callback: (new_card) ->
+            random: true
+            callback: (newcards) ->
               console.log 'calling callback'
-              log_msg = "<span class='name'>#{current.user.username}</span> used an <span class='item action'>Iron Pickaxe</span> and got a <span class='money'>#{new_card}</span>"
-              if typeof current.match.get('log') isnt 'Array'
-                log = []
-              else
-                log = current.match.get('log')
-              log.push log_msg
-              current.match.set('log', log)
-              console.log log_msg
+              pushLog "<span class='name'>#{current.user.username}</span> used an <span class='item action'>Iron Pickaxe</span> and got a <span class='money'>#{newcards[0]}</span> and <span class='money'>#{newcards[1]}</span>"
           
       diamond_pickaxe:
         name: 'diamond pickaxe'
@@ -124,18 +119,12 @@ onDeviceReady = ->
         short_desc: 'short description'
         long_desc: 'long description'
         use: ->
-          actions.mine
+          actions.draw current.match, 'mine'
             number: 3
-            callback: (new_card) ->
+            random: true
+            callback: (newcards) ->
               console.log 'calling callback'
-              log_msg = "<span class='name'>#{current.user.username}</span> used an <span class='item action'>Diamond Pickaxe</span> and got a <span class='money'>#{new_card}</span>"
-              if typeof current.match.get('log') isnt 'Array'
-                log = []
-              else
-                log = current.match.get('log')
-              log.push log_msg
-              current.match.set('log', log)
-              console.log log_msg
+              pushLog "<span class='name'>#{current.user.username}</span> used an <span class='item action'>Diamond Pickaxe</span> and got a <span class='money'>#{newcards[0]}</span>, <span class='money'>#{newcards[1]}</span> and <span class='money'>#{newcards[2]}</span>"
 
       copper:
         name: 'copper'
@@ -211,16 +200,11 @@ onDeviceReady = ->
           current.deck.set('actions', current.deck.get('actions')+1)
           actions.draw
             number: 1
-            callback: (new_card) ->
+            random: true
+            callback: (newcards) ->
               console.log 'calling callback'
-              log_msg = "<span class='name'>#{current.user.username}</span> used a <span class='item action'>Minecart</span> and got a <span class='money'>#{new_card}</span>"
-              if typeof current.match.get('log') isnt 'Array'
-                log = []
-              else
-                log = current.match.get('log')
-              log.push log_msg
-              current.match.set('log', log)
-              console.log log_msg
+              pushLog "<span class='name'>#{current.user.username}</span> used a <span class='item action'>Minecart</span> and got a <span class='money'>#{newcards[0]}</span>"
+              #TODO: change card type dyanmically
 
       mule:
         name: 'mule'
@@ -231,16 +215,10 @@ onDeviceReady = ->
         use: ->
           actions.draw
             number: 3
-            callback: (new_card) ->
+            random: true
+            callback: (newcards) ->
               console.log 'calling callback'
-              log_msg = "<span class='name'>#{current.user.username}</span> used a <span class='item action'>Minecart</span> and got a <span class='money'>#{new_card}</span>"
-              if typeof current.match.get('log') isnt 'Array'
-                log = []
-              else
-                log = current.match.get('log')
-              log.push log_msg
-              current.match.set('log', log)
-              console.log log_msg
+              pushLog "<span class='name'>#{current.user.username}</span> used a <span class='item action'>Minecart</span> and got a <span class='money'>#{newcards[0]}</span>, <span class='money'>#{newcards[1]}</span> and <span class='money'>#{newcards[2]}</span>"
 
       headlamp:
         name: 'headlamp'
@@ -257,13 +235,10 @@ onDeviceReady = ->
         long_desc: 'long description'
         use: ->
           console.log "gopher#use"
-          current.opponentsview = new ChooseOpponentsView()
-          changePage '#choose-opponents',
-            transition: 'slide'
-
           current.attack = (player) ->
             console.log "current#attack"
-            console.log "chosen opponent: #{player}"
+            console.log "chosen opponent:"
+            console.log player
             # create new deck model from selected opponent
             opponents_decks = new Decks()
             opponents_decks.url = "#{server_url}/decks_by_user/#{player.id}"
@@ -272,13 +247,28 @@ onDeviceReady = ->
               success: ->
                 console.log 'fetch success'
                 target_deck = opponents_decks.where(match_id: current.match.get('id'))[0]
-                actions.draw2 target_deck, 'hand',
+                actions.draw target_deck, 'hand',
                   random: true
                   number: 1
+                  callback: (new_card) ->
+                    console.log 'calling callback'
+                    pushLog "<span class='name'>#{current.user.username}</span> used a <span class='item action'>Gopher</span> on #{player.username} and got a <span class='money'>#{new_card}</span>"
 
-          # remove card from opponent.deck.hand
-          # push card to current.deck.hand
-          # save both deck models
+            if current.match.get('players').length > 1
+              changePage '#match',
+                transition: 'slide'
+
+          if current.match.get('players').length > 1
+            current.opponentsview = new ChooseOpponentsView()
+            changePage '#choose-opponents',
+              transition: 'slideup'
+          else
+            current.attack(current.match.get('players')[0])
+
+
+          # model.save()
+          # current.deck.save()
+
 
       magnet:
         name: 'magnet'
@@ -295,104 +285,36 @@ onDeviceReady = ->
         long_desc: 'long description'
 
     actions = # Actions are decoupled from cards.
-      mine: (options) ->
-        console.log 'mine'
-        for i in [1..options.number]
-          console.log 'iterating..'
-          m = current.match.get('mine')
-          h = current.deck.get('hand')
 
-          nc = m[0]
-          m[0..0] = []
-          h.push nc
-
-          current.match.set('mine', m)
-          current.deck.set('hand', h)
-
-          console.log "new card: #{nc}"
-          console.log current.deck.get('hand')
-
-          view = new CardListView(cards[gsub(nc, ' ', '_')]) #TODO take the gsub out and change card names on serverside to use underscore
-          current.hand.push view
-
-          options.callback(nc)
-
-      draw2: (model, attribute, options) ->
+      draw: (model, attribute, options) ->
         # default options
-        console.log "setting defaults"
+        console.log "actions#draw"
         optoins.number = 1 if typeof options.number == 'undefined'
         optoins.random = false if typeof options.number == 'undefined'
+        newcards = []
 
         for i in [1..options.number]
-          console.log "#{i}: iterating.."      
-          console.log "gtting source and hand"
-          console.log "model:"
-          console.log model
-          console.log "attribute:"
-          console.log attribute
           source = model.get(attribute)
-          console.log "source: #{source}"
           hand = current.deck.get('hand')
-          console.log "hand: #{hand}"
 
           if options.random == true
-            console.log "drawing random card"
-            r = Math.floor(Math.random()*source.length-1)
-            console.log "r: #{r}"
+            r = Math.floor(Math.floor(Math.random()*source.length-1))
             newcard = source[r]
-            console.log "new card: #{newcard}"
             source[r..r] = []
           else
-            console.log "drawing first card"
             newcard = source[0]
             source[0..0] = []
 
-          console.log "pushing new card to hand"
           hand.push newcard
-
-          console.log "source before draw: #{model.get(attribute)}"
-          console.log "hand before draw: #{current.deck.get('hand')}"
+          newcards.push newcard
 
           model.set(attribute, source)
           current.deck.set('hand', hand)
 
-          console.log "source after draw: #{model.get(attribute)}"
-          console.log "hand after draw: #{current.deck.get('hand')}"
-          console.log "new card: #{newcard}"
-
           view = new CardListView(cards[gsub(newcard, ' ', '_')]) #TODO take the gsub out and change card names on serverside to use underscore
 
-          model.save()
-          current.deck.save()
+          options.callback(newcards) if typeof options.callback == 'function'
 
-          options.callback(newcard) if typeof callback == 'function'
-
-      draw: (options) ->
-        console.log 'draw from your deck'
-        for i in [1..options.number]
-          console.log 'iterating..'
-          c = current.deck.get('cards')
-          h = current.deck.get('hand')
-
-          nc = c[0]
-          c[0..0] = []
-          h.push nc
-
-          current.deck.set('cards', c)
-          current.deck.set('hand', h)
-
-          console.log "new card: #{nc}"
-
-          view = new CardListView(cards[gsub(nc, ' ', '_')]) #TODO take the gsub out and change card names on serverside to use underscore
-          current.hand.push view
-
-          options.callback(nc)
-
-        # if callback?
-        #   callback()
-        # else
-        #   return
-        # do something
       discard: (options, cb) ->
         # insert view that tells user to discard cards
         # add icon to click on each card that lets user discard that card
@@ -424,7 +346,7 @@ onDeviceReady = ->
       initialize: ->
         console.log "initializing Match model"
         @on 'change', =>
-          console.log "#{@} model changed"
+          console.log "match changed"
 
     class Matches extends Backbone.Collection
       initialize: ->
@@ -560,6 +482,7 @@ onDeviceReady = ->
 
       render: ->
         console.log 'ShopListView#render'
+        console.log @card
         $('#shop').append(@el)
         #@$el.find('img')
         @$el.find('.count').html(@amount)
@@ -588,6 +511,7 @@ onDeviceReady = ->
           current.deck.save()
         else
           console.log 'not enough money'
+          alert "not enough money!"
 
     class ShopView extends Backbone.View
 
@@ -598,18 +522,19 @@ onDeviceReady = ->
       el: '#shop'
 
       render: ->
-        console.log 'ShopListView#render'
+        console.log 'ShopView#render'
         shop = {}
         prev = ''
+        console.log current.match.get('shop')
         for card in current.match.get('shop')
-          do (card) =>
-            if card != prev
-              shop[card] = 1
-            else
-              shop[card] = shop[card] + 1
-            prev = card
+          if card != prev
+            shop[card] = 1
+          else
+            shop[card] = shop[card] + 1
+          prev = card
 
         for card, amount of shop
+          console.log cards[gsub(card, ' ', '_')]
           view = new ShopListView(cards[gsub(card, ' ', '_')], amount)
 
     class CardDetailView extends Backbone.View
@@ -630,7 +555,6 @@ onDeviceReady = ->
         @render()
 
       events:
-        'click': 'render_card'
         'touchstart': 'touchstart'
         'touchmove': 'touchmove'
         'swiperight': 'swiperight'
@@ -643,6 +567,7 @@ onDeviceReady = ->
         console.log 'rendering CardListView'
         # @$el.find('.thumb').attr('src', "images/#{gsub(@card.name, ' ', '_')}") # FIXME: this breaks transition from lobby to matchview
         @$el.find('.name').html(@card.name)
+        @$el.find('.desc').html(@card.short_desc)
         $('#hand').append(@el)
 
       w: 55
@@ -653,25 +578,34 @@ onDeviceReady = ->
       dragging: false
       selected: false
       use: false
+      clicked: false
+      dx: 0
+      dy: 0
 
       render_card: ->
         console.log 'CardListView#render_card'
         current.carddetailview.render(@card)
         changePage '#card-detail',
-          transition: 'slide'
+          transition: 'flip'
 
       touchstart: (e) ->
+        @clicked = true
+        setTimeout =>
+          @clicked = false
+        , 650
         console.log 'touch start'
-        console.log e
         # touch.x1 = e.touches[0].pageX
         # touch.y1 = e.touches[0].pageY
         @touch.x1 = e.pageX
         @touch.y1 = e.pageY
 
       touchmove: (e) ->
+        console.log 'actions:'
+        console.log current.deck.get('actions')
+        console.log "turn: #{current.turn}"
+        @dx = e.pageX - @touch.x1
+        @dy = e.pageY - @touch.y1
         if current.deck.get('actions') > 0 and current.turn
-          @dx = e.pageX - @touch.x1
-          @dy = e.pageY - @touch.y1
           if Math.abs(@dy) < 6 and Math.abs(@dx) > 0 and not @swiping and not @dragging
             @swiping = true
             window.inAction = true
@@ -699,6 +633,7 @@ onDeviceReady = ->
         console.log 'swiping right'
 
       touchend: (e) ->
+        console.log "dy: #{@dy}"
         console.log 'touch end'
         @$el.removeClass("drag green").css "-webkit-transform", "translate3d(0,0,0)"
         if @use and @dx >= @w - 1
@@ -706,9 +641,16 @@ onDeviceReady = ->
           if current.turn
             console.log 'using card'
             @card.use()
-            # @discard()
-            # current.deck.set('actions', current.deck.get('actions') - 1 ) if @card.type == 'action'
+            @discard()
+            current.deck.set('actions', current.deck.get('actions') - 1 ) if @card.type == 'action'
             # current.deck.save()
+        else
+          if @clicked and Math.abs(@dy) < 6
+            @clicked = false
+            console.log 'clicked'
+            @render_card()
+
+        @dx = @dy = 0
 
 
 
@@ -738,11 +680,16 @@ onDeviceReady = ->
         else
           current.turn = false
 
+        current.match.on 'change:log', =>
+          @$el.find('#log').html(_.last(current.match.get('log')))
+
         current.deck.on 'change:actions', =>
           console.log 'actions changed'
           @$el.find('#actions > .count').html(current.deck.get 'actions')
+
         current.deck.on 'change:hand', =>
           console.log 'hand changed'
+          @$el.find('#to_spend > .count').html(current.deck.get 'actions')
           @render()
 
       el: '#match'
@@ -835,21 +782,22 @@ onDeviceReady = ->
             reverse: reverse
 
       render_match: ->
-        console.log 'rendering match'
+        console.log 'MatchListView#render_match'
         current.match = @match
         current.deck = @deck
 
+        console.log "checking if MatchView instance exists."
         if current.matchview
-          console.log 'refresh old matchview'
+          console.log 'MatchView instance exists. Refreshing'
           current.matchview.render()
         else
-          console.log 'create new matchview'
-          current.matchview = new MatchView()
+          console.log 'MatchView instance doesnt exist. Creating new matchview'
+          current.matchview = new MatchView
 
         if current.shopview
           current.shopview.render()
         else
-          current.shopview = new ShopView()
+          current.shopview = new ShopView
 
     class LobbyView extends Backbone.View
 
@@ -866,6 +814,7 @@ onDeviceReady = ->
         'click .logout': 'logout'
 
       logout: ->
+        console.log "LobbyView#logout"
         $.cookie('token', null)
         changePage "#home",
           transition: "flip"

@@ -92,6 +92,21 @@ ul {
 	font-family: 'Helvetica', sans-serif;
 }
 
+#end_turn{
+	width: 25%;
+	background: #4a3515;
+	float: left;
+	height:55px;
+	padding-top: 15px;
+	text-align:center;
+	color: #fff;
+	font-size: 12px;
+	font-weight:bold;
+	line-height: 34px;	
+	text-transform: uppercase;
+	font-family: 'Helvetica', sans-serif;
+}
+
 #turn img{
 	display: block;
     margin-left: auto;
@@ -112,7 +127,7 @@ ul {
 	background-position: left;
 }
 
-#notification{
+#log{
 	width: 90%;
 	height: 25px;
 	margin: auto;
@@ -170,7 +185,7 @@ ul {
 	-webkit-overflow-scrolling: touch;
 }
 
-.name{
+.card .name{
 	color: #ef6b56;
 	font-family: 'Gotham-Bold';
 	float: left;
@@ -191,6 +206,13 @@ ul {
 	margin-top:2px;
 	float: left;	
 }
+
+/* Shop Screen */
+
+
+
+
+
 
 /* Players Toolbar */
 
