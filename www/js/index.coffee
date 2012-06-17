@@ -64,7 +64,14 @@ onDeviceReady = ->
         setTimeout ->
           $curr.removeClass("#{options.transition} out active reverse")
           $page.removeClass("#{options.transition} in reverse")
-        , 500
+        , 250
+
+    aOrAn = (word) ->
+      console.log word.charAt(0)
+      if word.charAt(0) == 'a' || word.charAt(0) == 'e' || word.charAt(0) == 'i' || word.charAt(0) == 'o' || word.charAt(0) == 'u'
+        "an"
+      else
+        "a"
 
     pushLog = (msg) ->
       if typeof current.match.get('log') isnt 'Array'
@@ -73,14 +80,12 @@ onDeviceReady = ->
         log = current.match.get('log')
       log.push msg
       current.match.set('log', log)
+      console.log current.match.get('log')
 
-
-    # pusher = new Pusher('efc99ac7a3e488aaa691')
-    # channel = pusher.subscribe('mine-games')
-    # channel.bind('new_match', (data) ->
-    #   console.log(data)
-    #   $('.matches').append("<li><a href='#match' class='match-list-item' data-transition='slide' data-id='#{data.match.id}'>#{user.username for user in data.match.users}</a></li>").listview('refresh')
-    # )
+    subscribe = ->
+      pusher = new Pusher('8aabfcf0bad1b94dbac3')
+      user_channel = pusher.subscribe(current.user.get('id'))
+      match_channel = pusher.subscribe(current.match.get('id'))
 
     cards = # All card properties are definied client-side.
       stone_pickaxe:
@@ -505,10 +510,11 @@ onDeviceReady = ->
           @amount--
           @$el.find('.count').html(@amount)
           current.deck.spend(@card.cost)
+          pushLog "<span class='name'>#{current.user.username}</span> bought #{aOrAn(@card.name)} <span class='item action'>#{@card.name}</span>"
           changePage '#match',
             transition: 'slide'
-          current.match.save()
-          current.deck.save()
+          # current.match.save()
+          # current.deck.save()
         else
           console.log 'not enough money'
           alert "not enough money!"
@@ -870,6 +876,7 @@ onDeviceReady = ->
 
     # $.cookie 'token', 'LollakwpnMXj54X6oWwt2g'
     
+    # TODO: add a timeout
     if $.cookie("token")?
       # TODO: match token with user on server side, if match, execute the below block
       console.log 'cookie found'

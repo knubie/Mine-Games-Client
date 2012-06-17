@@ -11,7 +11,7 @@ onBodyLoad = function() {
 
 onDeviceReady = function() {
   return $(function() {
-    var CardDetailView, CardListView, ChooseOpponentsView, Deck, Decks, LobbyView, Match, MatchListView, MatchView, Matches, OpponentsListView, ShopListView, ShopView, actions, cards, changePage, current, decks, facebook_auth, gsub, matches, pushLog;
+    var CardDetailView, CardListView, ChooseOpponentsView, Deck, Decks, LobbyView, Match, MatchListView, MatchView, Matches, OpponentsListView, ShopListView, ShopView, aOrAn, actions, cards, changePage, current, decks, facebook_auth, gsub, matches, pushLog, subscribe;
     gsub = function(source, pattern, replacement) {
       var match, result;
       if (!((pattern != null) && (replacement != null))) {
@@ -74,7 +74,15 @@ onDeviceReady = function() {
         return setTimeout(function() {
           $curr.removeClass("" + options.transition + " out active reverse");
           return $page.removeClass("" + options.transition + " in reverse");
-        }, 500);
+        }, 250);
+      }
+    };
+    aOrAn = function(word) {
+      console.log(word.charAt(0));
+      if (word.charAt(0) === 'a' || word.charAt(0) === 'e' || word.charAt(0) === 'i' || word.charAt(0) === 'o' || word.charAt(0) === 'u') {
+        return "an";
+      } else {
+        return "a";
       }
     };
     pushLog = function(msg) {
@@ -85,7 +93,14 @@ onDeviceReady = function() {
         log = current.match.get('log');
       }
       log.push(msg);
-      return current.match.set('log', log);
+      current.match.set('log', log);
+      return console.log(current.match.get('log'));
+    };
+    subscribe = function() {
+      var match_channel, pusher, user_channel;
+      pusher = new Pusher('8aabfcf0bad1b94dbac3');
+      user_channel = pusher.subscribe(current.user.get('id'));
+      return match_channel = pusher.subscribe(current.match.get('id'));
     };
     cards = {
       stone_pickaxe: {
@@ -653,11 +668,10 @@ onDeviceReady = function() {
           this.amount--;
           this.$el.find('.count').html(this.amount);
           current.deck.spend(this.card.cost);
-          changePage('#match', {
+          pushLog("<span class='name'>" + current.user.username + "</span> bought " + (aOrAn(this.card.name)) + " <span class='item action'>" + this.card.name + "</span>");
+          return changePage('#match', {
             transition: 'slide'
           });
-          current.match.save();
-          return current.deck.save();
         } else {
           console.log('not enough money');
           return alert("not enough money!");
