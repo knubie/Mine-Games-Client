@@ -112,7 +112,7 @@ ul {
 	background-position: left;
 }
 
-#notification{
+#log{
 	width: 90%;
 	height: 25px;
 	margin: auto;
@@ -170,7 +170,7 @@ ul {
 	-webkit-overflow-scrolling: touch;
 }
 
-.name{
+.card .name{
 	color: #ef6b56;
 	font-family: 'Gotham-Bold';
 	float: left;

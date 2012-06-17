@@ -61,11 +61,11 @@ onDeviceReady = ->
         console.log "changing page to #{page}"
         $curr.addClass('slide out')
         $page.addClass('slide in active')
-        setTimeout(->
+        setTimeout ->
           console.log 'settimeout'
           $curr.removeClass('slide out active reverse')
           $page.removeClass('slide in reverse')
-        , 350)
+        , 500
 
 
 
@@ -89,11 +89,15 @@ onDeviceReady = ->
             callback: (new_card) ->
               console.log 'calling callback'
               log_msg = "<span class='name'>#{current.user.username}</span> used an <span class='item action'>Stone Pickaxe</span> and got a <span class='money'>#{new_card}</span>"
+              console.log 'current.match.get(log):'
+              console.log current.match.get('log')
               if typeof current.match.get('log') isnt 'Array'
                 log = []
               else
                 log = current.match.get('log')
               log.push log_msg
+              console.log 'log:'
+              console.log log
               current.match.set('log', log)
               console.log log_msg
 
@@ -263,7 +267,8 @@ onDeviceReady = ->
 
           current.attack = (player) ->
             console.log "current#attack"
-            console.log "chosen opponent: #{player}"
+            console.log "chosen opponent:"
+            console.log player
             # create new deck model from selected opponent
             opponents_decks = new Decks()
             opponents_decks.url = "#{server_url}/decks_by_user/#{player.id}"
@@ -275,10 +280,23 @@ onDeviceReady = ->
                 actions.draw2 target_deck, 'hand',
                   random: true
                   number: 1
+                  callback: (new_card) ->
+                    console.log 'calling callback'
+                    log_msg = "<span class='name'>#{current.user.username}</span> used a <span class='item action'>Gopher</span> and got a <span class='money'>#{new_card}</span>"
+                    if typeof current.match.get('log') isnt 'Array'
+                      log = []
+                    else
+                      log = current.match.get('log')
+                    log.push log_msg
+                    current.match.set('log', log)
+                    console.log log_msg
 
-          # remove card from opponent.deck.hand
-          # push card to current.deck.hand
-          # save both deck models
+            changePage '#match',
+              transition: 'slide'
+
+          # model.save()
+          # current.deck.save()
+
 
       magnet:
         name: 'magnet'
@@ -319,6 +337,7 @@ onDeviceReady = ->
 
       draw2: (model, attribute, options) ->
         # default options
+        console.log "actions#draw2"
         console.log "setting defaults"
         optoins.number = 1 if typeof options.number == 'undefined'
         optoins.random = false if typeof options.number == 'undefined'
@@ -331,13 +350,16 @@ onDeviceReady = ->
           console.log "attribute:"
           console.log attribute
           source = model.get(attribute)
-          console.log "source: #{source}"
+          console.log "source:"
+          console.log source
+          console.log "source length"
+          console.log source.length
           hand = current.deck.get('hand')
           console.log "hand: #{hand}"
 
           if options.random == true
             console.log "drawing random card"
-            r = Math.floor(Math.random()*source.length-1)
+            r = Math.floor(Math.floor(Math.random()*source.length-1))
             console.log "r: #{r}"
             newcard = source[r]
             console.log "new card: #{newcard}"
@@ -362,10 +384,8 @@ onDeviceReady = ->
 
           view = new CardListView(cards[gsub(newcard, ' ', '_')]) #TODO take the gsub out and change card names on serverside to use underscore
 
-          model.save()
-          current.deck.save()
 
-          options.callback(newcard) if typeof callback == 'function'
+          options.callback(newcard) if typeof options.callback == 'function'
 
       draw: (options) ->
         console.log 'draw from your deck'
@@ -424,7 +444,7 @@ onDeviceReady = ->
       initialize: ->
         console.log "initializing Match model"
         @on 'change', =>
-          console.log "#{@} model changed"
+          console.log "match changed"
 
     class Matches extends Backbone.Collection
       initialize: ->
@@ -589,6 +609,7 @@ onDeviceReady = ->
           current.deck.save()
         else
           console.log 'not enough money'
+          alert "not enough money!"
 
     class ShopView extends Backbone.View
 
@@ -632,7 +653,7 @@ onDeviceReady = ->
         @render()
 
       events:
-        'click': 'render_card'
+        # 'click': 'render_card'
         'touchstart': 'touchstart'
         'touchmove': 'touchmove'
         'swiperight': 'swiperight'
@@ -645,6 +666,7 @@ onDeviceReady = ->
         console.log 'rendering CardListView'
         # @$el.find('.thumb').attr('src', "images/#{gsub(@card.name, ' ', '_')}") # FIXME: this breaks transition from lobby to matchview
         @$el.find('.name').html(@card.name)
+        @$el.find('.desc').html(@card.short_desc)
         $('#hand').append(@el)
 
       w: 55
@@ -664,13 +686,15 @@ onDeviceReady = ->
 
       touchstart: (e) ->
         console.log 'touch start'
-        console.log e
         # touch.x1 = e.touches[0].pageX
         # touch.y1 = e.touches[0].pageY
         @touch.x1 = e.pageX
         @touch.y1 = e.pageY
 
       touchmove: (e) ->
+        console.log 'actions:'
+        console.log current.deck.get('actions')
+        console.log "turn: #{current.turn}"
         if current.deck.get('actions') > 0 and current.turn
           @dx = e.pageX - @touch.x1
           @dy = e.pageY - @touch.y1
@@ -740,9 +764,13 @@ onDeviceReady = ->
         else
           current.turn = false
 
+        current.match.on 'change:log', =>
+          @$el.find('#log').html(_.last(current.match.get('log')))
+
         current.deck.on 'change:actions', =>
           console.log 'actions changed'
           @$el.find('#actions > .count').html(current.deck.get 'actions')
+
         current.deck.on 'change:hand', =>
           console.log 'hand changed'
           @$el.find('#to_spend > .count').html(current.deck.get 'actions')
@@ -838,21 +866,22 @@ onDeviceReady = ->
             reverse: reverse
 
       render_match: ->
-        console.log 'rendering match'
+        console.log 'MatchListView#render_match'
         current.match = @match
         current.deck = @deck
 
+        console.log "checking if MatchView instance exists."
         if current.matchview
-          console.log 'refresh old matchview'
+          console.log 'MatchView instance exists. Refreshing'
           current.matchview.render()
         else
-          console.log 'create new matchview'
-          current.matchview = new MatchView()
+          console.log 'MatchView instance doesnt exist. Creating new matchview'
+          current.matchview = new MatchView
 
         if current.shopview
           current.shopview.render()
         else
-          current.shopview = new ShopView()
+          current.shopview = new ShopView
 
     class LobbyView extends Backbone.View
 
@@ -869,6 +898,7 @@ onDeviceReady = ->
         'click .logout': 'logout'
 
       logout: ->
+        console.log "LobbyView#logout"
         $.cookie('token', null)
         changePage "#home",
           transition: "flip"
@@ -1025,10 +1055,8 @@ onDeviceReady = ->
       e.preventDefault()
 
     $('a').on 'click', (e) ->
-        e.preventDefault()
-
-    $('a').on 'tap', (e) ->
       if $($(this).attr('href')).length > 0
+        e.preventDefault()
         reverse = false
         if $(this).attr('data-transition') == 'reverse'
           reverse = true
