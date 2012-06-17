@@ -98,9 +98,9 @@ onDeviceReady = function() {
           return actions.draw(current.match, 'mine', {
             number: 1,
             random: true,
-            callback: function(new_card) {
+            callback: function(newcards) {
               console.log('calling callback');
-              return pushLog("<span class='name'>" + current.user.username + "</span> used an <span class='item action'>Stone Pickaxe</span> and got a <span class='money'>" + new_card + "</span>");
+              return pushLog("<span class='name'>" + current.user.username + "</span> used an <span class='item action'>Stone Pickaxe</span> and got a <span class='money'>" + newcards[0] + "</span>");
             }
           });
         }
@@ -115,9 +115,9 @@ onDeviceReady = function() {
           return actions.draw(current.match, 'mine', {
             number: 2,
             random: true,
-            callback: function(new_card) {
+            callback: function(newcards) {
               console.log('calling callback');
-              return pushLog("<span class='name'>" + current.user.username + "</span> used an <span class='item action'>Iron Pickaxe</span> and got a <span class='money'>" + new_card + "</span>");
+              return pushLog("<span class='name'>" + current.user.username + "</span> used an <span class='item action'>Iron Pickaxe</span> and got a <span class='money'>" + newcards[0] + "</span> and <span class='money'>" + newcards[1] + "</span>");
             }
           });
         }
@@ -132,9 +132,9 @@ onDeviceReady = function() {
           return actions.draw(current.match, 'mine', {
             number: 3,
             random: true,
-            callback: function(new_card) {
+            callback: function(newcards) {
               console.log('calling callback');
-              return pushLog("<span class='name'>" + current.user.username + "</span> used an <span class='item action'>Diamond Pickaxe</span> and got a <span class='money'>" + new_card + "</span>");
+              return pushLog("<span class='name'>" + current.user.username + "</span> used an <span class='item action'>Diamond Pickaxe</span> and got a <span class='money'>" + newcards[0] + "</span>, <span class='money'>" + newcards[1] + "</span> and <span class='money'>" + newcards[2] + "</span>");
             }
           });
         }
@@ -223,9 +223,9 @@ onDeviceReady = function() {
           return actions.draw({
             number: 1,
             random: true,
-            callback: function(new_card) {
+            callback: function(newcards) {
               console.log('calling callback');
-              return pushLog("<span class='name'>" + current.user.username + "</span> used a <span class='item action'>Minecart</span> and got a <span class='money'>" + new_card + "</span>");
+              return pushLog("<span class='name'>" + current.user.username + "</span> used a <span class='item action'>Minecart</span> and got a <span class='money'>" + newcards[0] + "</span>");
             }
           });
         }
@@ -240,9 +240,9 @@ onDeviceReady = function() {
           return actions.draw({
             number: 3,
             random: true,
-            callback: function(new_card) {
+            callback: function(newcards) {
               console.log('calling callback');
-              return pushLog("<span class='name'>" + current.user.username + "</span> used a <span class='item action'>Minecart</span> and got a <span class='money'>" + new_card + "</span>");
+              return pushLog("<span class='name'>" + current.user.username + "</span> used a <span class='item action'>Minecart</span> and got a <span class='money'>" + newcards[0] + "</span>, <span class='money'>" + newcards[1] + "</span> and <span class='money'>" + newcards[2] + "</span>");
             }
           });
         }
@@ -262,11 +262,7 @@ onDeviceReady = function() {
         long_desc: 'long description',
         use: function() {
           console.log("gopher#use");
-          current.opponentsview = new ChooseOpponentsView();
-          changePage('#choose-opponents', {
-            transition: 'slideup'
-          });
-          return current.attack = function(player) {
+          current.attack = function(player) {
             var opponents_decks;
             console.log("current#attack");
             console.log("chosen opponent:");
@@ -291,10 +287,20 @@ onDeviceReady = function() {
                 });
               }
             });
-            return changePage('#match', {
-              transition: 'slide'
-            });
+            if (current.match.get('players').length > 1) {
+              return changePage('#match', {
+                transition: 'slide'
+              });
+            }
           };
+          if (current.match.get('players').length > 1) {
+            current.opponentsview = new ChooseOpponentsView();
+            return changePage('#choose-opponents', {
+              transition: 'slideup'
+            });
+          } else {
+            return current.attack(current.match.get('players')[0]);
+          }
         }
       },
       magnet: {
@@ -314,54 +320,34 @@ onDeviceReady = function() {
     };
     actions = {
       draw: function(model, attribute, options) {
-        var hand, i, newcard, r, source, view, _i, _ref, _ref1, _ref2, _results;
-        console.log("actions#draw2");
-        console.log("setting defaults");
+        var hand, i, newcard, newcards, r, source, view, _i, _ref, _ref1, _ref2, _results;
+        console.log("actions#draw");
         if (typeof options.number === 'undefined') {
           optoins.number = 1;
         }
         if (typeof options.number === 'undefined') {
           optoins.random = false;
         }
+        newcards = [];
         _results = [];
         for (i = _i = 1, _ref = options.number; 1 <= _ref ? _i <= _ref : _i >= _ref; i = 1 <= _ref ? ++_i : --_i) {
-          console.log("" + i + ": iterating..");
-          console.log("gtting source and hand");
-          console.log("model:");
-          console.log(model);
-          console.log("attribute:");
-          console.log(attribute);
           source = model.get(attribute);
-          console.log("source:");
-          console.log(source);
-          console.log("source length");
-          console.log(source.length);
           hand = current.deck.get('hand');
-          console.log("hand: " + hand);
           if (options.random === true) {
-            console.log("drawing random card");
             r = Math.floor(Math.floor(Math.random() * source.length - 1));
-            console.log("r: " + r);
             newcard = source[r];
-            console.log("new card: " + newcard);
             [].splice.apply(source, [r, r - r + 1].concat(_ref1 = [])), _ref1;
           } else {
-            console.log("drawing first card");
             newcard = source[0];
             [].splice.apply(source, [0, 1].concat(_ref2 = [])), _ref2;
           }
-          console.log("pushing new card to hand");
           hand.push(newcard);
-          console.log("source before draw: " + (model.get(attribute)));
-          console.log("hand before draw: " + (current.deck.get('hand')));
+          newcards.push(newcard);
           model.set(attribute, source);
           current.deck.set('hand', hand);
-          console.log("source after draw: " + (model.get(attribute)));
-          console.log("hand after draw: " + (current.deck.get('hand')));
-          console.log("new card: " + newcard);
           view = new CardListView(cards[gsub(newcard, ' ', '_')]);
           if (typeof options.callback === 'function') {
-            _results.push(options.callback(newcard));
+            _results.push(options.callback(newcards));
           } else {
             _results.push(void 0);
           }

@@ -93,9 +93,9 @@ onDeviceReady = ->
           actions.draw current.match, 'mine'
             number: 1
             random: true
-            callback: (new_card) ->
+            callback: (newcards) ->
               console.log 'calling callback'
-              pushLog "<span class='name'>#{current.user.username}</span> used an <span class='item action'>Stone Pickaxe</span> and got a <span class='money'>#{new_card}</span>"
+              pushLog "<span class='name'>#{current.user.username}</span> used an <span class='item action'>Stone Pickaxe</span> and got a <span class='money'>#{newcards[0]}</span>"
 
 
       iron_pickaxe:
@@ -108,9 +108,9 @@ onDeviceReady = ->
           actions.draw current.match, 'mine'
             number: 2
             random: true
-            callback: (new_card) ->
+            callback: (newcards) ->
               console.log 'calling callback'
-              pushLog "<span class='name'>#{current.user.username}</span> used an <span class='item action'>Iron Pickaxe</span> and got a <span class='money'>#{new_card}</span>"
+              pushLog "<span class='name'>#{current.user.username}</span> used an <span class='item action'>Iron Pickaxe</span> and got a <span class='money'>#{newcards[0]}</span> and <span class='money'>#{newcards[1]}</span>"
           
       diamond_pickaxe:
         name: 'diamond pickaxe'
@@ -122,9 +122,9 @@ onDeviceReady = ->
           actions.draw current.match, 'mine'
             number: 3
             random: true
-            callback: (new_card) ->
+            callback: (newcards) ->
               console.log 'calling callback'
-              pushLog "<span class='name'>#{current.user.username}</span> used an <span class='item action'>Diamond Pickaxe</span> and got a <span class='money'>#{new_card}</span>"
+              pushLog "<span class='name'>#{current.user.username}</span> used an <span class='item action'>Diamond Pickaxe</span> and got a <span class='money'>#{newcards[0]}</span>, <span class='money'>#{newcards[1]}</span> and <span class='money'>#{newcards[2]}</span>"
 
       copper:
         name: 'copper'
@@ -201,9 +201,10 @@ onDeviceReady = ->
           actions.draw
             number: 1
             random: true
-            callback: (new_card) ->
+            callback: (newcards) ->
               console.log 'calling callback'
-              pushLog "<span class='name'>#{current.user.username}</span> used a <span class='item action'>Minecart</span> and got a <span class='money'>#{new_card}</span>"
+              pushLog "<span class='name'>#{current.user.username}</span> used a <span class='item action'>Minecart</span> and got a <span class='money'>#{newcards[0]}</span>"
+              #TODO: change card type dyanmically
 
       mule:
         name: 'mule'
@@ -215,9 +216,9 @@ onDeviceReady = ->
           actions.draw
             number: 3
             random: true
-            callback: (new_card) ->
+            callback: (newcards) ->
               console.log 'calling callback'
-              pushLog "<span class='name'>#{current.user.username}</span> used a <span class='item action'>Minecart</span> and got a <span class='money'>#{new_card}</span>"
+              pushLog "<span class='name'>#{current.user.username}</span> used a <span class='item action'>Minecart</span> and got a <span class='money'>#{newcards[0]}</span>, <span class='money'>#{newcards[1]}</span> and <span class='money'>#{newcards[2]}</span>"
 
       headlamp:
         name: 'headlamp'
@@ -234,10 +235,6 @@ onDeviceReady = ->
         long_desc: 'long description'
         use: ->
           console.log "gopher#use"
-          current.opponentsview = new ChooseOpponentsView()
-          changePage '#choose-opponents',
-            transition: 'slideup'
-
           current.attack = (player) ->
             console.log "current#attack"
             console.log "chosen opponent:"
@@ -257,8 +254,17 @@ onDeviceReady = ->
                     console.log 'calling callback'
                     pushLog "<span class='name'>#{current.user.username}</span> used a <span class='item action'>Gopher</span> on #{player.username} and got a <span class='money'>#{new_card}</span>"
 
-            changePage '#match',
-              transition: 'slide'
+            if current.match.get('players').length > 1
+              changePage '#match',
+                transition: 'slide'
+
+          if current.match.get('players').length > 1
+            current.opponentsview = new ChooseOpponentsView()
+            changePage '#choose-opponents',
+              transition: 'slideup'
+          else
+            current.attack(current.match.get('players')[0])
+
 
           # model.save()
           # current.deck.save()
@@ -282,55 +288,32 @@ onDeviceReady = ->
 
       draw: (model, attribute, options) ->
         # default options
-        console.log "actions#draw2"
-        console.log "setting defaults"
+        console.log "actions#draw"
         optoins.number = 1 if typeof options.number == 'undefined'
         optoins.random = false if typeof options.number == 'undefined'
+        newcards = []
 
         for i in [1..options.number]
-          console.log "#{i}: iterating.."      
-          console.log "gtting source and hand"
-          console.log "model:"
-          console.log model
-          console.log "attribute:"
-          console.log attribute
           source = model.get(attribute)
-          console.log "source:"
-          console.log source
-          console.log "source length"
-          console.log source.length
           hand = current.deck.get('hand')
-          console.log "hand: #{hand}"
 
           if options.random == true
-            console.log "drawing random card"
             r = Math.floor(Math.floor(Math.random()*source.length-1))
-            console.log "r: #{r}"
             newcard = source[r]
-            console.log "new card: #{newcard}"
             source[r..r] = []
           else
-            console.log "drawing first card"
             newcard = source[0]
             source[0..0] = []
 
-          console.log "pushing new card to hand"
           hand.push newcard
-
-          console.log "source before draw: #{model.get(attribute)}"
-          console.log "hand before draw: #{current.deck.get('hand')}"
+          newcards.push newcard
 
           model.set(attribute, source)
           current.deck.set('hand', hand)
 
-          console.log "source after draw: #{model.get(attribute)}"
-          console.log "hand after draw: #{current.deck.get('hand')}"
-          console.log "new card: #{newcard}"
-
           view = new CardListView(cards[gsub(newcard, ' ', '_')]) #TODO take the gsub out and change card names on serverside to use underscore
 
-
-          options.callback(newcard) if typeof options.callback == 'function'
+          options.callback(newcards) if typeof options.callback == 'function'
 
       discard: (options, cb) ->
         # insert view that tells user to discard cards
