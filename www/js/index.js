@@ -11,7 +11,7 @@ onBodyLoad = function() {
 
 onDeviceReady = function() {
   return $(function() {
-    var CardDetailView, CardListView, ChooseOpponentsView, Deck, Decks, LobbyView, Match, MatchListView, MatchView, Matches, OpponentsListView, ShopListView, ShopView, actions, cards, changePage, current, decks, facebook_auth, gsub, matches;
+    var CardDetailView, CardListView, ChooseOpponentsView, Deck, Decks, LobbyView, Match, MatchListView, MatchView, Matches, OpponentsListView, ShopListView, ShopView, actions, cards, changePage, current, decks, facebook_auth, gsub, matches, pushLog;
     gsub = function(source, pattern, replacement) {
       var match, result;
       if (!((pattern != null) && (replacement != null))) {
@@ -69,14 +69,23 @@ onDeviceReady = function() {
         return $page.removeClass('reverse');
       } else {
         console.log("changing page to " + page);
-        $curr.addClass('slide out');
-        $page.addClass('slide in active');
+        $curr.addClass("" + options.transition + " out");
+        $page.addClass("" + options.transition + " in active");
         return setTimeout(function() {
-          console.log('settimeout');
-          $curr.removeClass('slide out active reverse');
-          return $page.removeClass('slide in reverse');
+          $curr.removeClass("" + options.transition + " out active reverse");
+          return $page.removeClass("" + options.transition + " in reverse");
         }, 500);
       }
+    };
+    pushLog = function(msg) {
+      var log;
+      if (typeof current.match.get('log') !== 'Array') {
+        log = [];
+      } else {
+        log = current.match.get('log');
+      }
+      log.push(msg);
+      return current.match.set('log', log);
     };
     cards = {
       stone_pickaxe: {
@@ -89,21 +98,8 @@ onDeviceReady = function() {
           return actions.mine({
             number: 1,
             callback: function(new_card) {
-              var log, log_msg;
               console.log('calling callback');
-              log_msg = "<span class='name'>" + current.user.username + "</span> used an <span class='item action'>Stone Pickaxe</span> and got a <span class='money'>" + new_card + "</span>";
-              console.log('current.match.get(log):');
-              console.log(current.match.get('log'));
-              if (typeof current.match.get('log') !== 'Array') {
-                log = [];
-              } else {
-                log = current.match.get('log');
-              }
-              log.push(log_msg);
-              console.log('log:');
-              console.log(log);
-              current.match.set('log', log);
-              return console.log(log_msg);
+              return pushLog("<span class='name'>" + current.user.username + "</span> used an <span class='item action'>Stone Pickaxe</span> and got a <span class='money'>" + new_card + "</span>");
             }
           });
         }
@@ -118,17 +114,8 @@ onDeviceReady = function() {
           return actions.mine({
             number: 2,
             callback: function(new_card) {
-              var log, log_msg;
               console.log('calling callback');
-              log_msg = "<span class='name'>" + current.user.username + "</span> used an <span class='item action'>Iron Pickaxe</span> and got a <span class='money'>" + new_card + "</span>";
-              if (typeof current.match.get('log') !== 'Array') {
-                log = [];
-              } else {
-                log = current.match.get('log');
-              }
-              log.push(log_msg);
-              current.match.set('log', log);
-              return console.log(log_msg);
+              return pushLog("<span class='name'>" + current.user.username + "</span> used an <span class='item action'>Iron Pickaxe</span> and got a <span class='money'>" + new_card + "</span>");
             }
           });
         }
@@ -143,17 +130,8 @@ onDeviceReady = function() {
           return actions.mine({
             number: 3,
             callback: function(new_card) {
-              var log, log_msg;
               console.log('calling callback');
-              log_msg = "<span class='name'>" + current.user.username + "</span> used an <span class='item action'>Diamond Pickaxe</span> and got a <span class='money'>" + new_card + "</span>";
-              if (typeof current.match.get('log') !== 'Array') {
-                log = [];
-              } else {
-                log = current.match.get('log');
-              }
-              log.push(log_msg);
-              current.match.set('log', log);
-              return console.log(log_msg);
+              return pushLog("<span class='name'>" + current.user.username + "</span> used an <span class='item action'>Diamond Pickaxe</span> and got a <span class='money'>" + new_card + "</span>");
             }
           });
         }
@@ -242,17 +220,8 @@ onDeviceReady = function() {
           return actions.draw({
             number: 1,
             callback: function(new_card) {
-              var log, log_msg;
               console.log('calling callback');
-              log_msg = "<span class='name'>" + current.user.username + "</span> used a <span class='item action'>Minecart</span> and got a <span class='money'>" + new_card + "</span>";
-              if (typeof current.match.get('log') !== 'Array') {
-                log = [];
-              } else {
-                log = current.match.get('log');
-              }
-              log.push(log_msg);
-              current.match.set('log', log);
-              return console.log(log_msg);
+              return pushLog("<span class='name'>" + current.user.username + "</span> used a <span class='item action'>Minecart</span> and got a <span class='money'>" + new_card + "</span>");
             }
           });
         }
@@ -267,17 +236,8 @@ onDeviceReady = function() {
           return actions.draw({
             number: 3,
             callback: function(new_card) {
-              var log, log_msg;
               console.log('calling callback');
-              log_msg = "<span class='name'>" + current.user.username + "</span> used a <span class='item action'>Minecart</span> and got a <span class='money'>" + new_card + "</span>";
-              if (typeof current.match.get('log') !== 'Array') {
-                log = [];
-              } else {
-                log = current.match.get('log');
-              }
-              log.push(log_msg);
-              current.match.set('log', log);
-              return console.log(log_msg);
+              return pushLog("<span class='name'>" + current.user.username + "</span> used a <span class='item action'>Minecart</span> and got a <span class='money'>" + new_card + "</span>");
             }
           });
         }
@@ -299,7 +259,7 @@ onDeviceReady = function() {
           console.log("gopher#use");
           current.opponentsview = new ChooseOpponentsView();
           changePage('#choose-opponents', {
-            transition: 'slide'
+            transition: 'slideup'
           });
           return current.attack = function(player) {
             var opponents_decks;
@@ -320,17 +280,8 @@ onDeviceReady = function() {
                   random: true,
                   number: 1,
                   callback: function(new_card) {
-                    var log, log_msg;
                     console.log('calling callback');
-                    log_msg = "<span class='name'>" + current.user.username + "</span> used a <span class='item action'>Gopher</span> and got a <span class='money'>" + new_card + "</span>";
-                    if (typeof current.match.get('log') !== 'Array') {
-                      log = [];
-                    } else {
-                      log = current.match.get('log');
-                    }
-                    log.push(log_msg);
-                    current.match.set('log', log);
-                    return console.log(log_msg);
+                    return pushLog("<span class='name'>" + current.user.username + "</span> used a <span class='item action'>Gopher</span> on " + player.username + " and got a <span class='money'>" + new_card + "</span>");
                   }
                 });
               }
@@ -876,15 +827,22 @@ onDeviceReady = function() {
 
       CardListView.prototype.use = false;
 
+      CardListView.prototype.clicked = false;
+
       CardListView.prototype.render_card = function() {
         console.log('CardListView#render_card');
         current.carddetailview.render(this.card);
         return changePage('#card-detail', {
-          transition: 'slide'
+          transition: 'flip'
         });
       };
 
       CardListView.prototype.touchstart = function(e) {
+        var _this = this;
+        this.clicked = true;
+        setTimeout(function() {
+          return _this.clicked = false;
+        }, 650);
         console.log('touch start');
         this.touch.x1 = e.pageX;
         return this.touch.y1 = e.pageY;
@@ -945,6 +903,12 @@ onDeviceReady = function() {
             if (this.card.type === 'action') {
               return current.deck.set('actions', current.deck.get('actions') - 1);
             }
+          }
+        } else {
+          if (this.clicked) {
+            this.clicked = false;
+            console.log('clicked');
+            return this.render_card();
           }
         }
       };

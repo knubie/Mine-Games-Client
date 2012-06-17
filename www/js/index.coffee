@@ -59,14 +59,20 @@ onDeviceReady = ->
         $page.removeClass 'reverse'
       else
         console.log "changing page to #{page}"
-        $curr.addClass('slide out')
-        $page.addClass('slide in active')
+        $curr.addClass("#{options.transition} out")
+        $page.addClass("#{options.transition} in active")
         setTimeout ->
-          console.log 'settimeout'
-          $curr.removeClass('slide out active reverse')
-          $page.removeClass('slide in reverse')
+          $curr.removeClass("#{options.transition} out active reverse")
+          $page.removeClass("#{options.transition} in reverse")
         , 500
 
+    pushLog = (msg) ->
+      if typeof current.match.get('log') isnt 'Array'
+        log = []
+      else
+        log = current.match.get('log')
+      log.push msg
+      current.match.set('log', log)
 
 
     # pusher = new Pusher('efc99ac7a3e488aaa691')
@@ -88,18 +94,8 @@ onDeviceReady = ->
             number: 1
             callback: (new_card) ->
               console.log 'calling callback'
-              log_msg = "<span class='name'>#{current.user.username}</span> used an <span class='item action'>Stone Pickaxe</span> and got a <span class='money'>#{new_card}</span>"
-              console.log 'current.match.get(log):'
-              console.log current.match.get('log')
-              if typeof current.match.get('log') isnt 'Array'
-                log = []
-              else
-                log = current.match.get('log')
-              log.push log_msg
-              console.log 'log:'
-              console.log log
-              current.match.set('log', log)
-              console.log log_msg
+              pushLog "<span class='name'>#{current.user.username}</span> used an <span class='item action'>Stone Pickaxe</span> and got a <span class='money'>#{new_card}</span>"
+
 
       iron_pickaxe:
         name: 'iron pickaxe'
@@ -112,14 +108,7 @@ onDeviceReady = ->
             number: 2
             callback: (new_card) ->
               console.log 'calling callback'
-              log_msg = "<span class='name'>#{current.user.username}</span> used an <span class='item action'>Iron Pickaxe</span> and got a <span class='money'>#{new_card}</span>"
-              if typeof current.match.get('log') isnt 'Array'
-                log = []
-              else
-                log = current.match.get('log')
-              log.push log_msg
-              current.match.set('log', log)
-              console.log log_msg
+              pushLog "<span class='name'>#{current.user.username}</span> used an <span class='item action'>Iron Pickaxe</span> and got a <span class='money'>#{new_card}</span>"
           
       diamond_pickaxe:
         name: 'diamond pickaxe'
@@ -132,14 +121,7 @@ onDeviceReady = ->
             number: 3
             callback: (new_card) ->
               console.log 'calling callback'
-              log_msg = "<span class='name'>#{current.user.username}</span> used an <span class='item action'>Diamond Pickaxe</span> and got a <span class='money'>#{new_card}</span>"
-              if typeof current.match.get('log') isnt 'Array'
-                log = []
-              else
-                log = current.match.get('log')
-              log.push log_msg
-              current.match.set('log', log)
-              console.log log_msg
+              pushLog "<span class='name'>#{current.user.username}</span> used an <span class='item action'>Diamond Pickaxe</span> and got a <span class='money'>#{new_card}</span>"
 
       copper:
         name: 'copper'
@@ -217,14 +199,7 @@ onDeviceReady = ->
             number: 1
             callback: (new_card) ->
               console.log 'calling callback'
-              log_msg = "<span class='name'>#{current.user.username}</span> used a <span class='item action'>Minecart</span> and got a <span class='money'>#{new_card}</span>"
-              if typeof current.match.get('log') isnt 'Array'
-                log = []
-              else
-                log = current.match.get('log')
-              log.push log_msg
-              current.match.set('log', log)
-              console.log log_msg
+              pushLog "<span class='name'>#{current.user.username}</span> used a <span class='item action'>Minecart</span> and got a <span class='money'>#{new_card}</span>"
 
       mule:
         name: 'mule'
@@ -237,14 +212,7 @@ onDeviceReady = ->
             number: 3
             callback: (new_card) ->
               console.log 'calling callback'
-              log_msg = "<span class='name'>#{current.user.username}</span> used a <span class='item action'>Minecart</span> and got a <span class='money'>#{new_card}</span>"
-              if typeof current.match.get('log') isnt 'Array'
-                log = []
-              else
-                log = current.match.get('log')
-              log.push log_msg
-              current.match.set('log', log)
-              console.log log_msg
+              pushLog "<span class='name'>#{current.user.username}</span> used a <span class='item action'>Minecart</span> and got a <span class='money'>#{new_card}</span>"
 
       headlamp:
         name: 'headlamp'
@@ -263,7 +231,7 @@ onDeviceReady = ->
           console.log "gopher#use"
           current.opponentsview = new ChooseOpponentsView()
           changePage '#choose-opponents',
-            transition: 'slide'
+            transition: 'slideup'
 
           current.attack = (player) ->
             console.log "current#attack"
@@ -282,14 +250,7 @@ onDeviceReady = ->
                   number: 1
                   callback: (new_card) ->
                     console.log 'calling callback'
-                    log_msg = "<span class='name'>#{current.user.username}</span> used a <span class='item action'>Gopher</span> and got a <span class='money'>#{new_card}</span>"
-                    if typeof current.match.get('log') isnt 'Array'
-                      log = []
-                    else
-                      log = current.match.get('log')
-                    log.push log_msg
-                    current.match.set('log', log)
-                    console.log log_msg
+                    pushLog "<span class='name'>#{current.user.username}</span> used a <span class='item action'>Gopher</span> on #{player.username} and got a <span class='money'>#{new_card}</span>"
 
             changePage '#match',
               transition: 'slide'
@@ -653,7 +614,6 @@ onDeviceReady = ->
         @render()
 
       events:
-        # 'click': 'render_card'
         'touchstart': 'touchstart'
         'touchmove': 'touchmove'
         'swiperight': 'swiperight'
@@ -677,14 +637,19 @@ onDeviceReady = ->
       dragging: false
       selected: false
       use: false
+      clicked: false
 
       render_card: ->
         console.log 'CardListView#render_card'
         current.carddetailview.render(@card)
         changePage '#card-detail',
-          transition: 'slide'
+          transition: 'flip'
 
       touchstart: (e) ->
+        @clicked = true
+        setTimeout =>
+          @clicked = false
+        , 650
         console.log 'touch start'
         # touch.x1 = e.touches[0].pageX
         # touch.y1 = e.touches[0].pageY
@@ -735,6 +700,11 @@ onDeviceReady = ->
             @discard()
             current.deck.set('actions', current.deck.get('actions') - 1 ) if @card.type == 'action'
             # current.deck.save()
+        else
+          if @clicked
+            @clicked = false
+            console.log 'clicked'
+            @render_card()
 
 
 
