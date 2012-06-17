@@ -276,8 +276,10 @@ ul {
 	background: #33250e;
 }
 
-
-
+#shop{
+	background: url('../images/shopscreen.jpg');
+	background-repeat: none;
+}
 
 #match{
 	background: url('../images/game_bg.jpg');
