@@ -135,14 +135,18 @@ ul {
 }
 
 #log{
-	width: 90%;
-	height: 25px;
+	width: 88%;
+	padding: 2%;
 	margin: auto;
 	margin-top: 10px;
 	margin-bottom: 10px;
 	-webkit-border-radius: 5px;
-	background-color: #efebe1;	
-	-webkit-transition: opacity 1s linear;	
+	background: url('../images/backgroundOpacity.png');	
+	background-repeat: repeat;
+	color: #898989;
+	font-family: 'Gotham-Medium';
+	font-size: 13px;
+	overflow: hidden;
 }
 
 
@@ -164,7 +168,6 @@ ul {
 	background-position: left;
 	overflow: hidden;
 }
-
 
 
 .cardClass{
@@ -200,8 +203,15 @@ ul {
 	font-weight: bold;
 	text-transform: uppercase;
 	margin-top: 4px;
+	width: 150px;
 }
 
+.card .desc{
+	float: left;
+	font-family:'Arial';
+	font-size:11px;
+	color:#646464;
+}
 
 #imgCenter{
 	margin:auto;
