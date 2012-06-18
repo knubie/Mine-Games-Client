@@ -82,10 +82,11 @@ onDeviceReady = ->
       current.match.set('log', log)
       console.log current.match.get('log')
 
-    subscribe = ->
-      pusher = new Pusher('8aabfcf0bad1b94dbac3')
-      user_channel = pusher.subscribe(current.user.get('id'))
-      match_channel = pusher.subscribe(current.match.get('id'))
+    pusher = 0
+    user_channel = 0
+    match_channel = 0
+
+    pusher = new Pusher('8aabfcf0bad1b94dbac3')
 
     cards = # All card properties are definied client-side.
       stone_pickaxe:
@@ -101,6 +102,8 @@ onDeviceReady = ->
             callback: (newcards) ->
               console.log 'calling callback'
               pushLog "<span class='name'>#{current.user.username}</span> used an <span class='item action'>Stone Pickaxe</span> and got a <span class='money'>#{newcards[0]}</span>"
+              current.match.save()
+              current.deck.save()
 
 
       iron_pickaxe:
@@ -116,6 +119,8 @@ onDeviceReady = ->
             callback: (newcards) ->
               console.log 'calling callback'
               pushLog "<span class='name'>#{current.user.username}</span> used an <span class='item action'>Iron Pickaxe</span> and got a <span class='money'>#{newcards[0]}</span> and <span class='money'>#{newcards[1]}</span>"
+              current.match.save()
+              current.deck.save()
           
       diamond_pickaxe:
         name: 'diamond pickaxe'
@@ -130,6 +135,8 @@ onDeviceReady = ->
             callback: (newcards) ->
               console.log 'calling callback'
               pushLog "<span class='name'>#{current.user.username}</span> used an <span class='item action'>Diamond Pickaxe</span> and got a <span class='money'>#{newcards[0]}</span>, <span class='money'>#{newcards[1]}</span> and <span class='money'>#{newcards[2]}</span>"
+              current.match.save()
+              current.deck.save()
 
       copper:
         name: 'copper'
@@ -513,8 +520,8 @@ onDeviceReady = ->
           pushLog "<span class='name'>#{current.user.username}</span> bought #{aOrAn(@card.name)} <span class='item action'>#{@card.name}</span>"
           changePage '#match',
             transition: 'slide'
-          # current.match.save()
-          # current.deck.save()
+          current.match.save()
+          current.deck.save()
         else
           console.log 'not enough money'
           alert "not enough money!"
@@ -791,6 +798,11 @@ onDeviceReady = ->
         console.log 'MatchListView#render_match'
         current.match = @match
         current.deck = @deck
+        match_channel = pusher.subscribe("#{current.match.get('id')}")
+        channel.bind('my-event', (data) ->
+          alert('match updated')
+        )
+
 
         console.log "checking if MatchView instance exists."
         if current.matchview
@@ -885,6 +897,7 @@ onDeviceReady = ->
       $('#loader').css('opacity', 1)
       $.getJSON("#{server_url}/users/99", (user) ->
         current.user = user
+        user_channel = pusher.subscribe("#{current.user.id}")
         console.log 'instantiating LobbyView'
         current.lobby.render()
         changePage "#lobby",
@@ -899,7 +912,8 @@ onDeviceReady = ->
         console.log 7
         $.getJSON "#{server_url}/users/1", (user) ->
           console.log 8
-          current.user = user
+          user_channel = pusher.subscribe("#{current.user.id}")
+          current.user = 
           console.log 'instantiating LobbyView'
           current.lobby.render()
           changePage "#lobby",
@@ -922,7 +936,8 @@ onDeviceReady = ->
             expires: 7300
           console.log $.cookie 'token'
           console.log '942'
-          current.user = user
+          curent.user = user
+          user_channel = pusher.subscribe("#{current.user.id}")
 
           console.log '945'
           current.lobby.render()

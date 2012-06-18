@@ -11,7 +11,7 @@ onBodyLoad = function() {
 
 onDeviceReady = function() {
   return $(function() {
-    var CardDetailView, CardListView, ChooseOpponentsView, Deck, Decks, LobbyView, Match, MatchListView, MatchView, Matches, OpponentsListView, ShopListView, ShopView, aOrAn, actions, cards, changePage, current, decks, facebook_auth, gsub, matches, pushLog, subscribe;
+    var CardDetailView, CardListView, ChooseOpponentsView, Deck, Decks, LobbyView, Match, MatchListView, MatchView, Matches, OpponentsListView, ShopListView, ShopView, aOrAn, actions, cards, changePage, current, decks, facebook_auth, gsub, match_channel, matches, pushLog, pusher, user_channel;
     gsub = function(source, pattern, replacement) {
       var match, result;
       if (!((pattern != null) && (replacement != null))) {
@@ -96,12 +96,10 @@ onDeviceReady = function() {
       current.match.set('log', log);
       return console.log(current.match.get('log'));
     };
-    subscribe = function() {
-      var match_channel, pusher, user_channel;
-      pusher = new Pusher('8aabfcf0bad1b94dbac3');
-      user_channel = pusher.subscribe(current.user.get('id'));
-      return match_channel = pusher.subscribe(current.match.get('id'));
-    };
+    pusher = 0;
+    user_channel = 0;
+    match_channel = 0;
+    pusher = new Pusher('8aabfcf0bad1b94dbac3');
     cards = {
       stone_pickaxe: {
         name: 'stone pickaxe',
@@ -115,7 +113,9 @@ onDeviceReady = function() {
             random: true,
             callback: function(newcards) {
               console.log('calling callback');
-              return pushLog("<span class='name'>" + current.user.username + "</span> used an <span class='item action'>Stone Pickaxe</span> and got a <span class='money'>" + newcards[0] + "</span>");
+              pushLog("<span class='name'>" + current.user.username + "</span> used an <span class='item action'>Stone Pickaxe</span> and got a <span class='money'>" + newcards[0] + "</span>");
+              current.match.save();
+              return current.deck.save();
             }
           });
         }
@@ -132,7 +132,9 @@ onDeviceReady = function() {
             random: true,
             callback: function(newcards) {
               console.log('calling callback');
-              return pushLog("<span class='name'>" + current.user.username + "</span> used an <span class='item action'>Iron Pickaxe</span> and got a <span class='money'>" + newcards[0] + "</span> and <span class='money'>" + newcards[1] + "</span>");
+              pushLog("<span class='name'>" + current.user.username + "</span> used an <span class='item action'>Iron Pickaxe</span> and got a <span class='money'>" + newcards[0] + "</span> and <span class='money'>" + newcards[1] + "</span>");
+              current.match.save();
+              return current.deck.save();
             }
           });
         }
@@ -149,7 +151,9 @@ onDeviceReady = function() {
             random: true,
             callback: function(newcards) {
               console.log('calling callback');
-              return pushLog("<span class='name'>" + current.user.username + "</span> used an <span class='item action'>Diamond Pickaxe</span> and got a <span class='money'>" + newcards[0] + "</span>, <span class='money'>" + newcards[1] + "</span> and <span class='money'>" + newcards[2] + "</span>");
+              pushLog("<span class='name'>" + current.user.username + "</span> used an <span class='item action'>Diamond Pickaxe</span> and got a <span class='money'>" + newcards[0] + "</span>, <span class='money'>" + newcards[1] + "</span> and <span class='money'>" + newcards[2] + "</span>");
+              current.match.save();
+              return current.deck.save();
             }
           });
         }
@@ -669,9 +673,11 @@ onDeviceReady = function() {
           this.$el.find('.count').html(this.amount);
           current.deck.spend(this.card.cost);
           pushLog("<span class='name'>" + current.user.username + "</span> bought " + (aOrAn(this.card.name)) + " <span class='item action'>" + this.card.name + "</span>");
-          return changePage('#match', {
+          changePage('#match', {
             transition: 'slide'
           });
+          current.match.save();
+          return current.deck.save();
         } else {
           console.log('not enough money');
           return alert("not enough money!");
@@ -1048,6 +1054,10 @@ onDeviceReady = function() {
         console.log('MatchListView#render_match');
         current.match = this.match;
         current.deck = this.deck;
+        match_channel = pusher.subscribe("" + (current.match.get('id')));
+        channel.bind('my-event', function(data) {
+          return alert('match updated');
+        });
         console.log("checking if MatchView instance exists.");
         if (current.matchview) {
           console.log('MatchView instance exists. Refreshing');
@@ -1160,6 +1170,7 @@ onDeviceReady = function() {
       $('#loader').css('opacity', 1);
       $.getJSON("" + server_url + "/users/99", function(user) {
         current.user = user;
+        user_channel = pusher.subscribe("" + current.user.id);
         console.log('instantiating LobbyView');
         current.lobby.render();
         return changePage("#lobby", {
@@ -1175,8 +1186,8 @@ onDeviceReady = function() {
         console.log(7);
         return $.getJSON("" + server_url + "/users/1", function(user) {
           console.log(8);
-          current.user = user;
-          console.log('instantiating LobbyView');
+          user_channel = pusher.subscribe("" + current.user.id);
+          current.user = console.log('instantiating LobbyView');
           current.lobby.render();
           return changePage("#lobby", {
             transition: "none"
@@ -1202,7 +1213,8 @@ onDeviceReady = function() {
           });
           console.log($.cookie('token'));
           console.log('942');
-          current.user = user;
+          curent.user = user;
+          user_channel = pusher.subscribe("" + current.user.id);
           console.log('945');
           current.lobby.render();
           console.log('948');
