@@ -1057,7 +1057,9 @@ onDeviceReady = function() {
         current.deck = this.deck;
         match_channel = pusher.subscribe("" + (current.match.get('id')));
         match_channel.bind('update', function(data) {
-          return current.match.fetch();
+          if (!current.turn) {
+            return current.match.fetch();
+          }
         });
         console.log("checking if MatchView instance exists.");
         if (current.matchview) {
@@ -1086,7 +1088,12 @@ onDeviceReady = function() {
       }
 
       LobbyView.prototype.initialize = function() {
+        var _this = this;
         console.log('init LobbyView');
+        user_channel.bind('new_match', function(data) {
+          alert("You've been challenged to a new game!");
+          return _this.render();
+        });
         return this.render();
       };
 
@@ -1143,7 +1150,6 @@ onDeviceReady = function() {
       return LobbyView;
 
     })(Backbone.View);
-    current.lobby = new LobbyView;
     facebook_auth = function(callback) {
       console.log('facebook_auth function');
       window.plugins.childBrowser.showWebPage("" + server_url + "/auth/facebook?display=touch");
@@ -1173,6 +1179,7 @@ onDeviceReady = function() {
         current.user = user;
         user_channel = pusher.subscribe("" + current.user.id);
         console.log('instantiating LobbyView');
+        current.lobby = new LobbyView;
         current.lobby.render();
         return changePage("#lobby", {
           transition: "none"
@@ -1187,9 +1194,15 @@ onDeviceReady = function() {
         console.log(7);
         return $.getJSON("" + server_url + "/users/1", function(user) {
           console.log(8);
+          current.user = user;
           user_channel = pusher.subscribe("" + current.user.id);
-          current.user = console.log('instantiating LobbyView');
-          current.lobby.render();
+          console.log('instantiating LobbyView');
+          if (current.lobby) {
+            current.lobby.render();
+          } else {
+            current.lobby = new LobbyView;
+            current.lobby.render();
+          }
           return changePage("#lobby", {
             transition: "none"
           });
@@ -1200,25 +1213,25 @@ onDeviceReady = function() {
       $('#loader').show();
       $('#loader').css('opacity', 1);
       $.post("" + server_url + "/signin.json", $(this).serialize(), function(user) {
-        console.log('930');
         if (user.error != null) {
           alert('invalid username and/or password');
           $('#loader').hide();
           return $('#loader').css('opacity', 0);
         } else {
-          console.log('936');
           $('#loader').hide();
           $('#loader').css('opacity', 0);
           $.cookie('token', user.token, {
             expires: 7300
           });
           console.log($.cookie('token'));
-          console.log('942');
-          curent.user = user;
+          current.user = user;
           user_channel = pusher.subscribe("" + current.user.id);
-          console.log('945');
-          current.lobby.render();
-          console.log('948');
+          if (current.lobby) {
+            current.lobby.render();
+          } else {
+            current.lobby = new LobbyView;
+            current.lobby.render();
+          }
           return changePage("#lobby", {
             transition: "none"
           });

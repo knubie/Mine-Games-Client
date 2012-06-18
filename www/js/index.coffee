@@ -803,7 +803,7 @@ onDeviceReady = ->
         current.deck = @deck
         match_channel = pusher.subscribe("#{current.match.get('id')}")
         match_channel.bind('update', (data) ->
-          current.match.fetch() if isnt current.turn
+          current.match.fetch() if not current.turn
         )
 
 
@@ -826,6 +826,11 @@ onDeviceReady = ->
         console.log 'init LobbyView'
         # matches.on 'change', =>
         #   @render()
+        # TODO: might want to make this more efficient, ie not have it fetch every model again 
+        user_channel.bind('new_match', (data) =>
+          alert "You've been challenged to a new game!"
+          @render()
+        )
         @render()
 
       el: '#lobby'
@@ -868,7 +873,6 @@ onDeviceReady = ->
     # Authorization
     # ============================================
 
-    current.lobby = new LobbyView
 
     facebook_auth = (callback) ->
       console.log 'facebook_auth function'
@@ -902,6 +906,7 @@ onDeviceReady = ->
         current.user = user
         user_channel = pusher.subscribe("#{current.user.id}")
         console.log 'instantiating LobbyView'
+        current.lobby = new LobbyView
         current.lobby.render()
         changePage "#lobby",
           transition: "none"
@@ -915,10 +920,15 @@ onDeviceReady = ->
         console.log 7
         $.getJSON "#{server_url}/users/1", (user) ->
           console.log 8
+          current.user = user
           user_channel = pusher.subscribe("#{current.user.id}")
-          current.user = 
           console.log 'instantiating LobbyView'
-          current.lobby.render()
+          if current.lobby
+            current.lobby.render()
+          else
+            current.lobby = new LobbyView
+            current.lobby.render()
+
           changePage "#lobby",
             transition: "none"
 
@@ -926,26 +936,25 @@ onDeviceReady = ->
       $('#loader').show()
       $('#loader').css('opacity', 1)
       $.post("#{server_url}/signin.json", $(this).serialize(), (user) ->
-        console.log '930'
         if user.error?
           alert 'invalid username and/or password'
           $('#loader').hide()
           $('#loader').css('opacity', 0)
         else
-          console.log '936'
           $('#loader').hide()
           $('#loader').css('opacity', 0)
           $.cookie 'token', user.token,
             expires: 7300
           console.log $.cookie 'token'
-          console.log '942'
-          curent.user = user
+          current.user = user
           user_channel = pusher.subscribe("#{current.user.id}")
 
-          console.log '945'
-          current.lobby.render()
+          if current.lobby
+            current.lobby.render()
+          else
+            current.lobby = new LobbyView
+            current.lobby.render()            
 
-          console.log '948'
           changePage "#lobby",
             transition: "none"
 
