@@ -64,7 +64,14 @@ onDeviceReady = ->
         setTimeout ->
           $curr.removeClass("#{options.transition} out active reverse")
           $page.removeClass("#{options.transition} in reverse")
-        , 500
+        , 250
+
+    aOrAn = (word) ->
+      console.log word.charAt(0)
+      if word.charAt(0) == 'a' || word.charAt(0) == 'e' || word.charAt(0) == 'i' || word.charAt(0) == 'o' || word.charAt(0) == 'u'
+        "an"
+      else
+        "a"
 
     pushLog = (msg) ->
       if typeof current.match.get('log') isnt 'Array'
@@ -73,14 +80,13 @@ onDeviceReady = ->
         log = current.match.get('log')
       log.push msg
       current.match.set('log', log)
+      console.log current.match.get('log')
 
+    pusher = 0
+    user_channel = 0
+    match_channel = 0
 
-    # pusher = new Pusher('efc99ac7a3e488aaa691')
-    # channel = pusher.subscribe('mine-games')
-    # channel.bind('new_match', (data) ->
-    #   console.log(data)
-    #   $('.matches').append("<li><a href='#match' class='match-list-item' data-transition='slide' data-id='#{data.match.id}'>#{user.username for user in data.match.users}</a></li>").listview('refresh')
-    # )
+    pusher = new Pusher('8aabfcf0bad1b94dbac3')
 
     cards = # All card properties are definied client-side.
       stone_pickaxe:
@@ -96,6 +102,8 @@ onDeviceReady = ->
             callback: (newcards) ->
               console.log 'calling callback'
               pushLog "<span class='name'>#{current.user.username}</span> used an <span class='item action'>Stone Pickaxe</span> and got a <span class='money'>#{newcards[0]}</span>"
+              current.match.save()
+              current.deck.save()
 
 
       iron_pickaxe:
@@ -111,6 +119,8 @@ onDeviceReady = ->
             callback: (newcards) ->
               console.log 'calling callback'
               pushLog "<span class='name'>#{current.user.username}</span> used an <span class='item action'>Iron Pickaxe</span> and got a <span class='money'>#{newcards[0]}</span> and <span class='money'>#{newcards[1]}</span>"
+              current.match.save()
+              current.deck.save()
           
       diamond_pickaxe:
         name: 'diamond pickaxe'
@@ -125,6 +135,8 @@ onDeviceReady = ->
             callback: (newcards) ->
               console.log 'calling callback'
               pushLog "<span class='name'>#{current.user.username}</span> used an <span class='item action'>Diamond Pickaxe</span> and got a <span class='money'>#{newcards[0]}</span>, <span class='money'>#{newcards[1]}</span> and <span class='money'>#{newcards[2]}</span>"
+              current.match.save()
+              current.deck.save()
 
       copper:
         name: 'copper'
@@ -505,6 +517,7 @@ onDeviceReady = ->
           @amount--
           @$el.find('.count').html(@amount)
           current.deck.spend(@card.cost)
+          pushLog "<span class='name'>#{current.user.username}</span> bought #{aOrAn(@card.name)} <span class='item action'>#{@card.name}</span>"
           changePage '#match',
             transition: 'slide'
           current.match.save()
@@ -785,6 +798,11 @@ onDeviceReady = ->
         console.log 'MatchListView#render_match'
         current.match = @match
         current.deck = @deck
+        match_channel = pusher.subscribe("#{current.match.get('id')}")
+        channel.bind('my-event', (data) ->
+          alert('match updated')
+        )
+
 
         console.log "checking if MatchView instance exists."
         if current.matchview
@@ -870,6 +888,7 @@ onDeviceReady = ->
 
     # $.cookie 'token', 'LollakwpnMXj54X6oWwt2g'
     
+    # TODO: add a timeout
     if $.cookie("token")?
       # TODO: match token with user on server side, if match, execute the below block
       console.log 'cookie found'
@@ -878,6 +897,7 @@ onDeviceReady = ->
       $('#loader').css('opacity', 1)
       $.getJSON("#{server_url}/users/99", (user) ->
         current.user = user
+        user_channel = pusher.subscribe("#{current.user.id}")
         console.log 'instantiating LobbyView'
         current.lobby.render()
         changePage "#lobby",
@@ -892,7 +912,8 @@ onDeviceReady = ->
         console.log 7
         $.getJSON "#{server_url}/users/1", (user) ->
           console.log 8
-          current.user = user
+          user_channel = pusher.subscribe("#{current.user.id}")
+          current.user = 
           console.log 'instantiating LobbyView'
           current.lobby.render()
           changePage "#lobby",
@@ -915,7 +936,8 @@ onDeviceReady = ->
             expires: 7300
           console.log $.cookie 'token'
           console.log '942'
-          current.user = user
+          curent.user = user
+          user_channel = pusher.subscribe("#{current.user.id}")
 
           console.log '945'
           current.lobby.render()
