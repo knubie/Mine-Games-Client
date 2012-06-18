@@ -1055,7 +1055,7 @@ onDeviceReady = function() {
         current.match = this.match;
         current.deck = this.deck;
         match_channel = pusher.subscribe("" + (current.match.get('id')));
-        channel.bind('my-event', function(data) {
+        channel.bind('update', function(data) {
           return alert('match updated');
         });
         console.log("checking if MatchView instance exists.");

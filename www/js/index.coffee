@@ -799,7 +799,7 @@ onDeviceReady = ->
         current.match = @match
         current.deck = @deck
         match_channel = pusher.subscribe("#{current.match.get('id')}")
-        channel.bind('my-event', (data) ->
+        channel.bind('update', (data) ->
           alert('match updated')
         )
 
