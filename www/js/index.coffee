@@ -483,7 +483,7 @@ onDeviceReady = ->
       render: ->
         console.log 'ShopListView#render'
         console.log @card
-        $('#shop').append(@el)
+        $('#shopContainer').append(@el)
         #@$el.find('img')
         @$el.find('.count').html(@amount)
         @$el.find('.price').html(@card.cost)

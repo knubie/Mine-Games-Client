@@ -113,6 +113,13 @@ ul {
     margin-right: auto; 
 }
 
+/* Shop Item */
+
+#shop-item{
+	width: 50px;
+}
+
+
 /* Cards */
 
 .cardContainer{
@@ -210,7 +217,17 @@ ul {
 /* Shop Screen */
 
 
+#shopContainer{
+	padding-left: 10px;
+	padding-top: 25px;
+}
 
+.shop-item{
+	width: 80px;
+	height: 80px;
+	float:left;
+	margin-left: 5px;
+}
 
 
 
