@@ -683,6 +683,9 @@ onDeviceReady = ->
         current.match.on 'change:log', =>
           @$el.find('#log').html(_.last(current.match.get('log')))
 
+        current.match.on 'change:mine', =>
+          # do stuff
+
         current.deck.on 'change:actions', =>
           console.log 'actions changed'
           @$el.find('#actions > .count').html(current.deck.get 'actions')
@@ -789,7 +792,7 @@ onDeviceReady = ->
 =======
         match_channel = pusher.subscribe("#{current.match.get('id')}")
         match_channel.bind('update', (data) ->
-          alert('match updated')
+          current.match.fetch() if isnt current.turn
         )
 
 >>>>>>> e6b9d2a1cce715215a22e5d1a99ee0bc298c110a
