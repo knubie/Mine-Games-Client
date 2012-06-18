@@ -785,6 +785,14 @@ onDeviceReady = ->
         console.log 'MatchListView#render_match'
         current.match = @match
         current.deck = @deck
+<<<<<<< HEAD
+=======
+        match_channel = pusher.subscribe("#{current.match.get('id')}")
+        match_channel.bind('update', (data) ->
+          alert('match updated')
+        )
+
+>>>>>>> e6b9d2a1cce715215a22e5d1a99ee0bc298c110a
 
         console.log "checking if MatchView instance exists."
         if current.matchview
