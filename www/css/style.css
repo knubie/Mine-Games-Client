@@ -149,7 +149,13 @@ ul {
 	overflow: hidden;
 }
 
+#log .name{
+	color: #4a4a4a;
+}
 
+#log .item{
+	color: #ef6b56;
+}
 
 .card {
 	width: 90%;
