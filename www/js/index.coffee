@@ -1,6 +1,7 @@
 # THIS FILE IS BARE.. NO CLOSURE WRAPPER
 
 server_url = "http://mine-games.herokuapp.com"
+# server_url = "http://localhost:3000"
 
 # preventBehavior = (e) ->
 #   e.preventDefault()
@@ -754,23 +755,22 @@ onDeviceReady = ->
         console.log 'ending turn'
         $('#loader').show()
         $('#loader').css('opacity', 1)
-        $.post("#{server_url}/end_turn/#{current.match.get('id')}", (data) =>
+        $.post "#{server_url}/end_turn/#{current.match.get('id')}", (data) =>
           console.log data
           console.log 'fetching match data'
-          current.match.fetch(
+          current.match.fetch
             success: =>
               console.log 'got match data'
-              current.deck.fetch(
+              current.deck.fetch
                 success: =>
                   console.log 'got deck data'
                   $('#loader').hide()
                   $('#loader').css('opacity', 0)
                   @render()
-              )
+
             error: =>
               console.log 'error getting match data'
-          )
-        )
+
 
     class MatchListView extends Backbone.View
 
@@ -830,6 +830,7 @@ onDeviceReady = ->
         user_channel.bind('new_match', (data) =>
           alert "You've been challenged to a new game!"
           @render()
+          # TODO: perhaps only trigger this while in the lobby
         )
         @render()
 
