@@ -689,10 +689,6 @@ onDeviceReady = ->
         console.log current.deck
         current.carddetailview = new CardDetailView
         @render()
-        if current.match.get('turn') == current.user.id
-          current.turn = true
-        else
-          current.turn = false
 
         current.match.on 'change:log', =>
           @$el.find('#log').html(_.last(current.match.get('log')))
@@ -715,6 +711,10 @@ onDeviceReady = ->
         'click #end_turn': 'end_turn'
 
       render: ->
+        if current.match.get('turn') == current.user.id
+          current.turn = true
+        else
+          current.turn = false
         console.log 'rendering MatchView'
         console.log @$el.find('#hand')
         @$el.find('#hand').html('')
@@ -758,18 +758,21 @@ onDeviceReady = ->
         $.post "#{server_url}/end_turn/#{current.match.get('id')}", (data) =>
           console.log data
           console.log 'fetching match data'
-          current.match.fetch
-            success: =>
-              console.log 'got match data'
-              current.deck.fetch
-                success: =>
-                  console.log 'got deck data'
-                  $('#loader').hide()
-                  $('#loader').css('opacity', 0)
-                  @render()
+          @refresh()
 
-            error: =>
-              console.log 'error getting match data'
+      refresh: ->
+        current.match.fetch
+          success: =>
+            console.log 'got match data'
+            current.deck.fetch
+              success: =>
+                console.log 'got deck data'
+                $('#loader').hide()
+                $('#loader').css('opacity', 0)
+                @render()
+
+          error: =>
+            console.log 'error getting match data'
 
 
     class MatchListView extends Backbone.View

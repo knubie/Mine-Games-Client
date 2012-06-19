@@ -921,11 +921,6 @@ onDeviceReady = function() {
         console.log(current.deck);
         current.carddetailview = new CardDetailView;
         this.render();
-        if (current.match.get('turn') === current.user.id) {
-          current.turn = true;
-        } else {
-          current.turn = false;
-        }
         current.match.on('change:log', function() {
           return _this.$el.find('#log').html(_.last(current.match.get('log')));
         });
@@ -949,6 +944,11 @@ onDeviceReady = function() {
 
       MatchView.prototype.render = function() {
         var card, player, players, view, _i, _len, _ref;
+        if (current.match.get('turn') === current.user.id) {
+          current.turn = true;
+        } else {
+          current.turn = false;
+        }
         console.log('rendering MatchView');
         console.log(this.$el.find('#hand'));
         this.$el.find('#hand').html('');
@@ -990,22 +990,27 @@ onDeviceReady = function() {
         return $.post("" + server_url + "/end_turn/" + (current.match.get('id')), function(data) {
           console.log(data);
           console.log('fetching match data');
-          return current.match.fetch({
-            success: function() {
-              console.log('got match data');
-              return current.deck.fetch({
-                success: function() {
-                  console.log('got deck data');
-                  $('#loader').hide();
-                  $('#loader').css('opacity', 0);
-                  return _this.render();
-                }
-              });
-            },
-            error: function() {
-              return console.log('error getting match data');
-            }
-          });
+          return _this.refresh();
+        });
+      };
+
+      MatchView.prototype.refresh = function() {
+        var _this = this;
+        return current.match.fetch({
+          success: function() {
+            console.log('got match data');
+            return current.deck.fetch({
+              success: function() {
+                console.log('got deck data');
+                $('#loader').hide();
+                $('#loader').css('opacity', 0);
+                return _this.render();
+              }
+            });
+          },
+          error: function() {
+            return console.log('error getting match data');
+          }
         });
       };
 
