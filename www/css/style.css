@@ -239,7 +239,7 @@ Shop Screen */
 
 	.shop-item{
 		width: 80px;
-		height: 80px;
+		height: 90px;
 		float:left;
 		margin-left: 5px;
 		position:relative;	
@@ -249,14 +249,36 @@ Shop Screen */
 		position:absolute;
 		z-index: 99;
 		left:30px;
-		top:30px;
-		width: 15px;
-		height:15px;
+		top:20px;
+		width: 20px;
+		height:17px;
 		background-color: #4f3b29;
 		border-radius:10px;
 		color: #fff;
+		font-family:'arial', sans-serif;
+		font-weight:bold;
+		text-align:center;
+		font-size: 9px;
+		padding-top: 3px;
 	}
 
+	.shop-item .price{
+		position:absolute;
+		z-index: 98;
+		left:6px;
+		top:38px;
+		width: 50px;
+		height:20px;
+		background-image: url('../images/shop/priceTag.png');
+		background-repeat: no-repeat;
+		background-position:center;
+		color: #4f3b29;
+		font-family:'Gotham-Medium', sans-serif;
+		font-weight:bold;
+		text-align:center;
+		font-size: 12px;
+		padding-top: 3px;
+	}
 
 /* 
 Players Toolbar */
