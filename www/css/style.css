@@ -133,28 +133,6 @@ Cards */
 		background-position: left;
 	}
 
-	#log{
-		width: 88%;
-		padding: 2%;
-		margin: auto;
-		margin-top: 10px;
-		margin-bottom: 10px;
-		-webkit-border-radius: 5px;
-		background: url('../images/backgroundOpacity.png');	
-		background-repeat: repeat;
-		color: #898989;
-		font-family: 'Gotham-Medium';
-		font-size: 13px;
-		overflow: hidden;
-	}
-
-	#log .name{
-		color: #4a4a4a;
-	}
-
-	#log .item{
-		color: #ef6b56;
-	}
 
 	.card {
 		width: 90%;
@@ -208,7 +186,7 @@ Cards */
 		font-weight: bold;
 		text-transform: uppercase;
 		margin-top: 4px;
-		width: 150px;
+		width: 180px;
 	}
 
 	.card .desc{
@@ -216,6 +194,7 @@ Cards */
 		font-family:'Arial';
 		font-size:11px;
 		color:#646464;
+		margin-left: 3px;
 	}
 
 	#imgCenter{
@@ -227,6 +206,33 @@ Cards */
 		margin-left:19px;
 		margin-top:2px;
 		float: left;	
+	}
+
+
+/* 
+Notifications */
+
+	#log{
+		width: 88%;
+		padding: 2%;
+		margin: auto;
+		margin-top: 10px;
+		margin-bottom: 10px;
+		-webkit-border-radius: 5px;
+		background: url('../images/backgroundOpacity.png');	
+		background-repeat: repeat;
+		color: #898989;
+		font-family: 'Gotham-Medium';
+		font-size: 13px;
+		overflow: hidden;
+	}
+
+	#log .name{
+		color: #4a4a4a;
+	}
+
+	#log .item{
+		color: #ef6b56;
 	}
 
 /* 
