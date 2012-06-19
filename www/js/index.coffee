@@ -688,7 +688,12 @@ onDeviceReady = ->
         console.log current.match
         console.log current.deck
         current.carddetailview = new CardDetailView
-        @render()
+        match_channel.bind 'update', (data) ->
+          current.match.fetch() if not current.turn
+        match_channel.bind 'change_turn', (data) =>
+          alert 'turn changed'
+          @refresh()
+        @refresh()
 
         current.match.on 'change:log', =>
           @$el.find('#log').html(_.last(current.match.get('log')))
@@ -758,7 +763,7 @@ onDeviceReady = ->
         $.post "#{server_url}/end_turn/#{current.match.get('id')}", (data) =>
           console.log data
           console.log 'fetching match data'
-          @refresh()
+          # @refresh()
 
       refresh: ->
         current.match.fetch
@@ -805,9 +810,6 @@ onDeviceReady = ->
         current.match = @match
         current.deck = @deck
         match_channel = pusher.subscribe("#{current.match.get('id')}")
-        match_channel.bind('update', (data) ->
-          current.match.fetch() if not current.turn
-        )
 
 
         console.log "checking if MatchView instance exists."

@@ -920,7 +920,16 @@ onDeviceReady = function() {
         console.log(current.match);
         console.log(current.deck);
         current.carddetailview = new CardDetailView;
-        this.render();
+        match_channel.bind('update', function(data) {
+          if (!current.turn) {
+            return current.match.fetch();
+          }
+        });
+        match_channel.bind('change_turn', function(data) {
+          alert('turn changed');
+          return _this.refresh();
+        });
+        this.refresh();
         current.match.on('change:log', function() {
           return _this.$el.find('#log').html(_.last(current.match.get('log')));
         });
@@ -989,8 +998,7 @@ onDeviceReady = function() {
         $('#loader').css('opacity', 1);
         return $.post("" + server_url + "/end_turn/" + (current.match.get('id')), function(data) {
           console.log(data);
-          console.log('fetching match data');
-          return _this.refresh();
+          return console.log('fetching match data');
         });
       };
 
@@ -1061,11 +1069,6 @@ onDeviceReady = function() {
         current.match = this.match;
         current.deck = this.deck;
         match_channel = pusher.subscribe("" + (current.match.get('id')));
-        match_channel.bind('update', function(data) {
-          if (!current.turn) {
-            return current.match.fetch();
-          }
-        });
         console.log("checking if MatchView instance exists.");
         if (current.matchview) {
           console.log('MatchView instance exists. Refreshing');
