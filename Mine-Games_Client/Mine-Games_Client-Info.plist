@@ -58,5 +58,7 @@
 	<true/>
 	<key>LSApplicationCategoryType</key>
 	<string></string>
+	<key>UIPrerenderedIcon</key>
+	<true/>
 </dict>
 </plist>

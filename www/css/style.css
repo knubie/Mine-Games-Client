@@ -92,11 +92,33 @@ ul {
 	font-family: 'Helvetica', sans-serif;
 }
 
+#end_turn{
+	width: 25%;
+	background: #4a3515;
+	float: left;
+	height:55px;
+	padding-top: 15px;
+	text-align:center;
+	color: #fff;
+	font-size: 12px;
+	font-weight:bold;
+	line-height: 34px;	
+	text-transform: uppercase;
+	font-family: 'Helvetica', sans-serif;
+}
+
 #turn img{
 	display: block;
     margin-left: auto;
     margin-right: auto; 
 }
+
+/* Shop Item */
+
+#shop-item{
+	width: 50px;
+}
+
 
 /* Cards */
 
@@ -113,17 +135,27 @@ ul {
 }
 
 #log{
-	width: 90%;
-	height: 25px;
+	width: 88%;
+	padding: 2%;
 	margin: auto;
 	margin-top: 10px;
 	margin-bottom: 10px;
 	-webkit-border-radius: 5px;
-	background-color: #efebe1;	
-	-webkit-transition: opacity 1s linear;	
+	background: url('../images/backgroundOpacity.png');	
+	background-repeat: repeat;
+	color: #898989;
+	font-family: 'Gotham-Medium';
+	font-size: 13px;
+	overflow: hidden;
 }
 
+#log .name{
+	color: #4a4a4a;
+}
 
+#log .item{
+	color: #ef6b56;
+}
 
 .card {
 	width: 90%;
@@ -142,7 +174,6 @@ ul {
 	background-position: left;
 	overflow: hidden;
 }
-
 
 
 .cardClass{
@@ -178,8 +209,15 @@ ul {
 	font-weight: bold;
 	text-transform: uppercase;
 	margin-top: 4px;
+	width: 150px;
 }
 
+.card .desc{
+	float: left;
+	font-family:'Arial';
+	font-size:11px;
+	color:#646464;
+}
 
 #imgCenter{
 	margin:auto;
@@ -191,6 +229,23 @@ ul {
 	margin-top:2px;
 	float: left;	
 }
+
+/* Shop Screen */
+
+
+#shopContainer{
+	padding-left: 10px;
+	padding-top: 25px;
+}
+
+.shop-item{
+	width: 80px;
+	height: 80px;
+	float:left;
+	margin-left: 5px;
+}
+
+
 
 /* Players Toolbar */
 
@@ -276,8 +331,10 @@ ul {
 	background: #33250e;
 }
 
-
-
+#shop{
+	background: url('../images/shopscreen.jpg');
+	background-repeat: none;
+}
 
 #match{
 	background: url('../images/game_bg.jpg');
