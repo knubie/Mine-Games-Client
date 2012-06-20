@@ -696,8 +696,12 @@ onDeviceReady = function() {
       }
 
       ShopView.prototype.initialize = function(card) {
+        var _this = this;
         this.card = card;
         console.log('init ShopView');
+        current.match.on('change:shop', function() {
+          return _this.render();
+        });
         return this.render();
       };
 
@@ -1017,7 +1021,7 @@ onDeviceReady = function() {
             });
           },
           error: function() {
-            return console.log('error getting match data');
+            return alert('error getting match data');
           }
         });
       };
@@ -1188,7 +1192,6 @@ onDeviceReady = function() {
         user_channel = pusher.subscribe("" + current.user.id);
         console.log('instantiating LobbyView');
         current.lobby = new LobbyView;
-        current.lobby.render();
         return changePage("#lobby", {
           transition: "none"
         });
@@ -1209,7 +1212,6 @@ onDeviceReady = function() {
             current.lobby.render();
           } else {
             current.lobby = new LobbyView;
-            current.lobby.render();
           }
           return changePage("#lobby", {
             transition: "none"

@@ -531,6 +531,9 @@ onDeviceReady = ->
 
       initialize: (@card) ->
         console.log 'init ShopView'
+        # TODO: add listener for shop change
+        current.match.on 'change:shop', =>
+          @render()
         @render()
 
       el: '#shop'
@@ -777,7 +780,7 @@ onDeviceReady = ->
                 @render()
 
           error: =>
-            console.log 'error getting match data'
+            alert 'error getting match data'
 
 
     class MatchListView extends Backbone.View
@@ -913,7 +916,6 @@ onDeviceReady = ->
         user_channel = pusher.subscribe("#{current.user.id}")
         console.log 'instantiating LobbyView'
         current.lobby = new LobbyView
-        current.lobby.render()
         changePage "#lobby",
           transition: "none"
       )
@@ -933,7 +935,6 @@ onDeviceReady = ->
             current.lobby.render()
           else
             current.lobby = new LobbyView
-            current.lobby.render()
 
           changePage "#lobby",
             transition: "none"
