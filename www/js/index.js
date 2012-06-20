@@ -239,7 +239,7 @@ onDeviceReady = function() {
         long_desc: 'long description',
         use: function() {
           current.deck.set('actions', current.deck.get('actions') + 1);
-          return actions.draw({
+          return actions.draw(current.deck, 'cards', {
             number: 1,
             random: true,
             callback: function(newcards) {
@@ -256,7 +256,7 @@ onDeviceReady = function() {
         short_desc: 'short description',
         long_desc: 'long description',
         use: function() {
-          return actions.draw({
+          return actions.draw(current.deck, 'cards', {
             number: 3,
             random: true,
             callback: function(newcards) {
@@ -907,8 +907,6 @@ onDeviceReady = function() {
       MatchView.prototype.initialize = function() {
         var _this = this;
         console.log('init MatchView');
-        console.log(current.match);
-        console.log(current.deck);
         current.carddetailview = new CardDetailView;
         match_channel.bind('update', function(data) {
           if (!current.turn) {
@@ -919,6 +917,11 @@ onDeviceReady = function() {
           alert('turn changed');
           return _this.refresh();
         });
+        if (current.match.get('turn') === current.user.id) {
+          current.turn = true;
+        } else {
+          current.turn = false;
+        }
         this.refresh();
         current.match.on('change:log', function() {
           return _this.$el.find('#log').html(_.last(current.match.get('log')));
@@ -943,11 +946,6 @@ onDeviceReady = function() {
 
       MatchView.prototype.render = function() {
         var card, player, players, view, _i, _len, _ref;
-        if (current.match.get('turn') === current.user.id) {
-          current.turn = true;
-        } else {
-          current.turn = false;
-        }
         console.log('rendering MatchView');
         console.log(this.$el.find('#hand'));
         this.$el.find('#log').html(_.last(current.match.get('log')));
@@ -963,16 +961,12 @@ onDeviceReady = function() {
         this.$el.find('#actions > .count').html(current.deck.get('actions'));
         this.$el.find('#to_spend > .count').html(current.deck.to_spend());
         console.log(current.match.get('turn'));
-        if (current.match.get('turn') === current.user.id) {
-          console.log('its yo turn');
+        if (current.turn) {
           this.$el.find('#end_turn').show();
           return this.$el.find('#turn').hide();
         } else {
-          console.log('aint yo turn nigga');
           this.$el.find('#end_turn').hide();
           this.$el.find('#turn').show();
-          console.log(current.user);
-          console.log(current.match.get('players'));
           players = current.match.get('players');
           player = _.find(players, function(player) {
             return player.id === current.match.get('turn');

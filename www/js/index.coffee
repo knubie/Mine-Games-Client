@@ -211,7 +211,7 @@ onDeviceReady = ->
         long_desc: 'long description'
         use: ->
           current.deck.set('actions', current.deck.get('actions')+1)
-          actions.draw
+          actions.draw current.deck, 'cards',
             number: 1
             random: true
             callback: (newcards) ->
@@ -226,7 +226,7 @@ onDeviceReady = ->
         short_desc: 'short description'
         long_desc: 'long description'
         use: ->
-          actions.draw
+          actions.draw current.deck, 'cards',
             number: 3
             random: true
             callback: (newcards) ->
@@ -679,14 +679,21 @@ onDeviceReady = ->
 
       initialize: () ->
         console.log 'init MatchView'
-        console.log current.match
-        console.log current.deck
+
         current.carddetailview = new CardDetailView
+
         match_channel.bind 'update', (data) ->
           current.match.fetch() if not current.turn
+
         match_channel.bind 'change_turn', (data) =>
           alert 'turn changed'
           @refresh()
+
+        if current.match.get('turn') == current.user.id
+          current.turn = true
+        else
+          current.turn = false
+
         @refresh()
 
         current.match.on 'change:log', =>
@@ -710,10 +717,6 @@ onDeviceReady = ->
         'click #end_turn': 'end_turn'
 
       render: ->
-        if current.match.get('turn') == current.user.id
-          current.turn = true
-        else
-          current.turn = false
         console.log 'rendering MatchView'
         console.log @$el.find('#hand')
         @$el.find('#log').html(_.last(current.match.get('log')))
@@ -729,27 +732,17 @@ onDeviceReady = ->
         @$el.find('#actions > .count').html(current.deck.get 'actions')
         @$el.find('#to_spend > .count').html(current.deck.to_spend())
         console.log current.match.get('turn')
-        if current.match.get('turn') == current.user.id
-          console.log 'its yo turn'
+        if current.turn
           @$el.find('#end_turn').show()
           @$el.find('#turn').hide()
         else
-          console.log 'aint yo turn nigga'
           @$el.find('#end_turn').hide()
           @$el.find('#turn').show()
-          console.log current.user
-          console.log current.match.get 'players'
           players = current.match.get('players')
           player = _.find players, (player) ->
             player.id == current.match.get('turn')
           console.log player
           @$el.find('#turn > .count').html(player.username)
-
-
-        # changePage "#match",
-        #   transition: "slide"
-
-        # render all the other shit too
 
       end_turn: ->
         console.log 'ending turn'
@@ -774,7 +767,6 @@ onDeviceReady = ->
           error: =>
             alert 'error getting match data'
 
-
     class MatchListView extends Backbone.View
 
       initialize: (@match, @deck) ->
@@ -796,6 +788,7 @@ onDeviceReady = ->
           reverse = false
           if $(this).attr('data-transition') == 'reverse'
             reverse = true
+          # FIXME: this should happen AFTER match/deck data is fetched
           changePage '#match',
             transition: 'slide'
             reverse: reverse
