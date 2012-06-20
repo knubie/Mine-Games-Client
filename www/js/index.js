@@ -649,7 +649,7 @@ onDeviceReady = function() {
       ShopListView.prototype.render = function() {
         console.log('ShopListView#render');
         console.log(this.card);
-        $('#shop').append(this.el);
+        $('#shopContainer').append(this.el);
         this.$el.find('.count').html(this.amount);
         this.$el.find('.price').html(this.card.cost);
         return this.$el.find('.name').html(this.card.name);

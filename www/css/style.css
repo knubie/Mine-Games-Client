@@ -1,437 +1,482 @@
-ul {
-	margin: 0;
-	padding: 0;
-	list-style-type: none;
-}
-/* Global Attributes */
-
-@font-face {
-  font-family: Gotham-Medium;
-  src: url('../fonts/Gotham-Medium.otf');
-}
-
-@font-face {
-  font-family: Gotham-Bold;
-  src: url('../fonts/Gotham-Bold.otf');
-}
-
-@font-face {
-  font-family: Gotham-Book;
-  src: url('../fonts/Gotham-Book.otf');
-}
-
-/* Game Page */
-
-#lobby_header{
-	width: 25%;
-	background: #75553c;
-	float: left;
-	height:45px;
-	padding-top: 25px;
-}
-
-#lobby_header img{
-	display: block;
-    margin-left: auto;
-    margin-right: auto; 
-}
-
-#to_spend{
-	width: 25%;
-	background: #fbb032;
-	float: left;
-	height:70px;
- 	text-align:center;
-	color: #fff;
-	font-size: 28px;
-	font-weight:bold;
-	line-height: 28px;
-	font-family: 'Helvetica', sans-serif;
-
-}
-
-#spend img{
-	display: block;
-    margin-left: auto;
-    margin-right: auto; 
-}
-
-#actions{
-	width: 25%;
-	background: #ef6b56;
-	float: left;
-	height:55px;
-	padding-top: 15px;
-	text-align:center;
-	color: #fff;
-	font-size: 28px;
-	font-weight:bold;
-	line-height: 34px;	
-	font-family: 'Helvetica', sans-serif;
-
-}
-
-#actions img{
-	display: block;
-    margin-left: auto;
-    margin-right: auto; 
-}
-
-#turn{
-	width: 25%;
-	background: #4a3515;
-	float: left;
-	height:55px;
-	padding-top: 15px;
-	text-align:center;
-	color: #fff;
-	font-size: 12px;
-	font-weight:bold;
-	line-height: 34px;	
-	text-transform: uppercase;
-	font-family: 'Helvetica', sans-serif;
-}
-
-#end_turn{
-	width: 25%;
-	background: #4a3515;
-	float: left;
-	height:55px;
-	padding-top: 15px;
-	text-align:center;
-	color: #fff;
-	font-size: 12px;
-	font-weight:bold;
-	line-height: 34px;	
-	text-transform: uppercase;
-	font-family: 'Helvetica', sans-serif;
-}
-
-#turn img{
-	display: block;
-    margin-left: auto;
-    margin-right: auto; 
-}
-
-/* Shop Item */
-
-#shop-item{
-	width: 50px;
-}
-
-
-/* Cards */
-
-.cardContainer{
-	width: 90%;
-	margin: auto;
-	margin-top: 10px;
-}
-
-.card .yellow{
-	background: url('../images/cards/red.jpg');
-	background-repeat: repeat-y;
-	background-position: left;
-}
-
-#log{
-	width: 88%;
-	padding: 2%;
-	margin: auto;
-	margin-top: 10px;
-	margin-bottom: 10px;
-	-webkit-border-radius: 5px;
-	background: url('../images/backgroundOpacity.png');	
-	background-repeat: repeat;
-	color: #898989;
-	font-family: 'Gotham-Medium';
-	font-size: 13px;
-	overflow: hidden;
-}
-
-#log .name{
-	color: #4a4a4a;
-}
-
-#log .item{
-	color: #ef6b56;
-}
-
-.card {
-	width: 90%;
-	height: 51px;
-	margin: auto;
-	margin-top: 10px;
-	-webkit-border-radius: 8px;
-	-webkit-user-select: none;
-	-webkit-transition: all .1s ease;
-	-webkit-perspective: 0;
-	-webkit-backface-visibility: hidden;
-	position: relative;
-	background-image: url('../images/cards/red.jpg'); /* Remember to move to own classes + yellow */
-	background-color: #efebe1;
-	background-repeat: repeat-y;
-	background-position: left;
-	overflow: hidden;
-}
-
-
-.cardClass{
-	height: 51px;	
-	width: 5px;
-	-webkit-border-radius: 8px;
-	background-color: #ef6b56;
-	position: absolute;
-	left:0;
-	top:0;
-	z-index:99;
-}
-
-.selected {
-	opacity: 0.5;
-}
-
-.discard {
-	display: none;
-}
-
-#hand {
-	height: 244px;
-	overflow-y: scroll;
-	-webkit-overflow-scrolling: touch;
-}
-
-.card .name{
-	color: #ef6b56;
-	font-family: 'Gotham-Bold';
-	float: left;
-	font-size: 20px;
-	font-weight: bold;
-	text-transform: uppercase;
-	margin-top: 4px;
-	width: 150px;
-}
-
-.card .desc{
-	float: left;
-	font-family:'Arial';
-	font-size:11px;
-	color:#646464;
-}
-
-#imgCenter{
-	margin:auto;
-	text-align:center;
-}
-
-.card .thumb{
-	margin-left:19px;
-	margin-top:2px;
-	float: left;	
-}
-
-/* Shop Screen */
-
-
-#shopContainer{
-	padding-left: 10px;
-	padding-top: 25px;
-}
-
-.shop-item{
-	width: 80px;
-	height: 80px;
-	float:left;
-	margin-left: 5px;
-}
-
-
-
-/* Players Toolbar */
-
-#players{
-	background: #424242;
-	width:100%;
-	height: 28px;
-}
-
-.playersNumber{
-	font-size: 18px;
-	font-weight:bold;
-	color: #c4d7d2;
-	margin-top: 10px;
-}
-
-#players2 li{
-	height: 28px;
-	width: 50%;
-	list-style-type: none;
-	float:left;
-	text-align:center;
-	background: #424242;
-	font-family: 'Helvetica',sans-serif;
-
-}
-
-.players3 {
-	height: 28px;
-	width: 33.3%;
-	list-style-type: none;
-	float:left;
-	text-align:center;
-	background: #424242;
-	color: #fff;
-	font-weight:300;
-	font-size:12px;
-	font-family: 'Helvetica',sans-serif;
-
-}
-
-.playersSelected {
-	background: #898989;
-}
-
-.players4 {
-	height: 28px;
-	width: 25%;
-	list-style-type: none;
-	float:left;
-	text-align:center;
-	background: #424242;
-	color: #fff;
-	font-weight:300;
-	font-size:12px;
-	font-family: 'Helvetica',sans-serif;
-
-}
-/* Other Pages */
-
-#divTitle{
-	width: 75%;
-	background: #fbb032;
-	float: left;
-	height:55px;
-	padding-top: 15px;
-	text-align:center;
-	color: #fff;
-	font-size: 28px;
-	font-weight:bold;
-	line-height: 34px;
-}
-
-
-/* Background Declarations */
-	
-
-.green {
-	background: #c4d7d2;
-}
-
-.brown {
-	background: #33250e;
-}
-
-#shop{
-	background: url('../images/shopscreen.jpg');
-	background-repeat: none;
-}
-
-#match{
-	background: url('../images/game_bg.jpg');
-	background-repeat: none;
-}
-
-#shopBtn{
-	margin-top:20px;
-	float:left;
-}
-
-#itemsBtn{
-	margin-top:20px;
-	float:right;
-}
-
-.clear{
-	clear: both;
-}
-#loader {
-	min-height: 480px;
-	border: 0px;
-	left: 0px;
-	position: absolute;
-	top: 0px;
-	width: 100%;
-	background-color: rgba(0, 0, 0, 0.3);
-	z-index: 99;
-	opacity: 0;
-	display: none;
-	-webkit-transition: opacity .05s ease-in-out;
-}
-
-/* Form Imputs */
-#session_email{
-	margin-left: 17px;
-}
-
-#signForm{
-	margin-top:85px;
-}
-
-/* Buttons */
-
-.f90{
-	width: 80%;
-	padding: 10px;
-	color: #ccc;
-	font-size: 16px;
-	margin-bottom: 5px;
-	margin-left: 17px;
-	border:none;
-
-}
-
-#w75{
-	width: 85%;
-}
-
-#facebook-auth{
-	margin-left: 15px;
-}
-
-.bigButton{
-	border: solid 4px #4f3b29;
-	padding:10px;
-	margin-left:17px;
-	margin-bottom: 15px;
-	margin-top: 10px;	
-	height: 50px;
-	width: 90%;
-	color: #fff;
-	font-family: 'Helvetica',sans-serif;
-	-webkit-border-radius: 10px;
-	text-align:center;
-	font-size: 20px;
-	font-weight: bold;
-}
-
-.yellow{
-	background: #e8a22e;
-	border: solid 4px #4f3b29;
-	padding:10px;
-	margin:auto;
-	height: 25px;
-	width: 90%;
-	color: #fff;
-	font-family: 'Helvetica',sans-serif;
-	-webkit-border-radius: 10px;
-	text-align:center;
-	margin-bottom: 15px;
-	font-size: 20px;
-	font-weight: bold;
-}
-
-.yellow a{
-	color:#fff;
-	text-decoration: none;
-	display:block;
-}
+
+/* 
+Global Attributes */
+
+	ul {
+		margin: 0;
+		padding: 0;
+		list-style-type: none;
+	}	
+
+	@font-face {
+	  font-family: Gotham-Medium;
+	  src: url('../fonts/Gotham-Medium.otf');
+	}
+
+	@font-face {
+	  font-family: Gotham-Bold;
+	  src: url('../fonts/Gotham-Bold.otf');
+	}
+
+	@font-face {
+	  font-family: Gotham-Book;
+	  src: url('../fonts/Gotham-Book.otf');
+	}
+
+
+/* 
+Game Page */
+
+	#lobby_header{
+		width: 25%;
+		background: #75553c;
+		float: left;
+		height:45px;
+		padding-top: 25px;
+	}
+
+	#lobby_header img{
+		display: block;
+	    margin-left: auto;
+	    margin-right: auto; 
+	}
+
+	#to_spend{
+		width: 25%;
+		background: #fbb032;
+		float: left;
+		height:70px;
+	 	text-align:center;
+		color: #fff;
+		font-size: 28px;
+		font-weight:bold;
+		line-height: 28px;
+		font-family: 'Helvetica', sans-serif;
+
+	}
+
+	#spend img{
+		display: block;
+	    margin-left: auto;
+	    margin-right: auto; 
+	}
+
+	#actions{
+		width: 25%;
+		background: #ef6b56;
+		float: left;
+		height:55px;
+		padding-top: 15px;
+		text-align:center;
+		color: #fff;
+		font-size: 28px;
+		font-weight:bold;
+		line-height: 34px;	
+		font-family: 'Helvetica', sans-serif;
+
+	}
+
+	#actions img{
+		display: block;
+	    margin-left: auto;
+	    margin-right: auto; 
+	}
+
+	#turn{
+		width: 25%;
+		background: #4a3515;
+		float: left;
+		height:55px;
+		padding-top: 15px;
+		text-align:center;
+		color: #fff;
+		font-size: 12px;
+		font-weight:bold;
+		line-height: 34px;	
+		text-transform: uppercase;
+		font-family: 'Helvetica', sans-serif;
+	}
+
+	#end_turn{
+		width: 25%;
+		background: #4a3515;
+		float: left;
+		height:55px;
+		padding-top: 15px;
+		text-align:center;
+		color: #fff;
+		font-size: 12px;
+		font-weight:bold;
+		line-height: 34px;	
+		text-transform: uppercase;
+		font-family: 'Helvetica', sans-serif;
+	}
+
+	#turn img{
+		display: block;
+	    margin-left: auto;
+	    margin-right: auto; 
+	}
+
+/* 
+Cards */
+
+	.cardContainer{
+		width: 90%;
+		margin: auto;
+		margin-top: 10px;
+	}
+
+	.card .yellow{
+		background: url('../images/cards/red.jpg');
+		background-repeat: repeat-y;
+		background-position: left;
+	}
+
+
+	.card {
+		width: 90%;
+		height: 51px;
+		margin: auto;
+		margin-top: 10px;
+		-webkit-border-radius: 8px;
+		-webkit-user-select: none;
+		-webkit-transition: all .1s ease;
+		-webkit-perspective: 0;
+		-webkit-backface-visibility: hidden;
+		position: relative;
+		background-image: url('../images/cards/red.jpg'); /* Remember to move to own classes + yellow */
+		background-color: #efebe1;
+		background-repeat: repeat-y;
+		background-position: left;
+		overflow: hidden;
+	}
+
+
+	.cardClass{
+		height: 51px;	
+		width: 5px;
+		-webkit-border-radius: 8px;
+		background-color: #ef6b56;
+		position: absolute;
+		left:0;
+		top:0;
+		z-index:99;
+	}
+
+	.selected {
+		opacity: 0.5;
+	}
+
+	.discard {
+		display: none;
+	}
+
+	#hand {
+		height: 244px;
+		overflow-y: scroll;
+		-webkit-overflow-scrolling: touch;
+	}
+
+	.card .name{
+		color: #ef6b56;
+		font-family: 'Gotham-Bold';
+		float: left;
+		font-size: 20px;
+		font-weight: bold;
+		text-transform: uppercase;
+		margin-top: 4px;
+		width: 180px;
+	}
+
+	.card .desc{
+		float: left;
+		font-family:'Arial';
+		font-size:11px;
+		color:#646464;
+		margin-left: 3px;
+	}
+
+	#imgCenter{
+		margin:auto;
+		text-align:center;
+	}
+
+	.card .thumb{
+		margin-left:19px;
+		margin-top:2px;
+		float: left;	
+	}
+
+
+/* 
+Notifications */
+
+	#log{
+		width: 88%;
+		padding: 2%;
+		margin: auto;
+		margin-top: 10px;
+		margin-bottom: 10px;
+		-webkit-border-radius: 5px;
+		background: url('../images/backgroundOpacity.png');	
+		background-repeat: repeat;
+		color: #898989;
+		font-family: 'Gotham-Medium';
+		font-size: 13px;
+		overflow: hidden;
+	}
+
+	#log .name{
+		color: #4a4a4a;
+	}
+
+	#log .item{
+		color: #ef6b56;
+	}
+
+/* 
+Shop Screen */
+
+	#shopContainer{
+		padding-left: 42px;
+		padding-top: 19px;
+	}
+
+	.shop-item{
+		width: 80px;
+		height: 90px;
+		float:left;
+		margin-left: 5px;
+		position:relative;	
+	}
+
+	.shop-item .count{
+		position:absolute;
+		z-index: 99;
+		left:30px;
+		top:20px;
+		width: 20px;
+		height:17px;
+		background-color: #4f3b29;
+		border-radius:10px;
+		color: #fff;
+		font-family:'arial', sans-serif;
+		font-weight:bold;
+		text-align:center;
+		font-size: 9px;
+		padding-top: 3px;
+	}
+
+	.shop-item .price{
+		position:absolute;
+		z-index: 98;
+		left:6px;
+		top:38px;
+		width: 50px;
+		height:20px;
+		background-image: url('../images/shop/priceTag.png');
+		background-repeat: no-repeat;
+		background-position:center;
+		color: #4f3b29;
+		font-family:'Gotham-Medium', sans-serif;
+		font-weight:bold;
+		text-align:center;
+		font-size: 12px;
+		padding-top: 3px;
+	}
+
+/* 
+Players Toolbar */
+
+	#players{
+		background: #424242;
+		width:100%;
+		height: 28px;
+	}
+
+	.playersNumber{
+		font-size: 18px;
+		font-weight:bold;
+		color: #c4d7d2;
+		margin-top: 10px;
+	}
+
+	#players2 li{
+		height: 28px;
+		width: 50%;
+		list-style-type: none;
+		float:left;
+		text-align:center;
+		background: #424242;
+		font-family: 'Helvetica',sans-serif;
+
+	}
+
+	.players3 {
+		height: 28px;
+		width: 33.3%;
+		list-style-type: none;
+		float:left;
+		text-align:center;
+		background: #424242;
+		color: #fff;
+		font-weight:300;
+		font-size:12px;
+		font-family: 'Helvetica',sans-serif;
+
+	}
+
+	.playersSelected {
+		background: #898989;
+	}
+
+	.players4 {
+		height: 28px;
+		width: 25%;
+		list-style-type: none;
+		float:left;
+		text-align:center;
+		background: #424242;
+		color: #fff;
+		font-weight:300;
+		font-size:12px;
+		font-family: 'Helvetica',sans-serif;
+
+	}
+
+/* 
+Other Pages */
+
+	#divTitle{
+		width: 75%;
+		background: #fbb032;
+		float: left;
+		height:55px;
+		padding-top: 15px;
+		text-align:center;
+		color: #fff;
+		font-size: 28px;
+		font-weight:bold;
+		line-height: 34px;
+	}
+
+
+/* 
+Background Declarations */
+
+	.green {
+		background: #c4d7d2;
+	}
+
+	.brown {
+		background: #33250e;
+	}
+
+	#shop{
+		background: url('../images/shopscreen.jpg');
+		background-repeat: none;
+	}
+
+	#match{
+		background: url('../images/game_bg.jpg');
+		background-repeat: none;
+	}
+
+	#shopBtn{
+		margin-top:20px;
+		float:left;
+	}
+
+	#itemsBtn{
+		margin-top:20px;
+		float:right;
+	}
+
+	.clear{
+		clear: both;
+	}
+	#loader {
+		min-height: 480px;
+		border: 0px;
+		left: 0px;
+		position: absolute;
+		top: 0px;
+		width: 100%;
+		background-color: rgba(0, 0, 0, 0.3);
+		z-index: 99;
+		opacity: 0;
+		display: none;
+		-webkit-transition: opacity .05s ease-in-out;
+	}
+
+/* 
+Form Imputs */
+	#session_email{
+		margin-left: 17px;
+	}
+
+	#signForm{
+		margin-top:85px;
+	}
+
+
+/* 
+Buttons */
+
+	.f90{
+		width: 80%;
+		padding: 10px;
+		color: #ccc;
+		font-size: 16px;
+		margin-bottom: 5px;
+		margin-left: 17px;
+		border:none;
+
+	}
+
+	#w75{
+		width: 85%;
+	}
+
+	#facebook-auth{
+		margin-left: 15px;
+	}
+
+	.bigButton{
+		border: solid 4px #4f3b29;
+		padding:10px;
+		margin-left:17px;
+		margin-bottom: 15px;
+		margin-top: 10px;	
+		height: 50px;
+		width: 90%;
+		color: #fff;
+		font-family: 'Helvetica',sans-serif;
+		-webkit-border-radius: 10px;
+		text-align:center;
+		font-size: 20px;
+		font-weight: bold;
+	}
+
+	.yellow{
+		background: #e8a22e;
+		border: solid 4px #4f3b29;
+		padding:10px;
+		margin:auto;
+		height: 25px;
+		width: 90%;
+		color: #fff;
+		font-family: 'Helvetica',sans-serif;
+		-webkit-border-radius: 10px;
+		text-align:center;
+		margin-bottom: 15px;
+		font-size: 20px;
+		font-weight: bold;
+	}
+
+	.yellow a{
+		color:#fff;
+		text-decoration: none;
+		display:block;
+	}
