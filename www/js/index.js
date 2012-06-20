@@ -649,7 +649,7 @@ onDeviceReady = function() {
       ShopListView.prototype.render = function() {
         console.log('ShopListView#render');
         console.log(this.card);
-        $('#shopContainer').append(this.el);
+        $('#shop').append(this.el);
         this.$el.find('.count').html(this.amount);
         this.$el.find('.price').html(this.card.cost);
         return this.$el.find('.name').html(this.card.name);
@@ -700,6 +700,7 @@ onDeviceReady = function() {
         this.card = card;
         console.log('init ShopView');
         current.match.on('change:shop', function() {
+          alert('shop changed');
           return _this.render();
         });
         return this.render();

@@ -319,7 +319,7 @@ onDeviceReady = ->
             source[0..0] = []
 
           hand.push newcard
-          newcards.push newcard
+          newcards.push newcard # FIXME: newcards[0] == undefined
 
           model.set(attribute, source)
           current.deck.set('hand', hand)
@@ -533,6 +533,7 @@ onDeviceReady = ->
         console.log 'init ShopView'
         # TODO: add listener for shop change
         current.match.on 'change:shop', =>
+          alert 'shop changed'
           @render()
         @render()
 
@@ -550,6 +551,7 @@ onDeviceReady = ->
             shop[card] = shop[card] + 1
           prev = card
 
+        # @$el.html('')
         for card, amount of shop
           console.log cards[gsub(card, ' ', '_')]
           view = new ShopListView(cards[gsub(card, ' ', '_')], amount)
@@ -691,6 +693,7 @@ onDeviceReady = ->
         console.log current.match
         console.log current.deck
         current.carddetailview = new CardDetailView
+        # TODO: populate log on instantiation
         match_channel.bind 'update', (data) ->
           current.match.fetch() if not current.turn
         match_channel.bind 'change_turn', (data) =>
