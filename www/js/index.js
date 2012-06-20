@@ -443,16 +443,8 @@ onDeviceReady = function() {
 
       Deck.prototype.initialize = function() {
         var _this = this;
-        this.on('change', function() {
-          return console.log("" + _this + " model changed");
-        });
-        this.on('change:actions', function() {
-          console.log("actions changed, updating DOM");
-          return $('#actions > .count').html(current.deck.get('actions'));
-        });
-        return this.on('change:hand', function() {
-          console.log("hand changed, updating DOM");
-          return $('#to_spend > .count').html(current.deck.to_spend());
+        return this.on('change', function() {
+          return console.log("deck changed");
         });
       };
 
@@ -465,30 +457,29 @@ onDeviceReady = function() {
       Deck.prototype.type = 0;
 
       Deck.prototype.to_spend = function() {
-        var card, to_spend, _fn, _i, _len, _ref;
+        var card, to_spend, _i, _len, _ref;
         to_spend = 0;
         console.log("calculating to_spend");
         _ref = this.get('hand');
-        _fn = function(card) {
-          if (cards[gsub(card, ' ', '_')].type === 'money') {
-            return to_spend += cards[gsub(card, ' ', '_')].value;
-          }
-        };
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           card = _ref[_i];
-          _fn(card);
+          console.log('checking type');
+          if (cards[card].type === 'money') {
+            console.log('getting value');
+            to_spend += cards[card].value;
+          }
         }
         return to_spend;
       };
 
       Deck.prototype.spend = function(value) {
-        var card, money_cards, new_hand, _fn, _i, _j, _len, _len1, _ref;
+        var card, money_cards, new_hand, _i, _j, _len, _len1, _ref;
         console.log('Deck#spend');
         money_cards = [];
         _ref = this.get('hand');
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           card = _ref[_i];
-          if (cards[gsub(card, ' ', '_')].type === 'money') {
+          if (cards[card].type === 'money') {
             money_cards.push(card);
           }
         }
@@ -497,17 +488,14 @@ onDeviceReady = function() {
         });
         console.log("current money cards in hand: " + money_cards);
         new_hand = this.get('hand');
-        _fn = function(card) {
+        for (_j = 0, _len1 = money_cards.length; _j < _len1; _j++) {
+          card = money_cards[_j];
           if (value > 0) {
             new_hand = new_hand.minus(card);
             console.log(new_hand);
-            value = value - cards[gsub(card, ' ', '_')].value;
-            return console.log(value);
+            value = value - cards[card].value;
+            console.log(value);
           }
-        };
-        for (_j = 0, _len1 = money_cards.length; _j < _len1; _j++) {
-          card = money_cards[_j];
-          _fn(card);
         }
         if (value < 0) {
           switch (value) {
@@ -727,8 +715,8 @@ onDeviceReady = function() {
         _results = [];
         for (card in shop) {
           amount = shop[card];
-          console.log(cards[gsub(card, ' ', '_')]);
-          _results.push(view = new ShopListView(cards[gsub(card, ' ', '_')], amount));
+          console.log(cards[card]);
+          _results.push(view = new ShopListView(cards[card], amount));
         }
         return _results;
       };
@@ -829,9 +817,6 @@ onDeviceReady = function() {
 
       CardListView.prototype.touchmove = function(e) {
         var pct;
-        console.log('actions:');
-        console.log(current.deck.get('actions'));
-        console.log("turn: " + current.turn);
         this.dx = e.pageX - this.touch.x1;
         this.dy = e.pageY - this.touch.y1;
         if (current.deck.get('actions') > 0 && current.turn) {
@@ -878,11 +863,11 @@ onDeviceReady = function() {
           this.dx = 0;
           if (current.turn) {
             console.log('using card');
-            this.card.use();
-            this.discard();
             if (this.card.type === 'action') {
               current.deck.set('actions', current.deck.get('actions') - 1);
             }
+            this.discard();
+            this.card.use();
           }
         } else {
           if (this.clicked && Math.abs(this.dy) < 6) {
@@ -965,13 +950,14 @@ onDeviceReady = function() {
         }
         console.log('rendering MatchView');
         console.log(this.$el.find('#hand'));
+        this.$el.find('#log').html(_.last(current.match.get('log')));
         this.$el.find('#hand').html('');
         console.log(current.deck);
         _ref = current.deck.get('hand');
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           card = _ref[_i];
           console.log('some cards');
-          view = new CardListView(cards[gsub(card, ' ', '_')]);
+          view = new CardListView(cards[card]);
         }
         console.log("current actions: " + (current.deck.get('actions')));
         this.$el.find('#actions > .count').html(current.deck.get('actions'));
@@ -1188,6 +1174,7 @@ onDeviceReady = function() {
       console.log('cookie found');
       $('#loader').show();
       $('#loader').css('opacity', 1);
+      $('#loader').find('#loading-text').html('Logging in...');
       $.getJSON("" + server_url + "/users/99", function(user) {
         current.user = user;
         user_channel = pusher.subscribe("" + current.user.id);

@@ -372,15 +372,8 @@ onDeviceReady = ->
     class Deck extends Backbone.Model
       initialize: ->
         @on 'change', =>
-          console.log "#{@} model changed"
+          console.log "deck changed"
           # @save()
-        @on 'change:actions', =>
-          console.log "actions changed, updating DOM"
-          $('#actions > .count').html(current.deck.get 'actions')
-        @on 'change:hand', =>
-          console.log "hand changed, updating DOM"
-          $('#to_spend > .count').html(current.deck.to_spend())
-
 
       urlRoot: "#{server_url}/decks"
 
@@ -392,27 +385,27 @@ onDeviceReady = ->
         to_spend = 0
         console.log "calculating to_spend"
         for card in @get('hand')
-          do (card) ->
-            if cards[gsub(card, ' ', '_')].type == 'money'
-              to_spend += cards[gsub(card, ' ', '_')].value
+          console.log 'checking type'
+          if cards[card].type == 'money'
+            console.log 'getting value'
+            to_spend += cards[card].value
         to_spend
 
       spend: (value) ->
         console.log 'Deck#spend'
         money_cards = []
         for card in @get('hand')
-          if cards[gsub(card, ' ', '_')].type == 'money'
+          if cards[card].type == 'money'
             money_cards.push(card)
         money_cards = _.sortBy money_cards, (i) -> return i
         console.log "current money cards in hand: #{money_cards}"
         new_hand = @get('hand')
         for card in money_cards
-          do (card) ->
-            if value > 0
-              new_hand = new_hand.minus(card)
-              console.log new_hand
-              value = value - cards[gsub(card, ' ', '_')].value
-              console.log value
+          if value > 0
+            new_hand = new_hand.minus(card)
+            console.log new_hand
+            value = value - cards[card].value
+            console.log value
         if value < 0
           switch value
             when -1
@@ -553,8 +546,8 @@ onDeviceReady = ->
 
         # @$el.html('')
         for card, amount of shop
-          console.log cards[gsub(card, ' ', '_')]
-          view = new ShopListView(cards[gsub(card, ' ', '_')], amount)
+          console.log cards[card]
+          view = new ShopListView(cards[card], amount)
 
     class CardDetailView extends Backbone.View
 
@@ -619,9 +612,6 @@ onDeviceReady = ->
         @touch.y1 = e.pageY
 
       touchmove: (e) ->
-        console.log 'actions:'
-        console.log current.deck.get('actions')
-        console.log "turn: #{current.turn}"
         @dx = e.pageX - @touch.x1
         @dy = e.pageY - @touch.y1
         if current.deck.get('actions') > 0 and current.turn
@@ -659,10 +649,9 @@ onDeviceReady = ->
           @dx = 0
           if current.turn
             console.log 'using card'
-            @card.use()
-            @discard()
             current.deck.set('actions', current.deck.get('actions') - 1 ) if @card.type == 'action'
-            # current.deck.save()
+            @discard()
+            @card.use()
         else
           if @clicked and Math.abs(@dy) < 6
             @clicked = false
@@ -693,7 +682,6 @@ onDeviceReady = ->
         console.log current.match
         console.log current.deck
         current.carddetailview = new CardDetailView
-        # TODO: populate log on instantiation
         match_channel.bind 'update', (data) ->
           current.match.fetch() if not current.turn
         match_channel.bind 'change_turn', (data) =>
@@ -728,11 +716,12 @@ onDeviceReady = ->
           current.turn = false
         console.log 'rendering MatchView'
         console.log @$el.find('#hand')
+        @$el.find('#log').html(_.last(current.match.get('log')))
         @$el.find('#hand').html('')
         console.log current.deck
         for card in current.deck.get('hand')
           console.log 'some cards'
-          view = new CardListView(cards[gsub(card, ' ', '_')]) #TODO take the gsub out and change card names on serverside to use underscore)
+          view = new CardListView(cards[card])
 
 
         console.log "current actions: #{current.deck.get 'actions'}"
@@ -914,6 +903,7 @@ onDeviceReady = ->
       # TODO: add 'logging in' animation loader
       $('#loader').show()
       $('#loader').css('opacity', 1)
+      $('#loader').find('#loading-text').html('Logging in...')
       $.getJSON("#{server_url}/users/99", (user) ->
         current.user = user
         user_channel = pusher.subscribe("#{current.user.id}")
