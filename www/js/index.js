@@ -667,7 +667,7 @@ onDeviceReady = function() {
           shop = shop.minus(gsub(this.card.name, ' ', '_'));
           current.match.set('shop', shop);
           curr_cards = current.deck.get('cards');
-          curr_cards.push(this.card.name);
+          curr_cards.push(gsub(this.card.name, ' ', '_'));
           current.deck.set('cards', curr_cards);
           console.log(current.match.get('shop'));
           console.log(current.deck.get('cards'));
@@ -904,14 +904,17 @@ onDeviceReady = function() {
       };
 
       CardListView.prototype.discard = function() {
-        var nh;
+        var nd, nh;
         console.log("CardListView#discard");
         console.log(" - removing from DOM");
         this.remove();
         console.log(" - Removing card from hand, adding to deck.cards");
         nh = current.deck.get('hand');
         nh = nh.minus(gsub(this.card.name, ' ', '_'));
-        return current.deck.set('hand', nh);
+        current.deck.set('hand', nh);
+        nd = current.deck.get('cards');
+        nd.push(gsub(this.card.name, ' ', '_'));
+        return current.deck.set('cards', nd);
       };
 
       return CardListView;

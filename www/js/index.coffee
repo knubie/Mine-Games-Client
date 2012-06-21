@@ -520,7 +520,7 @@ onDeviceReady = ->
           shop = shop.minus(gsub(@card.name, ' ', '_'))
           current.match.set('shop', shop)
           curr_cards = current.deck.get('cards')
-          curr_cards.push @card.name
+          curr_cards.push gsub(@card.name, ' ', '_')
           current.deck.set('cards', curr_cards)
           console.log current.match.get('shop')
           console.log current.deck.get('cards')
@@ -695,6 +695,9 @@ onDeviceReady = ->
         nh = current.deck.get('hand')
         nh = nh.minus(gsub(@card.name, ' ', '_'))
         current.deck.set('hand', nh)
+        nd = current.deck.get('cards')
+        nd.push(gsub(@card.name, ' ', '_'))
+        current.deck.set('cards', nd)
         # current.deck.set('amount_discarded', current.deck.get('amount_discarded') + 1)
         # if current.deck.get('amount_discarded') == current.deck.get('amount_to_discard')
         #   console.log 'discard limit reached'
@@ -783,6 +786,7 @@ onDeviceReady = ->
           # @refresh()
 
       refresh: ->
+        # TODO: wait until all models have been fetched before changing page.
         console.log "MatchView#refresh"
         console.log " - fetching current.match"
         current.match.fetch
