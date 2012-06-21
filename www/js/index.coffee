@@ -94,7 +94,7 @@ onDeviceReady = ->
         name: 'stone pickaxe'
         type: 'action'
         cost: 3
-        short_desc: 'short description'
+        short_desc: 'Draw 1 card from the Mine'
         long_desc: 'long description'
         use: ->
           actions.draw current.match, 'mine'
@@ -102,7 +102,7 @@ onDeviceReady = ->
             random: true
             callback: (newcards) ->
               console.log 'calling callback'
-              pushLog "<span class='name'>#{current.user.username}</span> used an <span class='item action'>Stone Pickaxe</span> and got a <span class='money'>#{newcards[0]}</span>"
+              pushLog "<span class='name'>#{current.user.username}</span> used a <span class='item action'>Stone Pickaxe</span> and got a <span class='money'>#{newcards[0]}</span>"
               current.match.save()
               current.deck.save()
 
@@ -111,7 +111,7 @@ onDeviceReady = ->
         name: 'iron pickaxe'
         type: 'action'
         cost: 5
-        short_desc: 'short description'
+        short_desc: 'Draw 2 cards from the Mine'
         long_desc: 'long description'
         use: ->
           actions.draw current.match, 'mine'
@@ -127,7 +127,7 @@ onDeviceReady = ->
         name: 'diamond pickaxe'
         type: 'action'
         cost: 8
-        short_desc: 'short description'
+        short_desc: 'Draw 3 cards from the Mine'
         long_desc: 'long description'
         use: ->
           actions.draw current.match, 'mine'
@@ -135,7 +135,7 @@ onDeviceReady = ->
             random: true
             callback: (newcards) ->
               console.log 'calling callback'
-              pushLog "<span class='name'>#{current.user.username}</span> used an <span class='item action'>Diamond Pickaxe</span> and got a <span class='money'>#{newcards[0]}</span>, <span class='money'>#{newcards[1]}</span> and <span class='money'>#{newcards[2]}</span>"
+              pushLog "<span class='name'>#{current.user.username}</span> used a <span class='item action'>Diamond Pickaxe</span> and got a <span class='money'>#{newcards[0]}</span>, <span class='money'>#{newcards[1]}</span> and <span class='money'>#{newcards[2]}</span>"
               current.match.save()
               current.deck.save()
 
@@ -143,7 +143,7 @@ onDeviceReady = ->
         name: 'copper'
         type: 'money'
         value: 1
-        short_desc: 'short description'
+        short_desc: 'Worth $1 at the Shop'
         long_desc: 'long description'
         use: ->
           console.log 'copper used'
@@ -154,7 +154,7 @@ onDeviceReady = ->
         name: 'silver'
         type: 'money'
         value: 2
-        short_desc: 'short description'
+        short_desc: 'Worth $2 at the Shop'
         long_desc: 'long description'
         use: ->
           console.log 'copper used'
@@ -165,7 +165,7 @@ onDeviceReady = ->
         name: 'gold'
         type: 'money'
         value: 3
-        short_desc: 'short description'
+        short_desc: 'Worth $3 at the Shop'
         long_desc: 'long description'
         use: ->
           console.log 'copper used'
@@ -176,7 +176,7 @@ onDeviceReady = ->
         name: 'diamond'
         type: 'money'
         value: 5
-        short_desc: 'short description'
+        short_desc: 'Worth $5 at the Shop'
         long_desc: 'long description'
         use: ->
           console.log 'copper used'
@@ -187,7 +187,7 @@ onDeviceReady = ->
         name: 'coal'
         type: 'coal'
         value: 0
-        short_desc: 'short description'
+        short_desc: 'Worthless'
         long_desc: 'long description'
         use: ->
           console.log 'copper used'
@@ -198,7 +198,7 @@ onDeviceReady = ->
         name: 'tnt'
         type: 'action'
         cost: 6
-        short_desc: 'short description'
+        short_desc: "Destroy 2 items from an opponent's hand"
         long_desc: 'long description'
         use: ->
           #do something
@@ -207,7 +207,7 @@ onDeviceReady = ->
         name: 'minecart'
         type: 'action'
         cost: 5
-        short_desc: 'short description'
+        short_desc: '+1 Action, +1 Card'
         long_desc: 'long description'
         use: ->
           current.deck.set('actions', current.deck.get('actions')+1)
@@ -216,14 +216,16 @@ onDeviceReady = ->
             random: true
             callback: (newcards) ->
               console.log 'calling callback'
-              pushLog "<span class='name'>#{current.user.username}</span> used a <span class='item action'>Minecart</span> and got a <span class='money'>#{newcards[0]}</span>"
+              pushLog "<span class='name'>#{current.user.username}</span> used a <span class='item action'>Minecart</span> and got a <span class='money'>#{cards[newcards[0]].name}</span>"
+              current.match.save()
+              current.deck.save()
               #TODO: change card type dyanmically
 
       mule:
         name: 'mule'
         type: 'action'
         cost: 5
-        short_desc: 'short description'
+        short_desc: '+3 Cards'
         long_desc: 'long description'
         use: ->
           actions.draw current.deck, 'cards',
@@ -231,20 +233,22 @@ onDeviceReady = ->
             random: true
             callback: (newcards) ->
               console.log 'calling callback'
-              pushLog "<span class='name'>#{current.user.username}</span> used a <span class='item action'>Minecart</span> and got a <span class='money'>#{newcards[0]}</span>, <span class='money'>#{newcards[1]}</span> and <span class='money'>#{newcards[2]}</span>"
+              pushLog "<span class='name'>#{current.user.username}</span> used a <span class='item action'>Minecart</span> and got a <span class='money'>#{cards[newcards[0]].name}</span>, <span class='money'>#{newcards[1]}</span> and <span class='money'>#{newcards[2]}</span>"
+              current.match.save()
+              current.deck.save()
 
       headlamp:
         name: 'headlamp'
         type: 'action'
         cost: 4
-        short_desc: 'short description'
+        short_desc: 'Choose 2 cards from your inventory before you draw your next hand.'
         long_desc: 'long description'
 
       gopher:
         name: 'gopher'
         type: 'action'
         cost: 1
-        short_desc: 'short description'
+        short_desc: "Steals a random card from an Opponent's hand"
         long_desc: 'long description'
         use: ->
           console.log "gopher#use"
@@ -259,13 +263,21 @@ onDeviceReady = ->
             opponents_decks.fetch
               success: ->
                 console.log 'fetch success'
-                target_deck = opponents_decks.where(match_id: current.match.get('id'))[0]
+                target_deck = new Deck
+                console.log "opponents deck:"
+                console.log  opponents_decks.where(match_id: current.match.get('id'))[0]
+                target_deck.set opponents_decks.where(match_id: current.match.get('id'))[0]
                 actions.draw target_deck, 'hand',
                   random: true
                   number: 1
-                  callback: (new_card) ->
+                  callback: (newcards) ->
                     console.log 'calling callback'
-                    pushLog "<span class='name'>#{current.user.username}</span> used a <span class='item action'>Gopher</span> on #{player.username} and got a <span class='money'>#{new_card}</span>"
+                    pushLog "<span class='name'>#{current.user.username}</span> used a <span class='item action'>Gopher</span> on #{player.username} and got a <span class='money'>#{cards[newcards[0]].name}</span>"
+                    current.match.save()
+                    current.deck.save()
+                    target_deck.save()
+
+
 
             if current.match.get('players').length > 1
               changePage '#match',
@@ -279,22 +291,18 @@ onDeviceReady = ->
             current.attack(current.match.get('players')[0])
 
 
-          # model.save()
-          # current.deck.save()
-
-
       magnet:
         name: 'magnet'
         type: 'action'
         cost: 6
-        short_desc: 'short description'
+        short_desc: 'Steal a tresure card from an Opponent'
         long_desc: 'long description'
 
       alchemy:
         name: 'alchemy'
         type: 'action'
         cost: 5
-        short_desc: 'short description'
+        short_desc: 'Turns 2 coals into a Diamond'
         long_desc: 'long description'
 
     actions = # Actions are decoupled from cards.
@@ -306,10 +314,12 @@ onDeviceReady = ->
         optoins.random = false if typeof options.number == 'undefined'
         newcards = []
 
+        console.log "draw iterating"
         for i in [1..options.number]
           source = model.get(attribute)
           hand = current.deck.get('hand')
 
+          console.log "if random"
           if options.random == true
             r = Math.floor(Math.floor(Math.random()*source.length-1))
             newcard = source[r]
@@ -318,14 +328,18 @@ onDeviceReady = ->
             newcard = source[0]
             source[0..0] = []
 
+          console.log "push new card"
           hand.push newcard
           newcards.push newcard # FIXME: newcards[0] == undefined
 
+          console.log "set model"
           model.set(attribute, source)
           current.deck.set('hand', hand)
 
+          console.log "new view"
           view = new CardListView(cards[gsub(newcard, ' ', '_')]) #TODO take the gsub out and change card names on serverside to use underscore
 
+          console.log "callback"
           options.callback(newcards) if typeof options.callback == 'function'
 
       discard: (options, cb) ->
@@ -685,8 +699,10 @@ onDeviceReady = ->
         match_channel.bind 'update', (data) ->
           current.match.fetch() if not current.turn
 
+        user_channel.bind 'update_deck', (data) ->
+          current.deck.fetch()
+
         match_channel.bind 'change_turn', (data) =>
-          alert 'turn changed'
           @refresh()
 
         if current.match.get('turn') == current.user.id
