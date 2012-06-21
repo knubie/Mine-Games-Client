@@ -945,6 +945,7 @@ onDeviceReady = function() {
           }
         });
         user_channel.bind('update_deck', function(data) {
+          console.log("user_channel:update_deck");
           return current.deck.fetch();
         });
         match_channel.bind('change_turn', function(data) {

@@ -726,6 +726,7 @@ onDeviceReady = ->
           current.match.fetch() if not current.turn
 
         user_channel.bind 'update_deck', (data) ->
+          console.log "user_channel:update_deck"
           current.deck.fetch()
 
         match_channel.bind 'change_turn', (data) =>
