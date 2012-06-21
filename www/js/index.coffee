@@ -314,7 +314,7 @@ onDeviceReady = ->
         optoins.random = false if typeof options.number == 'undefined'
         newcards = []
 
-        console.log "draw iterating"
+        console.log " - Iterating.."
         for i in [1..options.number]
           source = model.get(attribute)
           hand = current.deck.get('hand')
@@ -337,7 +337,7 @@ onDeviceReady = ->
           current.deck.set('hand', hand)
 
           console.log "new view"
-          view = new CardListView(cards[gsub(newcard, ' ', '_')]) #TODO take the gsub out and change card names on serverside to use underscore
+          view = new CardListView(cards[newcard])
 
           console.log "callback"
           options.callback(newcards) if typeof options.callback == 'function'

@@ -360,7 +360,7 @@ onDeviceReady = function() {
           optoins.random = false;
         }
         newcards = [];
-        console.log("draw iterating");
+        console.log(" - Iterating..");
         _results = [];
         for (i = _i = 1, _ref = options.number; 1 <= _ref ? _i <= _ref : _i >= _ref; i = 1 <= _ref ? ++_i : --_i) {
           source = model.get(attribute);
@@ -381,7 +381,7 @@ onDeviceReady = function() {
           model.set(attribute, source);
           current.deck.set('hand', hand);
           console.log("new view");
-          view = new CardListView(cards[gsub(newcard, ' ', '_')]);
+          view = new CardListView(cards[newcard]);
           console.log("callback");
           if (typeof options.callback === 'function') {
             _results.push(options.callback(newcards));
