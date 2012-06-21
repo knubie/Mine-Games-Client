@@ -385,8 +385,9 @@ onDeviceReady = ->
 
     class Deck extends Backbone.Model
       initialize: ->
-        @on 'change', =>
-          console.log "deck changed"
+        # @on 'change', =>
+        #   console.log "deck changed"
+        #   $('#to_spend > .count').html(current.deck.to_spend())
           # @save()
 
       urlRoot: "#{server_url}/decks"
@@ -503,7 +504,7 @@ onDeviceReady = ->
       render: ->
         console.log 'ShopListView#render'
         console.log @card
-        $('#shop').append(@el)
+        $('#shop').find('#shopContainer').append(@el)
         #@$el.find('img')
         @$el.find('.count').html(@amount)
         @$el.find('.price').html(@card.cost)
@@ -558,7 +559,7 @@ onDeviceReady = ->
             shop[card] = shop[card] + 1
           prev = card
 
-        # @$el.html('')
+        @$el.find('#shopContainer').html('')
         for card, amount of shop
           console.log cards[card]
           view = new ShopListView(cards[card], amount)
@@ -628,29 +629,28 @@ onDeviceReady = ->
       touchmove: (e) ->
         @dx = e.pageX - @touch.x1
         @dy = e.pageY - @touch.y1
-        if current.deck.get('actions') > 0 and current.turn
-          if Math.abs(@dy) < 6 and Math.abs(@dx) > 0 and not @swiping and not @dragging
-            @swiping = true
-            window.inAction = true
-            @$el.addClass "drag"
-          if @swiping
-            if @dx > 0 and @dx < @w
-              @use = false
-              pct = @dx / @w
-              pct = 0  if pct < 0.05
-            else if @dx < 0 and @dx > -@w
-            else if @dx >= @w
-              @use = true
-              @dx = @w + (@dx - @w) * .25
-            else if @dx <= -@w
-              @dx = -@w + (@dx + @w) * .25
-            if @dx >= @w - 1
-              @$el.addClass "green"
-              @used = true
-              # trigger use event
-            else
-              @$el.removeClass "green"
-            @$el.css "-webkit-transform", "translate3d(" + @dx + "px, 0, 0)"  #if dx <= 0 #or list.todos.length > 0
+        if Math.abs(@dy) < 6 and Math.abs(@dx) > 0 and not @swiping and not @dragging
+          @swiping = true
+          window.inAction = true
+          @$el.addClass "drag"
+        if @swiping
+          if @dx > 0 and @dx < @w
+            @use = false
+            pct = @dx / @w
+            pct = 0  if pct < 0.05
+          else if @dx < 0 and @dx > -@w
+          else if @dx >= @w
+            @use = true
+            @dx = @w + (@dx - @w) * .25
+          else if @dx <= -@w
+            @dx = -@w + (@dx + @w) * .25
+          if @dx >= @w - 1
+            @$el.addClass "green"
+            @used = true
+            # trigger use event
+          else
+            @$el.removeClass "green"
+          @$el.css "-webkit-transform", "translate3d(" + @dx + "px, 0, 0)"  #if dx <= 0 #or list.todos.length > 0
 
       swiperight: (e) ->
         console.log 'swiping right'
@@ -661,16 +661,23 @@ onDeviceReady = ->
         @$el.removeClass("drag green").css "-webkit-transform", "translate3d(0,0,0)"
         if @use and @dx >= @w - 1
           @dx = 0
-          if current.turn
+          if current.deck.get('actions') > 0 and current.turn
             console.log 'using card'
             current.deck.set('actions', current.deck.get('actions') - 1 ) if @card.type == 'action'
             @discard()
             @card.use()
+          else
+            if not current.turn
+              alert "It's not your turn!"
+            else
+              if current.deck.get('actions') < 1
+                alert "You have no actions left!"
         else
           if @clicked and Math.abs(@dy) < 6
             @clicked = false
             console.log 'clicked'
             @render_card()
+
 
         @dx = @dy = 0
 
@@ -705,11 +712,6 @@ onDeviceReady = ->
         match_channel.bind 'change_turn', (data) =>
           @refresh()
 
-        if current.match.get('turn') == current.user.id
-          current.turn = true
-        else
-          current.turn = false
-
         @refresh()
 
         current.match.on 'change:log', =>
@@ -719,12 +721,10 @@ onDeviceReady = ->
           # do stuff
 
         current.deck.on 'change:actions', =>
-          console.log 'actions changed'
           @$el.find('#actions > .count').html(current.deck.get 'actions')
 
         current.deck.on 'change:hand', =>
-          console.log 'hand changed'
-          @$el.find('#to_spend > .count').html(current.deck.get 'actions')
+          @$el.find('#to_spend > .count').html(current.deck.to_spend())
           @render()
 
       el: '#match'
@@ -748,6 +748,8 @@ onDeviceReady = ->
         @$el.find('#actions > .count').html(current.deck.get 'actions')
         @$el.find('#to_spend > .count').html(current.deck.to_spend())
         console.log current.match.get('turn')
+        console.log 'updating turn DOM'
+        console.log "current.turn: #{current.turn}"
         if current.turn
           @$el.find('#end_turn').show()
           @$el.find('#turn').hide()
@@ -764,6 +766,7 @@ onDeviceReady = ->
         console.log 'ending turn'
         $('#loader').show()
         $('#loader').css('opacity', 1)
+        $('#loader').find('#loading-text').html('Submitting turn...')
         $.post "#{server_url}/end_turn/#{current.match.get('id')}", (data) =>
           console.log data
           console.log 'fetching match data'
@@ -778,6 +781,7 @@ onDeviceReady = ->
                 console.log 'got deck data'
                 $('#loader').hide()
                 $('#loader').css('opacity', 0)
+                current.turn = if current.match.get('turn') == current.user.id then true else false
                 @render()
 
           error: =>
@@ -833,13 +837,9 @@ onDeviceReady = ->
 
       initialize: () ->
         console.log 'init LobbyView'
-        # matches.on 'change', =>
-        #   @render()
-        # TODO: might want to make this more efficient, ie not have it fetch every model again 
         user_channel.bind('new_match', (data) =>
           alert "You've been challenged to a new game!"
           @render()
-          # TODO: perhaps only trigger this while in the lobby
         )
         @render()
 
@@ -858,6 +858,7 @@ onDeviceReady = ->
       render: ->
         console.log 'LobbyView#render'
         console.log 'fetching decks/matches'
+        $('#loader').find('#loading-text').html('Finding matches...')
         matches.fetch
           success: =>
             console.log 'got match data, waiting on decks'

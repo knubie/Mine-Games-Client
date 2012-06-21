@@ -459,12 +459,7 @@ onDeviceReady = function() {
         return Deck.__super__.constructor.apply(this, arguments);
       }
 
-      Deck.prototype.initialize = function() {
-        var _this = this;
-        return this.on('change', function() {
-          return console.log("deck changed");
-        });
-      };
+      Deck.prototype.initialize = function() {};
 
       Deck.prototype.urlRoot = "" + server_url + "/decks";
 
@@ -655,7 +650,7 @@ onDeviceReady = function() {
       ShopListView.prototype.render = function() {
         console.log('ShopListView#render');
         console.log(this.card);
-        $('#shop').append(this.el);
+        $('#shop').find('#shopContainer').append(this.el);
         this.$el.find('.count').html(this.amount);
         this.$el.find('.price').html(this.card.cost);
         return this.$el.find('.name').html(this.card.name);
@@ -730,6 +725,7 @@ onDeviceReady = function() {
           }
           prev = card;
         }
+        this.$el.find('#shopContainer').html('');
         _results = [];
         for (card in shop) {
           amount = shop[card];
@@ -837,35 +833,33 @@ onDeviceReady = function() {
         var pct;
         this.dx = e.pageX - this.touch.x1;
         this.dy = e.pageY - this.touch.y1;
-        if (current.deck.get('actions') > 0 && current.turn) {
-          if (Math.abs(this.dy) < 6 && Math.abs(this.dx) > 0 && !this.swiping && !this.dragging) {
-            this.swiping = true;
-            window.inAction = true;
-            this.$el.addClass("drag");
-          }
-          if (this.swiping) {
-            if (this.dx > 0 && this.dx < this.w) {
-              this.use = false;
-              pct = this.dx / this.w;
-              if (pct < 0.05) {
-                pct = 0;
-              }
-            } else if (this.dx < 0 && this.dx > -this.w) {
+        if (Math.abs(this.dy) < 6 && Math.abs(this.dx) > 0 && !this.swiping && !this.dragging) {
+          this.swiping = true;
+          window.inAction = true;
+          this.$el.addClass("drag");
+        }
+        if (this.swiping) {
+          if (this.dx > 0 && this.dx < this.w) {
+            this.use = false;
+            pct = this.dx / this.w;
+            if (pct < 0.05) {
+              pct = 0;
+            }
+          } else if (this.dx < 0 && this.dx > -this.w) {
 
-            } else if (this.dx >= this.w) {
-              this.use = true;
-              this.dx = this.w + (this.dx - this.w) * .25;
-            } else if (this.dx <= -this.w) {
-              this.dx = -this.w + (this.dx + this.w) * .25;
-            }
-            if (this.dx >= this.w - 1) {
-              this.$el.addClass("green");
-              this.used = true;
-            } else {
-              this.$el.removeClass("green");
-            }
-            return this.$el.css("-webkit-transform", "translate3d(" + this.dx + "px, 0, 0)");
+          } else if (this.dx >= this.w) {
+            this.use = true;
+            this.dx = this.w + (this.dx - this.w) * .25;
+          } else if (this.dx <= -this.w) {
+            this.dx = -this.w + (this.dx + this.w) * .25;
           }
+          if (this.dx >= this.w - 1) {
+            this.$el.addClass("green");
+            this.used = true;
+          } else {
+            this.$el.removeClass("green");
+          }
+          return this.$el.css("-webkit-transform", "translate3d(" + this.dx + "px, 0, 0)");
         }
       };
 
@@ -879,13 +873,21 @@ onDeviceReady = function() {
         this.$el.removeClass("drag green").css("-webkit-transform", "translate3d(0,0,0)");
         if (this.use && this.dx >= this.w - 1) {
           this.dx = 0;
-          if (current.turn) {
+          if (current.deck.get('actions') > 0 && current.turn) {
             console.log('using card');
             if (this.card.type === 'action') {
               current.deck.set('actions', current.deck.get('actions') - 1);
             }
             this.discard();
             this.card.use();
+          } else {
+            if (!current.turn) {
+              alert("It's not your turn!");
+            } else {
+              if (current.deck.get('actions') < 1) {
+                alert("You have no actions left!");
+              }
+            }
           }
         } else {
           if (this.clicked && Math.abs(this.dy) < 6) {
@@ -937,23 +939,16 @@ onDeviceReady = function() {
         match_channel.bind('change_turn', function(data) {
           return _this.refresh();
         });
-        if (current.match.get('turn') === current.user.id) {
-          current.turn = true;
-        } else {
-          current.turn = false;
-        }
         this.refresh();
         current.match.on('change:log', function() {
           return _this.$el.find('#log').html(_.last(current.match.get('log')));
         });
         current.match.on('change:mine', function() {});
         current.deck.on('change:actions', function() {
-          console.log('actions changed');
           return _this.$el.find('#actions > .count').html(current.deck.get('actions'));
         });
         return current.deck.on('change:hand', function() {
-          console.log('hand changed');
-          _this.$el.find('#to_spend > .count').html(current.deck.get('actions'));
+          _this.$el.find('#to_spend > .count').html(current.deck.to_spend());
           return _this.render();
         });
       };
@@ -981,6 +976,8 @@ onDeviceReady = function() {
         this.$el.find('#actions > .count').html(current.deck.get('actions'));
         this.$el.find('#to_spend > .count').html(current.deck.to_spend());
         console.log(current.match.get('turn'));
+        console.log('updating turn DOM');
+        console.log("current.turn: " + current.turn);
         if (current.turn) {
           this.$el.find('#end_turn').show();
           return this.$el.find('#turn').hide();
@@ -1001,6 +998,7 @@ onDeviceReady = function() {
         console.log('ending turn');
         $('#loader').show();
         $('#loader').css('opacity', 1);
+        $('#loader').find('#loading-text').html('Submitting turn...');
         return $.post("" + server_url + "/end_turn/" + (current.match.get('id')), function(data) {
           console.log(data);
           return console.log('fetching match data');
@@ -1017,6 +1015,7 @@ onDeviceReady = function() {
                 console.log('got deck data');
                 $('#loader').hide();
                 $('#loader').css('opacity', 0);
+                current.turn = current.match.get('turn') === current.user.id ? true : false;
                 return _this.render();
               }
             });
@@ -1128,6 +1127,7 @@ onDeviceReady = function() {
         var _this = this;
         console.log('LobbyView#render');
         console.log('fetching decks/matches');
+        $('#loader').find('#loading-text').html('Finding matches...');
         return matches.fetch({
           success: function() {
             console.log('got match data, waiting on decks');
