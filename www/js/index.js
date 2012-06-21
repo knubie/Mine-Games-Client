@@ -768,7 +768,8 @@ onDeviceReady = function() {
 
       CardListView.prototype.initialize = function(card) {
         this.card = card;
-        console.log('init CardListView');
+        console.log('CardListView#initialize');
+        console.log(" - Cloning .card template");
         this.setElement($('#templates').find(".card").clone());
         return this.render();
       };
@@ -783,9 +784,11 @@ onDeviceReady = function() {
       };
 
       CardListView.prototype.render = function() {
-        console.log('rendering CardListView');
+        console.log("CardListView#render");
+        console.log(" - Setting DOM name & desc");
         this.$el.find('.name').html(this.card.name);
         this.$el.find('.desc').html(this.card.short_desc);
+        console.log(" - Appending to #hand");
         return $('#hand').append(this.el);
       };
 
@@ -901,16 +904,13 @@ onDeviceReady = function() {
 
       CardListView.prototype.discard = function() {
         var nh;
+        console.log("CardListView#discard");
+        console.log(" - removing from DOM");
         this.remove();
+        console.log(" - Removing card from hand, adding to deck.cards");
         nh = current.deck.get('hand');
         nh = nh.minus(this.card.name);
-        current.deck.set('hand', nh);
-        console.log(current.deck.get('hand'));
-        current.deck.set('amount_discarded', current.deck.get('amount_discarded') + 1);
-        if (current.deck.get('amount_discarded') === current.deck.get('amount_to_discard')) {
-          console.log('discard limit reached');
-          return $('.discard').hide();
-        }
+        return current.deck.set('hand', nh);
       };
 
       return CardListView;
@@ -926,8 +926,10 @@ onDeviceReady = function() {
 
       MatchView.prototype.initialize = function() {
         var _this = this;
-        console.log('init MatchView');
+        console.log('MatchView#initialize');
+        console.log(" - instantiating CardDetailView");
         current.carddetailview = new CardDetailView;
+        console.log(" - Binding pusher channels");
         match_channel.bind('update', function(data) {
           if (!current.turn) {
             return current.match.fetch();
@@ -940,6 +942,7 @@ onDeviceReady = function() {
           return _this.refresh();
         });
         this.refresh();
+        console.log(" - Binding backbone events");
         current.match.on('change:log', function() {
           return _this.$el.find('#log').html(_.last(current.match.get('log')));
         });
@@ -961,34 +964,35 @@ onDeviceReady = function() {
 
       MatchView.prototype.render = function() {
         var card, player, players, view, _i, _len, _ref;
-        console.log('rendering MatchView');
-        console.log(this.$el.find('#hand'));
+        console.log('MatchView#render');
+        console.log(' - Updating log DOM');
         this.$el.find('#log').html(_.last(current.match.get('log')));
+        console.log(' - clearing #hand');
         this.$el.find('#hand').html('');
-        console.log(current.deck);
+        console.log(" - Iterating current.deck('hand')");
         _ref = current.deck.get('hand');
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           card = _ref[_i];
-          console.log('some cards');
+          console.log(" - - Iterating..");
           view = new CardListView(cards[card]);
         }
-        console.log("current actions: " + (current.deck.get('actions')));
+        console.log(" - Updating actions DOM");
         this.$el.find('#actions > .count').html(current.deck.get('actions'));
+        console.log(" - Updating to_spend DOM");
         this.$el.find('#to_spend > .count').html(current.deck.to_spend());
-        console.log(current.match.get('turn'));
-        console.log('updating turn DOM');
-        console.log("current.turn: " + current.turn);
+        console.log(" - Updating turn DOM");
         if (current.turn) {
+          console.log(" - - current.turn: true");
           this.$el.find('#end_turn').show();
           return this.$el.find('#turn').hide();
         } else {
+          console.log(" - - current.turn: false");
           this.$el.find('#end_turn').hide();
           this.$el.find('#turn').show();
           players = current.match.get('players');
           player = _.find(players, function(player) {
             return player.id === current.match.get('turn');
           });
-          console.log(player);
           return this.$el.find('#turn > .count').html(player.username);
         }
       };
@@ -1007,15 +1011,22 @@ onDeviceReady = function() {
 
       MatchView.prototype.refresh = function() {
         var _this = this;
+        console.log("MatchView#refresh");
+        console.log(" - fetching current.match");
         return current.match.fetch({
           success: function() {
-            console.log('got match data');
+            console.log(" - - current.match.fetch: Success");
+            console.log(" - - Fetching current.deck");
             return current.deck.fetch({
               success: function() {
-                console.log('got deck data');
+                console.log(" - - - current.deck.fetch: Success");
+                console.log(" - - - Hiding #loader");
                 $('#loader').hide();
                 $('#loader').css('opacity', 0);
+                console.log(" - - - Setting current.turn");
                 current.turn = current.match.get('turn') === current.user.id ? true : false;
+                console.log(" - - - current.turn: " + current.turn);
+                console.log(" - - - rendering..");
                 return _this.render();
               }
             });
@@ -1041,8 +1052,6 @@ onDeviceReady = function() {
         this.match = match;
         this.deck = deck;
         console.log('init MatchListView');
-        console.log("match turn: " + (this.match.get('turn')));
-        console.log("user id: " + current.user.id);
         this.setElement($('#templates').find(".match-item-view").clone());
         return this.render();
       };

@@ -577,7 +577,8 @@ onDeviceReady = ->
     class CardListView extends Backbone.View
 
       initialize: (@card) ->
-        console.log 'init CardListView'
+        console.log 'CardListView#initialize'
+        console.log " - Cloning .card template"
         @setElement $('#templates').find(".card").clone()
         @render()
 
@@ -591,10 +592,12 @@ onDeviceReady = ->
         # 'click .trash': 'trash'
 
       render: ->
-        console.log 'rendering CardListView'
+        console.log "CardListView#render"
         # @$el.find('.thumb').attr('src', "images/#{gsub(@card.name, ' ', '_')}") # FIXME: this breaks transition from lobby to matchview
+        console.log " - Setting DOM name & desc"
         @$el.find('.name').html(@card.name)
         @$el.find('.desc').html(@card.short_desc)
+        console.log " - Appending to #hand"
         $('#hand').append(@el)
 
       w: 55
@@ -684,25 +687,27 @@ onDeviceReady = ->
 
 
       discard: () ->
+        console.log "CardListView#discard"
+        console.log " - removing from DOM"
         @remove()
+        console.log " - Removing card from hand, adding to deck.cards"
         nh = current.deck.get('hand')
         nh = nh.minus(@card.name)
         current.deck.set('hand', nh)
-        console.log current.deck.get('hand')
-        current.deck.set('amount_discarded', current.deck.get('amount_discarded') + 1)
-        # console.log current.deck.get('amount_to_discard') # FIXME: some error happens here
-        # console.log current.deck.get('amount_discarded')
-        if current.deck.get('amount_discarded') == current.deck.get('amount_to_discard')
-          console.log 'discard limit reached'
-          $('.discard').hide()
+        # current.deck.set('amount_discarded', current.deck.get('amount_discarded') + 1)
+        # if current.deck.get('amount_discarded') == current.deck.get('amount_to_discard')
+        #   console.log 'discard limit reached'
+        #   $('.discard').hide()
 
     class MatchView extends Backbone.View
 
       initialize: () ->
-        console.log 'init MatchView'
+        console.log 'MatchView#initialize'
 
+        console.log " - instantiating CardDetailView"
         current.carddetailview = new CardDetailView
 
+        console.log " - Binding pusher channels"
         match_channel.bind 'update', (data) ->
           current.match.fetch() if not current.turn
 
@@ -714,6 +719,7 @@ onDeviceReady = ->
 
         @refresh()
 
+        console.log " - Binding backbone events"
         current.match.on 'change:log', =>
           @$el.find('#log').html(_.last(current.match.get('log')))
 
@@ -733,33 +739,32 @@ onDeviceReady = ->
         'click #end_turn': 'end_turn'
 
       render: ->
-        console.log 'rendering MatchView'
-        console.log @$el.find('#hand')
+        console.log 'MatchView#render'
+        console.log ' - Updating log DOM'
         @$el.find('#log').html(_.last(current.match.get('log')))
+        console.log ' - clearing #hand'
         @$el.find('#hand').html('')
-        console.log current.deck
+        console.log " - Iterating current.deck('hand')"
         for card in current.deck.get('hand')
-          console.log 'some cards'
+          console.log " - - Iterating.."
           view = new CardListView(cards[card])
 
-
-        console.log "current actions: #{current.deck.get 'actions'}"
-
+        console.log " - Updating actions DOM"
         @$el.find('#actions > .count').html(current.deck.get 'actions')
+        console.log " - Updating to_spend DOM"
         @$el.find('#to_spend > .count').html(current.deck.to_spend())
-        console.log current.match.get('turn')
-        console.log 'updating turn DOM'
-        console.log "current.turn: #{current.turn}"
+        console.log " - Updating turn DOM"
         if current.turn
+          console.log " - - current.turn: true"
           @$el.find('#end_turn').show()
           @$el.find('#turn').hide()
         else
+          console.log " - - current.turn: false"
           @$el.find('#end_turn').hide()
           @$el.find('#turn').show()
           players = current.match.get('players')
           player = _.find players, (player) ->
             player.id == current.match.get('turn')
-          console.log player
           @$el.find('#turn > .count').html(player.username)
 
       end_turn: ->
@@ -773,15 +778,22 @@ onDeviceReady = ->
           # @refresh()
 
       refresh: ->
+        console.log "MatchView#refresh"
+        console.log " - fetching current.match"
         current.match.fetch
           success: =>
-            console.log 'got match data'
+            console.log " - - current.match.fetch: Success"
+            console.log " - - Fetching current.deck"
             current.deck.fetch
               success: =>
-                console.log 'got deck data'
+                console.log " - - - current.deck.fetch: Success"
+                console.log " - - - Hiding #loader"
                 $('#loader').hide()
                 $('#loader').css('opacity', 0)
+                console.log " - - - Setting current.turn"
                 current.turn = if current.match.get('turn') == current.user.id then true else false
+                console.log " - - - current.turn: #{current.turn}"
+                console.log " - - - rendering.."
                 @render()
 
           error: =>
@@ -791,8 +803,6 @@ onDeviceReady = ->
 
       initialize: (@match, @deck) ->
         console.log 'init MatchListView'
-        console.log "match turn: #{@match.get('turn')}"
-        console.log "user id: #{current.user.id}"
         @setElement $('#templates').find(".match-item-view").clone()
         # @setElement templates.LobbyMatchListItem(@match.get('id'), @match.get('players'), @match.get('turn') == current.user.id)
         @render()
