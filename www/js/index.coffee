@@ -540,6 +540,7 @@ onDeviceReady = ->
             transition: 'slide'
           current.match.save()
           current.deck.save()
+          current.deck.trigger 'update_to_spend'
         else
           console.log 'not enough money'
           alert "not enough money!"
@@ -550,7 +551,6 @@ onDeviceReady = ->
         console.log 'init ShopView'
         # TODO: add listener for shop change
         current.match.on 'change:shop', =>
-          alert 'shop changed'
           @render()
         @render()
 

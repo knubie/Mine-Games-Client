@@ -682,7 +682,8 @@ onDeviceReady = function() {
             transition: 'slide'
           });
           current.match.save();
-          return current.deck.save();
+          current.deck.save();
+          return current.deck.trigger('update_to_spend');
         } else {
           console.log('not enough money');
           return alert("not enough money!");
@@ -705,7 +706,6 @@ onDeviceReady = function() {
         this.card = card;
         console.log('init ShopView');
         current.match.on('change:shop', function() {
-          alert('shop changed');
           return _this.render();
         });
         return this.render();
