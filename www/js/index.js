@@ -471,14 +471,15 @@ onDeviceReady = function() {
 
       Deck.prototype.to_spend = function() {
         var card, to_spend, _i, _len, _ref;
+        console.log("Deck#to_spend");
         to_spend = 0;
-        console.log("calculating to_spend");
+        console.log(" - Iterating..");
         _ref = this.get('hand');
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           card = _ref[_i];
-          console.log('checking type');
+          console.log(' - - Checking type');
           if (cards[card].type === 'money') {
-            console.log('getting value');
+            console.log(' - - - Type: money, getting value');
             to_spend += cards[card].value;
           }
         }
@@ -663,7 +664,7 @@ onDeviceReady = function() {
           console.log('buying card..');
           console.log(current.match.get('shop'));
           shop = current.match.get('shop');
-          shop = shop.minus(this.card.name);
+          shop = shop.minus(gsub(this.card.name, ' ', '_'));
           current.match.set('shop', shop);
           curr_cards = current.deck.get('cards');
           curr_cards.push(this.card.name);
@@ -909,7 +910,7 @@ onDeviceReady = function() {
         this.remove();
         console.log(" - Removing card from hand, adding to deck.cards");
         nh = current.deck.get('hand');
-        nh = nh.minus(this.card.name);
+        nh = nh.minus(gsub(this.card.name, ' ', '_'));
         return current.deck.set('hand', nh);
       };
 
@@ -944,13 +945,18 @@ onDeviceReady = function() {
         this.refresh();
         console.log(" - Binding backbone events");
         current.match.on('change:log', function() {
+          console.log("current.match change:log");
           return _this.$el.find('#log').html(_.last(current.match.get('log')));
         });
-        current.match.on('change:mine', function() {});
+        current.match.on('change:mine', function() {
+          return console.log("current.match change:mine");
+        });
         current.deck.on('change:actions', function() {
+          console.log("current.deck change:actions");
           return _this.$el.find('#actions > .count').html(current.deck.get('actions'));
         });
         return current.deck.on('change:hand', function() {
+          console.log("current.deck change:hand");
           _this.$el.find('#to_spend > .count').html(current.deck.to_spend());
           return _this.render();
         });

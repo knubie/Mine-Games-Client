@@ -397,12 +397,13 @@ onDeviceReady = ->
       type: 0
 
       to_spend: ->
+        console.log "Deck#to_spend"
         to_spend = 0
-        console.log "calculating to_spend"
+        console.log " - Iterating.."
         for card in @get('hand')
-          console.log 'checking type'
+          console.log ' - - Checking type'
           if cards[card].type == 'money'
-            console.log 'getting value'
+            console.log ' - - - Type: money, getting value'
             to_spend += cards[card].value
         to_spend
 
@@ -516,7 +517,7 @@ onDeviceReady = ->
           console.log 'buying card..'
           console.log current.match.get('shop')
           shop = current.match.get('shop')
-          shop = shop.minus(@card.name)
+          shop = shop.minus(gsub(@card.name, ' ', '_'))
           current.match.set('shop', shop)
           curr_cards = current.deck.get('cards')
           curr_cards.push @card.name
@@ -692,7 +693,7 @@ onDeviceReady = ->
         @remove()
         console.log " - Removing card from hand, adding to deck.cards"
         nh = current.deck.get('hand')
-        nh = nh.minus(@card.name)
+        nh = nh.minus(gsub(@card.name, ' ', '_'))
         current.deck.set('hand', nh)
         # current.deck.set('amount_discarded', current.deck.get('amount_discarded') + 1)
         # if current.deck.get('amount_discarded') == current.deck.get('amount_to_discard')
@@ -721,15 +722,19 @@ onDeviceReady = ->
 
         console.log " - Binding backbone events"
         current.match.on 'change:log', =>
+          console.log "current.match change:log"
           @$el.find('#log').html(_.last(current.match.get('log')))
 
         current.match.on 'change:mine', =>
+          console.log "current.match change:mine"
           # do stuff
 
         current.deck.on 'change:actions', =>
+          console.log "current.deck change:actions"
           @$el.find('#actions > .count').html(current.deck.get 'actions')
 
         current.deck.on 'change:hand', =>
+          console.log "current.deck change:hand"
           @$el.find('#to_spend > .count').html(current.deck.to_spend())
           @render()
 
