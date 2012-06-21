@@ -105,7 +105,7 @@ onDeviceReady = function() {
         name: 'stone pickaxe',
         type: 'action',
         cost: 3,
-        short_desc: 'short description',
+        short_desc: 'Draw 1 card from the Mine',
         long_desc: 'long description',
         use: function() {
           return actions.draw(current.match, 'mine', {
@@ -113,7 +113,7 @@ onDeviceReady = function() {
             random: true,
             callback: function(newcards) {
               console.log('calling callback');
-              pushLog("<span class='name'>" + current.user.username + "</span> used an <span class='item action'>Stone Pickaxe</span> and got a <span class='money'>" + newcards[0] + "</span>");
+              pushLog("<span class='name'>" + current.user.username + "</span> used a <span class='item action'>Stone Pickaxe</span> and got a <span class='money'>" + newcards[0] + "</span>");
               current.match.save();
               return current.deck.save();
             }
@@ -124,7 +124,7 @@ onDeviceReady = function() {
         name: 'iron pickaxe',
         type: 'action',
         cost: 5,
-        short_desc: 'short description',
+        short_desc: 'Draw 2 cards from the Mine',
         long_desc: 'long description',
         use: function() {
           return actions.draw(current.match, 'mine', {
@@ -143,7 +143,7 @@ onDeviceReady = function() {
         name: 'diamond pickaxe',
         type: 'action',
         cost: 8,
-        short_desc: 'short description',
+        short_desc: 'Draw 3 cards from the Mine',
         long_desc: 'long description',
         use: function() {
           return actions.draw(current.match, 'mine', {
@@ -151,7 +151,7 @@ onDeviceReady = function() {
             random: true,
             callback: function(newcards) {
               console.log('calling callback');
-              pushLog("<span class='name'>" + current.user.username + "</span> used an <span class='item action'>Diamond Pickaxe</span> and got a <span class='money'>" + newcards[0] + "</span>, <span class='money'>" + newcards[1] + "</span> and <span class='money'>" + newcards[2] + "</span>");
+              pushLog("<span class='name'>" + current.user.username + "</span> used a <span class='item action'>Diamond Pickaxe</span> and got a <span class='money'>" + newcards[0] + "</span>, <span class='money'>" + newcards[1] + "</span> and <span class='money'>" + newcards[2] + "</span>");
               current.match.save();
               return current.deck.save();
             }
@@ -162,7 +162,7 @@ onDeviceReady = function() {
         name: 'copper',
         type: 'money',
         value: 1,
-        short_desc: 'short description',
+        short_desc: 'Worth $1 at the Shop',
         long_desc: 'long description',
         use: function() {
           console.log('copper used');
@@ -175,7 +175,7 @@ onDeviceReady = function() {
         name: 'silver',
         type: 'money',
         value: 2,
-        short_desc: 'short description',
+        short_desc: 'Worth $2 at the Shop',
         long_desc: 'long description',
         use: function() {
           console.log('copper used');
@@ -188,7 +188,7 @@ onDeviceReady = function() {
         name: 'gold',
         type: 'money',
         value: 3,
-        short_desc: 'short description',
+        short_desc: 'Worth $3 at the Shop',
         long_desc: 'long description',
         use: function() {
           console.log('copper used');
@@ -201,7 +201,7 @@ onDeviceReady = function() {
         name: 'diamond',
         type: 'money',
         value: 5,
-        short_desc: 'short description',
+        short_desc: 'Worth $5 at the Shop',
         long_desc: 'long description',
         use: function() {
           console.log('copper used');
@@ -214,7 +214,7 @@ onDeviceReady = function() {
         name: 'coal',
         type: 'coal',
         value: 0,
-        short_desc: 'short description',
+        short_desc: 'Worthless',
         long_desc: 'long description',
         use: function() {
           console.log('copper used');
@@ -227,7 +227,7 @@ onDeviceReady = function() {
         name: 'tnt',
         type: 'action',
         cost: 6,
-        short_desc: 'short description',
+        short_desc: "Destroy 2 items from an opponent's hand",
         long_desc: 'long description',
         use: function() {}
       },
@@ -235,16 +235,18 @@ onDeviceReady = function() {
         name: 'minecart',
         type: 'action',
         cost: 5,
-        short_desc: 'short description',
+        short_desc: '+1 Action, +1 Card',
         long_desc: 'long description',
         use: function() {
           current.deck.set('actions', current.deck.get('actions') + 1);
-          return actions.draw({
+          return actions.draw(current.deck, 'cards', {
             number: 1,
             random: true,
             callback: function(newcards) {
               console.log('calling callback');
-              return pushLog("<span class='name'>" + current.user.username + "</span> used a <span class='item action'>Minecart</span> and got a <span class='money'>" + newcards[0] + "</span>");
+              pushLog("<span class='name'>" + current.user.username + "</span> used a <span class='item action'>Minecart</span> and got a <span class='money'>" + cards[newcards[0]].name + "</span>");
+              current.match.save();
+              return current.deck.save();
             }
           });
         }
@@ -253,15 +255,17 @@ onDeviceReady = function() {
         name: 'mule',
         type: 'action',
         cost: 5,
-        short_desc: 'short description',
+        short_desc: '+3 Cards',
         long_desc: 'long description',
         use: function() {
-          return actions.draw({
+          return actions.draw(current.deck, 'cards', {
             number: 3,
             random: true,
             callback: function(newcards) {
               console.log('calling callback');
-              return pushLog("<span class='name'>" + current.user.username + "</span> used a <span class='item action'>Minecart</span> and got a <span class='money'>" + newcards[0] + "</span>, <span class='money'>" + newcards[1] + "</span> and <span class='money'>" + newcards[2] + "</span>");
+              pushLog("<span class='name'>" + current.user.username + "</span> used a <span class='item action'>Minecart</span> and got a <span class='money'>" + cards[newcards[0]].name + "</span>, <span class='money'>" + newcards[1] + "</span> and <span class='money'>" + newcards[2] + "</span>");
+              current.match.save();
+              return current.deck.save();
             }
           });
         }
@@ -270,14 +274,14 @@ onDeviceReady = function() {
         name: 'headlamp',
         type: 'action',
         cost: 4,
-        short_desc: 'short description',
+        short_desc: 'Choose 2 cards from your inventory before you draw your next hand.',
         long_desc: 'long description'
       },
       gopher: {
         name: 'gopher',
         type: 'action',
         cost: 1,
-        short_desc: 'short description',
+        short_desc: "Steals a random card from an Opponent's hand",
         long_desc: 'long description',
         use: function() {
           console.log("gopher#use");
@@ -293,15 +297,23 @@ onDeviceReady = function() {
               success: function() {
                 var target_deck;
                 console.log('fetch success');
-                target_deck = opponents_decks.where({
+                target_deck = new Deck;
+                console.log("opponents deck:");
+                console.log(opponents_decks.where({
                   match_id: current.match.get('id')
-                })[0];
+                })[0]);
+                target_deck.set(opponents_decks.where({
+                  match_id: current.match.get('id')
+                })[0]);
                 return actions.draw(target_deck, 'hand', {
                   random: true,
                   number: 1,
-                  callback: function(new_card) {
+                  callback: function(newcards) {
                     console.log('calling callback');
-                    return pushLog("<span class='name'>" + current.user.username + "</span> used a <span class='item action'>Gopher</span> on " + player.username + " and got a <span class='money'>" + new_card + "</span>");
+                    pushLog("<span class='name'>" + current.user.username + "</span> used a <span class='item action'>Gopher</span> on " + player.username + " and got a <span class='money'>" + cards[newcards[0]].name + "</span>");
+                    current.match.save();
+                    current.deck.save();
+                    return target_deck.save();
                   }
                 });
               }
@@ -326,14 +338,14 @@ onDeviceReady = function() {
         name: 'magnet',
         type: 'action',
         cost: 6,
-        short_desc: 'short description',
+        short_desc: 'Steal a tresure card from an Opponent',
         long_desc: 'long description'
       },
       alchemy: {
         name: 'alchemy',
         type: 'action',
         cost: 5,
-        short_desc: 'short description',
+        short_desc: 'Turns 2 coals into a Diamond',
         long_desc: 'long description'
       }
     };
@@ -348,10 +360,12 @@ onDeviceReady = function() {
           optoins.random = false;
         }
         newcards = [];
+        console.log("draw iterating");
         _results = [];
         for (i = _i = 1, _ref = options.number; 1 <= _ref ? _i <= _ref : _i >= _ref; i = 1 <= _ref ? ++_i : --_i) {
           source = model.get(attribute);
           hand = current.deck.get('hand');
+          console.log("if random");
           if (options.random === true) {
             r = Math.floor(Math.floor(Math.random() * source.length - 1));
             newcard = source[r];
@@ -360,11 +374,15 @@ onDeviceReady = function() {
             newcard = source[0];
             [].splice.apply(source, [0, 1].concat(_ref2 = [])), _ref2;
           }
+          console.log("push new card");
           hand.push(newcard);
           newcards.push(newcard);
+          console.log("set model");
           model.set(attribute, source);
           current.deck.set('hand', hand);
+          console.log("new view");
           view = new CardListView(cards[gsub(newcard, ' ', '_')]);
+          console.log("callback");
           if (typeof options.callback === 'function') {
             _results.push(options.callback(newcards));
           } else {
@@ -907,18 +925,23 @@ onDeviceReady = function() {
       MatchView.prototype.initialize = function() {
         var _this = this;
         console.log('init MatchView');
-        console.log(current.match);
-        console.log(current.deck);
         current.carddetailview = new CardDetailView;
         match_channel.bind('update', function(data) {
           if (!current.turn) {
             return current.match.fetch();
           }
         });
+        user_channel.bind('update_deck', function(data) {
+          return current.deck.fetch();
+        });
         match_channel.bind('change_turn', function(data) {
-          alert('turn changed');
           return _this.refresh();
         });
+        if (current.match.get('turn') === current.user.id) {
+          current.turn = true;
+        } else {
+          current.turn = false;
+        }
         this.refresh();
         current.match.on('change:log', function() {
           return _this.$el.find('#log').html(_.last(current.match.get('log')));
@@ -943,11 +966,6 @@ onDeviceReady = function() {
 
       MatchView.prototype.render = function() {
         var card, player, players, view, _i, _len, _ref;
-        if (current.match.get('turn') === current.user.id) {
-          current.turn = true;
-        } else {
-          current.turn = false;
-        }
         console.log('rendering MatchView');
         console.log(this.$el.find('#hand'));
         this.$el.find('#log').html(_.last(current.match.get('log')));
@@ -963,16 +981,12 @@ onDeviceReady = function() {
         this.$el.find('#actions > .count').html(current.deck.get('actions'));
         this.$el.find('#to_spend > .count').html(current.deck.to_spend());
         console.log(current.match.get('turn'));
-        if (current.match.get('turn') === current.user.id) {
-          console.log('its yo turn');
+        if (current.turn) {
           this.$el.find('#end_turn').show();
           return this.$el.find('#turn').hide();
         } else {
-          console.log('aint yo turn nigga');
           this.$el.find('#end_turn').hide();
           this.$el.find('#turn').show();
-          console.log(current.user);
-          console.log(current.match.get('players'));
           players = current.match.get('players');
           player = _.find(players, function(player) {
             return player.id === current.match.get('turn');
