@@ -87,11 +87,7 @@ onDeviceReady = function() {
     };
     pushLog = function(msg) {
       var log;
-      if (typeof current.match.get('log') !== 'Array') {
-        log = [];
-      } else {
-        log = current.match.get('log');
-      }
+      log = _.clone(current.match.get('log'));
       log.push(msg);
       current.match.set('log', log);
       return console.log(current.match.get('log'));
@@ -115,7 +111,8 @@ onDeviceReady = function() {
               console.log('calling callback');
               pushLog("<span class='name'>" + current.user.username + "</span> used a <span class='item action'>Stone Pickaxe</span> and got a <span class='money'>" + newcards[0] + "</span>");
               current.match.save();
-              return current.deck.save();
+              current.deck.save();
+              return current.deck.trigger('update_to_spend');
             }
           });
         }
@@ -134,7 +131,8 @@ onDeviceReady = function() {
               console.log('calling callback');
               pushLog("<span class='name'>" + current.user.username + "</span> used an <span class='item action'>Iron Pickaxe</span> and got a <span class='money'>" + newcards[0] + "</span> and <span class='money'>" + newcards[1] + "</span>");
               current.match.save();
-              return current.deck.save();
+              current.deck.save();
+              return current.deck.trigger('update_to_spend');
             }
           });
         }
@@ -153,7 +151,8 @@ onDeviceReady = function() {
               console.log('calling callback');
               pushLog("<span class='name'>" + current.user.username + "</span> used a <span class='item action'>Diamond Pickaxe</span> and got a <span class='money'>" + newcards[0] + "</span>, <span class='money'>" + newcards[1] + "</span> and <span class='money'>" + newcards[2] + "</span>");
               current.match.save();
-              return current.deck.save();
+              current.deck.save();
+              return current.deck.trigger('update_to_spend');
             }
           });
         }
@@ -246,7 +245,8 @@ onDeviceReady = function() {
               console.log('calling callback');
               pushLog("<span class='name'>" + current.user.username + "</span> used a <span class='item action'>Minecart</span> and got a <span class='money'>" + cards[newcards[0]].name + "</span>");
               current.match.save();
-              return current.deck.save();
+              current.deck.save();
+              return current.deck.trigger('update_to_spend');
             }
           });
         }
@@ -265,7 +265,8 @@ onDeviceReady = function() {
               console.log('calling callback');
               pushLog("<span class='name'>" + current.user.username + "</span> used a <span class='item action'>Minecart</span> and got a <span class='money'>" + cards[newcards[0]].name + "</span>, <span class='money'>" + newcards[1] + "</span> and <span class='money'>" + newcards[2] + "</span>");
               current.match.save();
-              return current.deck.save();
+              current.deck.save();
+              return current.deck.trigger('update_to_spend');
             }
           });
         }
@@ -313,7 +314,8 @@ onDeviceReady = function() {
                     pushLog("<span class='name'>" + current.user.username + "</span> used a <span class='item action'>Gopher</span> on " + player.username + " and got a <span class='money'>" + cards[newcards[0]].name + "</span>");
                     current.match.save();
                     current.deck.save();
-                    return target_deck.save();
+                    target_deck.save();
+                    return current.deck.trigger('update_to_spend');
                   }
                 });
               }
@@ -351,7 +353,7 @@ onDeviceReady = function() {
     };
     actions = {
       draw: function(model, attribute, options) {
-        var hand, i, newcard, newcards, r, source, view, _i, _ref, _ref1, _ref2, _results;
+        var hand, i, newcard, newcards, r, source, view, _i, _ref, _ref1, _ref2;
         console.log("actions#draw");
         if (typeof options.number === 'undefined') {
           optoins.number = 1;
@@ -361,35 +363,34 @@ onDeviceReady = function() {
         }
         newcards = [];
         console.log(" - Iterating..");
-        _results = [];
+        source = _.clone(model.get(attribute));
+        hand = _.clone(current.deck.get('hand'));
         for (i = _i = 1, _ref = options.number; 1 <= _ref ? _i <= _ref : _i >= _ref; i = 1 <= _ref ? ++_i : --_i) {
-          source = model.get(attribute);
-          hand = current.deck.get('hand');
-          console.log("if random");
+          console.log(" - Check for options.random");
           if (options.random === true) {
+            console.log(" - - random: true");
             r = Math.floor(Math.floor(Math.random() * source.length - 1));
             newcard = source[r];
             [].splice.apply(source, [r, r - r + 1].concat(_ref1 = [])), _ref1;
           } else {
+            console.log(" - - random: false");
             newcard = source[0];
             [].splice.apply(source, [0, 1].concat(_ref2 = [])), _ref2;
           }
-          console.log("push new card");
+          console.log(" - Pushing new card");
           hand.push(newcard);
           newcards.push(newcard);
-          console.log("set model");
+          console.log(" - Setting model: " + attribute);
           model.set(attribute, source);
+          console.log(" - Setting hand");
           current.deck.set('hand', hand);
-          console.log("new view");
+          console.log(" - Instantiating new CardListView");
           view = new CardListView(cards[newcard]);
-          console.log("callback");
-          if (typeof options.callback === 'function') {
-            _results.push(options.callback(newcards));
-          } else {
-            _results.push(void 0);
-          }
         }
-        return _results;
+        console.log(" - Firing callback");
+        if (typeof options.callback === 'function') {
+          return options.callback(newcards);
+        }
       },
       discard: function(options, cb) {
         $('.discard').show();
@@ -473,11 +474,13 @@ onDeviceReady = function() {
         var card, to_spend, _i, _len, _ref;
         console.log("Deck#to_spend");
         to_spend = 0;
-        console.log(" - Iterating..");
+        console.log(" - Iterating @get('hand')..");
+        console.log(this.get('hand'));
         _ref = this.get('hand');
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           card = _ref[_i];
           console.log(' - - Checking type');
+          console.log(" - - Card: " + cards[card].name);
           if (cards[card].type === 'money') {
             console.log(' - - - Type: money, getting value');
             to_spend += cards[card].value;
@@ -663,10 +666,10 @@ onDeviceReady = function() {
         if (this.card.cost <= current.deck.to_spend() && current.turn) {
           console.log('buying card..');
           console.log(current.match.get('shop'));
-          shop = current.match.get('shop');
+          shop = _.clone(current.match.get('shop'));
           shop = shop.minus(gsub(this.card.name, ' ', '_'));
           current.match.set('shop', shop);
-          curr_cards = current.deck.get('cards');
+          curr_cards = _.clone(current.deck.get('cards'));
           curr_cards.push(gsub(this.card.name, ' ', '_'));
           current.deck.set('cards', curr_cards);
           console.log(current.match.get('shop'));
@@ -770,6 +773,7 @@ onDeviceReady = function() {
       CardListView.prototype.initialize = function(card) {
         this.card = card;
         console.log('CardListView#initialize');
+        console.log(" - " + this.card.name);
         console.log(" - Cloning .card template");
         this.setElement($('#templates').find(".card").clone());
         return this.render();
@@ -872,13 +876,14 @@ onDeviceReady = function() {
       };
 
       CardListView.prototype.touchend = function(e) {
+        console.log("CardListView#touchend");
         console.log("dy: " + this.dy);
         console.log('touch end');
         this.$el.removeClass("drag green").css("-webkit-transform", "translate3d(0,0,0)");
         if (this.use && this.dx >= this.w - 1) {
           this.dx = 0;
           if (current.deck.get('actions') > 0 && current.turn) {
-            console.log('using card');
+            console.log(' - Using card');
             if (this.card.type === 'action') {
               current.deck.set('actions', current.deck.get('actions') - 1);
             }
@@ -909,10 +914,10 @@ onDeviceReady = function() {
         console.log(" - removing from DOM");
         this.remove();
         console.log(" - Removing card from hand, adding to deck.cards");
-        nh = current.deck.get('hand');
+        nh = _.clone(current.deck.get('hand'));
         nh = nh.minus(gsub(this.card.name, ' ', '_'));
         current.deck.set('hand', nh);
-        nd = current.deck.get('cards');
+        nd = _.clone(current.deck.get('cards'));
         nd.push(gsub(this.card.name, ' ', '_'));
         return current.deck.set('cards', nd);
       };
@@ -958,8 +963,8 @@ onDeviceReady = function() {
           console.log("current.deck change:actions");
           return _this.$el.find('#actions > .count').html(current.deck.get('actions'));
         });
-        return current.deck.on('change:hand', function() {
-          console.log("current.deck change:hand");
+        return current.deck.on('update_to_spend', function() {
+          console.log("event: update_to_spend");
           _this.$el.find('#to_spend > .count').html(current.deck.to_spend());
           return _this.render();
         });
@@ -978,7 +983,8 @@ onDeviceReady = function() {
         this.$el.find('#log').html(_.last(current.match.get('log')));
         console.log(' - clearing #hand');
         this.$el.find('#hand').html('');
-        console.log(" - Iterating current.deck('hand')");
+        console.log(" - Iterating current.deck.get('hand')");
+        console.log(current.deck.get('hand'));
         _ref = current.deck.get('hand');
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           card = _ref[_i];

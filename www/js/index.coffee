@@ -75,10 +75,7 @@ onDeviceReady = ->
         "a"
 
     pushLog = (msg) ->
-      if typeof current.match.get('log') isnt 'Array'
-        log = []
-      else
-        log = current.match.get('log')
+      log = _.clone current.match.get('log')
       log.push msg
       current.match.set('log', log)
       console.log current.match.get('log')
@@ -105,6 +102,7 @@ onDeviceReady = ->
               pushLog "<span class='name'>#{current.user.username}</span> used a <span class='item action'>Stone Pickaxe</span> and got a <span class='money'>#{newcards[0]}</span>"
               current.match.save()
               current.deck.save()
+              current.deck.trigger 'update_to_spend'
 
 
       iron_pickaxe:
@@ -122,6 +120,7 @@ onDeviceReady = ->
               pushLog "<span class='name'>#{current.user.username}</span> used an <span class='item action'>Iron Pickaxe</span> and got a <span class='money'>#{newcards[0]}</span> and <span class='money'>#{newcards[1]}</span>"
               current.match.save()
               current.deck.save()
+              current.deck.trigger 'update_to_spend'
           
       diamond_pickaxe:
         name: 'diamond pickaxe'
@@ -138,6 +137,7 @@ onDeviceReady = ->
               pushLog "<span class='name'>#{current.user.username}</span> used a <span class='item action'>Diamond Pickaxe</span> and got a <span class='money'>#{newcards[0]}</span>, <span class='money'>#{newcards[1]}</span> and <span class='money'>#{newcards[2]}</span>"
               current.match.save()
               current.deck.save()
+              current.deck.trigger 'update_to_spend'
 
       copper:
         name: 'copper'
@@ -219,6 +219,7 @@ onDeviceReady = ->
               pushLog "<span class='name'>#{current.user.username}</span> used a <span class='item action'>Minecart</span> and got a <span class='money'>#{cards[newcards[0]].name}</span>"
               current.match.save()
               current.deck.save()
+              current.deck.trigger 'update_to_spend'
               #TODO: change card type dyanmically
 
       mule:
@@ -236,6 +237,7 @@ onDeviceReady = ->
               pushLog "<span class='name'>#{current.user.username}</span> used a <span class='item action'>Minecart</span> and got a <span class='money'>#{cards[newcards[0]].name}</span>, <span class='money'>#{newcards[1]}</span> and <span class='money'>#{newcards[2]}</span>"
               current.match.save()
               current.deck.save()
+              current.deck.trigger 'update_to_spend'
 
       headlamp:
         name: 'headlamp'
@@ -276,6 +278,7 @@ onDeviceReady = ->
                     current.match.save()
                     current.deck.save()
                     target_deck.save()
+                    current.deck.trigger 'update_to_spend'
 
 
 
@@ -315,32 +318,35 @@ onDeviceReady = ->
         newcards = []
 
         console.log " - Iterating.."
-        for i in [1..options.number]
-          source = model.get(attribute)
-          hand = current.deck.get('hand')
+        source = _.clone model.get(attribute)
+        hand = _.clone current.deck.get('hand')
 
-          console.log "if random"
+        for i in [1..options.number]
+          console.log " - Check for options.random"
           if options.random == true
+            console.log " - - random: true"
             r = Math.floor(Math.floor(Math.random()*source.length-1))
             newcard = source[r]
             source[r..r] = []
           else
+            console.log " - - random: false"
             newcard = source[0]
             source[0..0] = []
 
-          console.log "push new card"
+          console.log " - Pushing new card"
           hand.push newcard
-          newcards.push newcard # FIXME: newcards[0] == undefined
+          newcards.push newcard
 
-          console.log "set model"
+          console.log " - Setting model: #{attribute}"
           model.set(attribute, source)
+          console.log " - Setting hand"
           current.deck.set('hand', hand)
 
-          console.log "new view"
+          console.log " - Instantiating new CardListView"
           view = new CardListView(cards[newcard])
 
-          console.log "callback"
-          options.callback(newcards) if typeof options.callback == 'function'
+        console.log " - Firing callback"
+        options.callback(newcards) if typeof options.callback == 'function'
 
       discard: (options, cb) ->
         # insert view that tells user to discard cards
@@ -399,9 +405,11 @@ onDeviceReady = ->
       to_spend: ->
         console.log "Deck#to_spend"
         to_spend = 0
-        console.log " - Iterating.."
+        console.log " - Iterating @get('hand').."
+        console.log @get('hand')
         for card in @get('hand')
           console.log ' - - Checking type'
+          console.log " - - Card: #{cards[card].name}"
           if cards[card].type == 'money'
             console.log ' - - - Type: money, getting value'
             to_spend += cards[card].value
@@ -516,10 +524,10 @@ onDeviceReady = ->
         if @card.cost <= current.deck.to_spend() and current.turn
           console.log 'buying card..'
           console.log current.match.get('shop')
-          shop = current.match.get('shop')
+          shop = _.clone current.match.get('shop')
           shop = shop.minus(gsub(@card.name, ' ', '_'))
           current.match.set('shop', shop)
-          curr_cards = current.deck.get('cards')
+          curr_cards = _.clone current.deck.get('cards')
           curr_cards.push gsub(@card.name, ' ', '_')
           current.deck.set('cards', curr_cards)
           console.log current.match.get('shop')
@@ -579,6 +587,7 @@ onDeviceReady = ->
 
       initialize: (@card) ->
         console.log 'CardListView#initialize'
+        console.log " - #{@card.name}"
         console.log " - Cloning .card template"
         @setElement $('#templates').find(".card").clone()
         @render()
@@ -660,13 +669,14 @@ onDeviceReady = ->
         console.log 'swiping right'
 
       touchend: (e) ->
+        console.log "CardListView#touchend"
         console.log "dy: #{@dy}"
         console.log 'touch end'
         @$el.removeClass("drag green").css "-webkit-transform", "translate3d(0,0,0)"
         if @use and @dx >= @w - 1
           @dx = 0
           if current.deck.get('actions') > 0 and current.turn
-            console.log 'using card'
+            console.log ' - Using card'
             current.deck.set('actions', current.deck.get('actions') - 1 ) if @card.type == 'action'
             @discard()
             @card.use()
@@ -692,10 +702,10 @@ onDeviceReady = ->
         console.log " - removing from DOM"
         @remove()
         console.log " - Removing card from hand, adding to deck.cards"
-        nh = current.deck.get('hand')
+        nh = _.clone current.deck.get('hand')
         nh = nh.minus(gsub(@card.name, ' ', '_'))
         current.deck.set('hand', nh)
-        nd = current.deck.get('cards')
+        nd = _.clone current.deck.get('cards')
         nd.push(gsub(@card.name, ' ', '_'))
         current.deck.set('cards', nd)
         # current.deck.set('amount_discarded', current.deck.get('amount_discarded') + 1)
@@ -724,6 +734,7 @@ onDeviceReady = ->
         @refresh()
 
         console.log " - Binding backbone events"
+
         current.match.on 'change:log', =>
           console.log "current.match change:log"
           @$el.find('#log').html(_.last(current.match.get('log')))
@@ -736,8 +747,8 @@ onDeviceReady = ->
           console.log "current.deck change:actions"
           @$el.find('#actions > .count').html(current.deck.get 'actions')
 
-        current.deck.on 'change:hand', =>
-          console.log "current.deck change:hand"
+        current.deck.on 'update_to_spend', =>
+          console.log "event: update_to_spend"
           @$el.find('#to_spend > .count').html(current.deck.to_spend())
           @render()
 
@@ -752,7 +763,8 @@ onDeviceReady = ->
         @$el.find('#log').html(_.last(current.match.get('log')))
         console.log ' - clearing #hand'
         @$el.find('#hand').html('')
-        console.log " - Iterating current.deck('hand')"
+        console.log " - Iterating current.deck.get('hand')"
+        console.log current.deck.get('hand')
         for card in current.deck.get('hand')
           console.log " - - Iterating.."
           view = new CardListView(cards[card])
