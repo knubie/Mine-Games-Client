@@ -440,6 +440,7 @@ Background Declarations */
 		#shop{
 		background: url('../images/shopscreen@2x.jpg');
 		background-repeat: none;
+		background-size: 100%;	
 	}
 }
 
