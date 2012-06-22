@@ -27,19 +27,6 @@ Global Attributes */
 /* 
 Game Page */
 
-	#lobby_header{
-		width: 25%;
-		background: #75553c;
-		float: left;
-		height:45px;
-		padding-top: 25px;
-	}
-
-	#lobby_header img{
-		display: block;
-	    margin-left: auto;
-	    margin-right: auto; 
-	}
 
 	#to_spend{
 		width: 25%;
@@ -65,21 +52,26 @@ Game Page */
 		width: 25%;
 		background: #ef6b56;
 		float: left;
-		height:55px;
-		padding-top: 15px;
+		height:62px;
+		padding-top: 8px;
 		text-align:center;
+	}
+
+	#actions .headerTitle{
+		color: #fff;
+		font-size: 12px;;
+		font-family: 'Gotham-Bold';
+		text-align: center;
+		text-transform: uppercase;
+	}
+
+	#actions .count{
 		color: #fff;
 		font-size: 28px;
 		font-weight:bold;
-		line-height: 34px;	
+		line-height: 27px;	
 		font-family: 'Helvetica', sans-serif;
 
-	}
-
-	#actions img{
-		display: block;
-	    margin-left: auto;
-	    margin-right: auto; 
 	}
 
 	#turn{
@@ -233,6 +225,41 @@ Notifications */
 
 	#log .item{
 		color: #ef6b56;
+	}
+
+/*
+Lobby */
+
+.logout{
+		color: #fff;
+		font-family: 'Gotham-Bold';
+		font-size: 13px;
+		text-transform: uppercase;	
+}
+
+.lobbyTitle{
+		color: #fff;
+		font-family: 'Gotham-Bold';
+		font-size: 18px;
+		text-transform: uppercase;
+}
+
+
+	#lobby_header{
+		width: 25%;
+		background: #75553c;
+		float: left;
+		height:45px;
+		padding-top: 25px;
+		text-align:center;
+		font-family: 'Gotham-Bold';
+		font-size: 13px;
+		text-transform: uppercase;		
+	}
+
+	#lobby_header a{
+		color: #fff;
+		text-decoration: none;
 	}
 
 /* 

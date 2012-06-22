@@ -27,7 +27,7 @@
 			// Enable pusher logging - don't include this in production
 		    Pusher.log = function(message) {
 		      if (window.console && window.console.log) window.console.log(message);
-		    };
+		    }; ..
 
 		    // Flash fallback logging - don't include this in production
 		    WEB_SOCKET_DEBUG = true;
@@ -95,10 +95,10 @@
 
 		<div id="lobby" class="page green">
 			<div id="lobby_header">
-				<a class="logout"><img src="images/titles/logout.png"> </a>
+				<a class="logout">Log Out</a>
 			</div>
-			<div id="divTitle">
-				<img src="images/titles/lobby.png"> 
+			<div id="divTitle" class="lobbyTitle">
+				Lobby
 			</div>
 			<a href="#new_match" id="create_match">Create Match!</a>
 			<ul id="matches" data-role="listview">
@@ -141,10 +141,12 @@
 
 		<div id="match" class="page"> 
 			<div id="lobby_header">
-				<a href="#lobby" style="text-align:center;"><img src="images/games/lobby.png"> </a>
+				<a href="#lobby">
+					Lobby
+				</a>
 			</div>
 			<div id="actions">
-				<img src="images/games/actions.png"> 
+				<span class="headerTitle">Actions</span><br/ >
 				<div class="count">0</div>			
 			</div>
 			<div id="to_spend">
