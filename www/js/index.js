@@ -958,7 +958,8 @@ onDeviceReady = function() {
           return _this.$el.find('#log').html(_.last(current.match.get('log')));
         });
         current.match.on('change:mine', function() {
-          return console.log("current.match change:mine");
+          console.log("current.match change:mine");
+          return _this.$el.find('#mine > .count').html(current.match.get('mine').length);
         });
         current.deck.on('change:actions', function() {
           console.log("current.deck change:actions");
@@ -994,6 +995,8 @@ onDeviceReady = function() {
         }
         console.log(" - Updating actions DOM");
         this.$el.find('#actions > .count').html(current.deck.get('actions'));
+        console.log(" - Updating mine DOM");
+        this.$el.find('#mine > .count').html(current.match.get('mine').length);
         console.log(" - Updating to_spend DOM");
         this.$el.find('#to_spend > .count').html(current.deck.to_spend());
         console.log(" - Updating turn DOM");

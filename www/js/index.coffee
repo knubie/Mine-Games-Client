@@ -742,7 +742,7 @@ onDeviceReady = ->
 
         current.match.on 'change:mine', =>
           console.log "current.match change:mine"
-          # do stuff
+          @$el.find('#mine > .count').html(current.match.get('mine').length)
 
         current.deck.on 'change:actions', =>
           console.log "current.deck change:actions"
@@ -772,6 +772,8 @@ onDeviceReady = ->
 
         console.log " - Updating actions DOM"
         @$el.find('#actions > .count').html(current.deck.get 'actions')
+        console.log " - Updating mine DOM"
+        @$el.find('#mine > .count').html(current.match.get('mine').length)
         console.log " - Updating to_spend DOM"
         @$el.find('#to_spend > .count').html(current.deck.to_spend())
         console.log " - Updating turn DOM"
