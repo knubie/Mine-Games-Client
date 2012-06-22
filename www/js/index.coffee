@@ -96,7 +96,7 @@ onDeviceReady = ->
         use: ->
           actions.draw current.match, 'mine'
             number: 1
-            random: true
+            random: false
             callback: (newcards) ->
               console.log 'calling callback'
               pushLog "<span class='name'>#{current.user.username}</span> used a <span class='item action'>Stone Pickaxe</span> and got a <span class='money'>#{newcards[0]}</span>"
@@ -114,7 +114,7 @@ onDeviceReady = ->
         use: ->
           actions.draw current.match, 'mine'
             number: 2
-            random: true
+            random: false
             callback: (newcards) ->
               console.log 'calling callback'
               pushLog "<span class='name'>#{current.user.username}</span> used an <span class='item action'>Iron Pickaxe</span> and got a <span class='money'>#{newcards[0]}</span> and <span class='money'>#{newcards[1]}</span>"
@@ -131,7 +131,7 @@ onDeviceReady = ->
         use: ->
           actions.draw current.match, 'mine'
             number: 3
-            random: true
+            random: false
             callback: (newcards) ->
               console.log 'calling callback'
               pushLog "<span class='name'>#{current.user.username}</span> used a <span class='item action'>Diamond Pickaxe</span> and got a <span class='money'>#{newcards[0]}</span>, <span class='money'>#{newcards[1]}</span> and <span class='money'>#{newcards[2]}</span>"
@@ -213,7 +213,7 @@ onDeviceReady = ->
           current.deck.set('actions', current.deck.get('actions')+1)
           actions.draw current.deck, 'cards',
             number: 1
-            random: true
+            random: false
             callback: (newcards) ->
               console.log 'calling callback'
               pushLog "<span class='name'>#{current.user.username}</span> used a <span class='item action'>Minecart</span> and got a <span class='money'>#{cards[newcards[0]].name}</span>"
@@ -231,7 +231,7 @@ onDeviceReady = ->
         use: ->
           actions.draw current.deck, 'cards',
             number: 3
-            random: true
+            random: false
             callback: (newcards) ->
               console.log 'calling callback'
               pushLog "<span class='name'>#{current.user.username}</span> used a <span class='item action'>Minecart</span> and got a <span class='money'>#{cards[newcards[0]].name}</span>, <span class='money'>#{newcards[1]}</span> and <span class='money'>#{newcards[2]}</span>"
@@ -249,7 +249,7 @@ onDeviceReady = ->
       gopher:
         name: 'gopher'
         type: 'action'
-        cost: 1
+        cost: 4
         short_desc: "Steals a random card from an Opponent's hand"
         long_desc: 'long description'
         use: ->
@@ -297,14 +297,14 @@ onDeviceReady = ->
       magnet:
         name: 'magnet'
         type: 'action'
-        cost: 6
+        cost: 5
         short_desc: 'Steal a tresure card from an Opponent'
         long_desc: 'long description'
 
       alchemy:
         name: 'alchemy'
         type: 'action'
-        cost: 5
+        cost: 6
         short_desc: 'Turns 2 coals into a Diamond'
         long_desc: 'long description'
 
@@ -805,10 +805,11 @@ onDeviceReady = ->
             player.id == current.match.get('turn')
           @$el.find('#turn > .count').html(player.username)
         console.log " - Updating player score DOM"
+        # TODO: add string truncation for names
         switch current.match.get('players').length
           when 1
             console.log " - - Adding current.user"
-            $("#two-players").html('')
+            $("#two-players").show().html('')
             $player = $('#templates').find(".player").clone()
             $player.find('.name').html(current.user.username)
             $player.find('.score').html(current.deck.total_points())
@@ -831,11 +832,62 @@ onDeviceReady = ->
                   deck = players_decks.where(match_id: current.match.get('id'))[0]
                   $player.find('.score').html(deck.total_points())
               $("#two-players").append($player)
-          when 2 then
+          when 2
+            console.log " - - Adding current.user"
+            $("#three-players").html('')
+            $player = $('#templates').find(".player").clone()
+            $player.find('.name').html(current.user.username)
+            $player.find('.score').html(current.deck.total_points())
+            $("#three-players").append($player)
+            console.log " - - Iterating match.players"
+            for player in current.match.get('players')
+              console.log " - - - Iterating.."
+              console.log " - - - player:"
+              console.log player
+              $player = $('#templates').find(".player").clone()
+              $player.find('.name').html(player.username)
+              players_decks = new Decks()
+              players_decks.url = "#{server_url}/decks_by_user/#{player.id}"
+              console.log " - - - Fetching decks"
+              players_decks.fetch
+                success: ->
+                  console.log ' - - - - Fetch success'
+                  console.log " - - - - deck:"
+                  console.log  players_decks.where(match_id: current.match.get('id'))[0]
+                  deck = players_decks.where(match_id: current.match.get('id'))[0]
+                  $player.find('.score').html(deck.total_points())
+              $("#three-players").append($player)
             # three-players
-          when 3 then
-            # four-players
+          when 3
+            console.log " - - Adding current.user"
+            $("#four-players").html('')
+            $player = $('#templates').find(".player").clone()
+            $player.find('.name').html(current.user.username)
+            $player.find('.score').html(current.deck.total_points())
+            $("#four-players").append($player)
+            console.log " - - Iterating match.players"
+            for player in current.match.get('players')
+              console.log " - - - Iterating.."
+              console.log " - - - player:"
+              console.log player
+              $player = $('#templates').find(".player").clone()
+              $player.find('.name').html(player.username)
+              players_decks = new Decks()
+              players_decks.url = "#{server_url}/decks_by_user/#{player.id}"
+              console.log " - - - Fetching decks"
+              players_decks.fetch
+                success: ->
+                  console.log ' - - - - Fetch success'
+                  console.log " - - - - deck:"
+                  console.log  players_decks.where(match_id: current.match.get('id'))[0]
+                  deck = players_decks.where(match_id: current.match.get('id'))[0]
+                  $player.find('.score').html(deck.total_points())
+              $("#four-players").append($player)
 
+
+        if @$el.css('display') == 'none'
+          changePage '#match',
+            transition: 'slide'
 
       end_turn: ->
         console.log 'ending turn'
@@ -875,7 +927,6 @@ onDeviceReady = ->
       initialize: (@match, @deck) ->
         console.log 'init MatchListView'
         @setElement $('#templates').find(".match-item-view").clone()
-        # @setElement templates.LobbyMatchListItem(@match.get('id'), @match.get('players'), @match.get('turn') == current.user.id)
         @render()
 
       events:
@@ -886,13 +937,6 @@ onDeviceReady = ->
         $('#matches').append(@el)
         @$el.on 'click', (e) ->
           e.preventDefault()
-          reverse = false
-          if $(this).attr('data-transition') == 'reverse'
-            reverse = true
-          # FIXME: this should happen AFTER match/deck data is fetched
-          changePage '#match',
-            transition: 'slide'
-            reverse: reverse
 
       render_match: ->
         console.log 'MatchListView#render_match'
@@ -904,7 +948,7 @@ onDeviceReady = ->
         console.log "checking if MatchView instance exists."
         if current.matchview
           console.log 'MatchView instance exists. Refreshing'
-          current.matchview.render()
+          current.matchview.refresh()
         else
           console.log 'MatchView instance doesnt exist. Creating new matchview'
           current.matchview = new MatchView

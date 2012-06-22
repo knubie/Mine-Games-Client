@@ -106,7 +106,7 @@ onDeviceReady = function() {
         use: function() {
           return actions.draw(current.match, 'mine', {
             number: 1,
-            random: true,
+            random: false,
             callback: function(newcards) {
               console.log('calling callback');
               pushLog("<span class='name'>" + current.user.username + "</span> used a <span class='item action'>Stone Pickaxe</span> and got a <span class='money'>" + newcards[0] + "</span>");
@@ -126,7 +126,7 @@ onDeviceReady = function() {
         use: function() {
           return actions.draw(current.match, 'mine', {
             number: 2,
-            random: true,
+            random: false,
             callback: function(newcards) {
               console.log('calling callback');
               pushLog("<span class='name'>" + current.user.username + "</span> used an <span class='item action'>Iron Pickaxe</span> and got a <span class='money'>" + newcards[0] + "</span> and <span class='money'>" + newcards[1] + "</span>");
@@ -146,7 +146,7 @@ onDeviceReady = function() {
         use: function() {
           return actions.draw(current.match, 'mine', {
             number: 3,
-            random: true,
+            random: false,
             callback: function(newcards) {
               console.log('calling callback');
               pushLog("<span class='name'>" + current.user.username + "</span> used a <span class='item action'>Diamond Pickaxe</span> and got a <span class='money'>" + newcards[0] + "</span>, <span class='money'>" + newcards[1] + "</span> and <span class='money'>" + newcards[2] + "</span>");
@@ -240,7 +240,7 @@ onDeviceReady = function() {
           current.deck.set('actions', current.deck.get('actions') + 1);
           return actions.draw(current.deck, 'cards', {
             number: 1,
-            random: true,
+            random: false,
             callback: function(newcards) {
               console.log('calling callback');
               pushLog("<span class='name'>" + current.user.username + "</span> used a <span class='item action'>Minecart</span> and got a <span class='money'>" + cards[newcards[0]].name + "</span>");
@@ -260,7 +260,7 @@ onDeviceReady = function() {
         use: function() {
           return actions.draw(current.deck, 'cards', {
             number: 3,
-            random: true,
+            random: false,
             callback: function(newcards) {
               console.log('calling callback');
               pushLog("<span class='name'>" + current.user.username + "</span> used a <span class='item action'>Minecart</span> and got a <span class='money'>" + cards[newcards[0]].name + "</span>, <span class='money'>" + newcards[1] + "</span> and <span class='money'>" + newcards[2] + "</span>");
@@ -281,7 +281,7 @@ onDeviceReady = function() {
       gopher: {
         name: 'gopher',
         type: 'action',
-        cost: 1,
+        cost: 4,
         short_desc: "Steals a random card from an Opponent's hand",
         long_desc: 'long description',
         use: function() {
@@ -339,14 +339,14 @@ onDeviceReady = function() {
       magnet: {
         name: 'magnet',
         type: 'action',
-        cost: 6,
+        cost: 5,
         short_desc: 'Steal a tresure card from an Opponent',
         long_desc: 'long description'
       },
       alchemy: {
         name: 'alchemy',
         type: 'action',
-        cost: 5,
+        cost: 6,
         short_desc: 'Turns 2 coals into a Diamond',
         long_desc: 'long description'
       }
@@ -998,7 +998,7 @@ onDeviceReady = function() {
       };
 
       MatchView.prototype.render = function() {
-        var $player, card, player, players, players_decks, view, _i, _j, _len, _len1, _ref, _ref1, _results;
+        var $player, card, player, players, players_decks, view, _i, _j, _k, _l, _len, _len1, _len2, _len3, _ref, _ref1, _ref2, _ref3;
         console.log('MatchView#render');
         console.log(current.match);
         console.log(' - Updating log DOM');
@@ -1038,14 +1038,13 @@ onDeviceReady = function() {
         switch (current.match.get('players').length) {
           case 1:
             console.log(" - - Adding current.user");
-            $("#two-players").html('');
+            $("#two-players").show().html('');
             $player = $('#templates').find(".player").clone();
             $player.find('.name').html(current.user.username);
             $player.find('.score').html(current.deck.total_points());
             $("#two-players").append($player);
             console.log(" - - Iterating match.players");
             _ref1 = current.match.get('players');
-            _results = [];
             for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
               player = _ref1[_j];
               console.log(" - - - Iterating..");
@@ -1070,13 +1069,85 @@ onDeviceReady = function() {
                   return $player.find('.score').html(deck.total_points());
                 }
               });
-              _results.push($("#two-players").append($player));
+              $("#two-players").append($player);
             }
-            return _results;
             break;
           case 2:
+            console.log(" - - Adding current.user");
+            $("#three-players").html('');
+            $player = $('#templates').find(".player").clone();
+            $player.find('.name').html(current.user.username);
+            $player.find('.score').html(current.deck.total_points());
+            $("#three-players").append($player);
+            console.log(" - - Iterating match.players");
+            _ref2 = current.match.get('players');
+            for (_k = 0, _len2 = _ref2.length; _k < _len2; _k++) {
+              player = _ref2[_k];
+              console.log(" - - - Iterating..");
+              console.log(" - - - player:");
+              console.log(player);
+              $player = $('#templates').find(".player").clone();
+              $player.find('.name').html(player.username);
+              players_decks = new Decks();
+              players_decks.url = "" + server_url + "/decks_by_user/" + player.id;
+              console.log(" - - - Fetching decks");
+              players_decks.fetch({
+                success: function() {
+                  var deck;
+                  console.log(' - - - - Fetch success');
+                  console.log(" - - - - deck:");
+                  console.log(players_decks.where({
+                    match_id: current.match.get('id')
+                  })[0]);
+                  deck = players_decks.where({
+                    match_id: current.match.get('id')
+                  })[0];
+                  return $player.find('.score').html(deck.total_points());
+                }
+              });
+              $("#three-players").append($player);
+            }
             break;
           case 3:
+            console.log(" - - Adding current.user");
+            $("#four-players").html('');
+            $player = $('#templates').find(".player").clone();
+            $player.find('.name').html(current.user.username);
+            $player.find('.score').html(current.deck.total_points());
+            $("#four-players").append($player);
+            console.log(" - - Iterating match.players");
+            _ref3 = current.match.get('players');
+            for (_l = 0, _len3 = _ref3.length; _l < _len3; _l++) {
+              player = _ref3[_l];
+              console.log(" - - - Iterating..");
+              console.log(" - - - player:");
+              console.log(player);
+              $player = $('#templates').find(".player").clone();
+              $player.find('.name').html(player.username);
+              players_decks = new Decks();
+              players_decks.url = "" + server_url + "/decks_by_user/" + player.id;
+              console.log(" - - - Fetching decks");
+              players_decks.fetch({
+                success: function() {
+                  var deck;
+                  console.log(' - - - - Fetch success');
+                  console.log(" - - - - deck:");
+                  console.log(players_decks.where({
+                    match_id: current.match.get('id')
+                  })[0]);
+                  deck = players_decks.where({
+                    match_id: current.match.get('id')
+                  })[0];
+                  return $player.find('.score').html(deck.total_points());
+                }
+              });
+              $("#four-players").append($player);
+            }
+        }
+        if (this.$el.css('display') === 'none') {
+          return changePage('#match', {
+            transition: 'slide'
+          });
         }
       };
 
@@ -1147,16 +1218,7 @@ onDeviceReady = function() {
         console.log('MatchListView#render');
         $('#matches').append(this.el);
         return this.$el.on('click', function(e) {
-          var reverse;
-          e.preventDefault();
-          reverse = false;
-          if ($(this).attr('data-transition') === 'reverse') {
-            reverse = true;
-          }
-          return changePage('#match', {
-            transition: 'slide',
-            reverse: reverse
-          });
+          return e.preventDefault();
         });
       };
 
@@ -1168,7 +1230,7 @@ onDeviceReady = function() {
         console.log("checking if MatchView instance exists.");
         if (current.matchview) {
           console.log('MatchView instance exists. Refreshing');
-          current.matchview.render();
+          current.matchview.refresh();
         } else {
           console.log('MatchView instance doesnt exist. Creating new matchview');
           current.matchview = new MatchView;
