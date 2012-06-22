@@ -436,9 +436,9 @@ Background Declarations */
 	}
 	
 	#logo {
-		background: url('../images/logo@2x.jpg');
+		background: url('../images/logo.jpg');
 		background-repeat: none;
-		background-size: 50%;		
+		background-size: 100%;		
 	}
 
 /*  Retina */
