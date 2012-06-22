@@ -23,6 +23,11 @@ Global Attributes */
 	  src: url('../fonts/Gotham-Book.otf');
 	}
 
+	#logo{
+		width: 268px;
+		height: 300px;
+		margin: auto;
+	}
 
 /* 
 Match Page */
@@ -415,6 +420,7 @@ Background Declarations */
 	.clear{
 		clear: both;
 	}
+	
 	#loader {
 		min-height: 480px;
 		border: 0px;
@@ -427,6 +433,12 @@ Background Declarations */
 		opacity: 0;
 		display: none;
 		-webkit-transition: opacity .05s ease-in-out;
+	}
+	
+	#logo {
+		background: url('../images/logo@2x.jpg');
+		background-repeat: none;
+		background-size: 50%;		
 	}
 
 /*  Retina */
@@ -441,6 +453,12 @@ Background Declarations */
 		background: url('../images/shopscreen@2x.jpg');
 		background-repeat: none;
 		background-size: 100%;	
+	}
+
+		#logo {
+		background: url('../images/logo@2x.jpg');
+		background-repeat: none;
+		background-size: 100%;		
 	}
 }
 
@@ -500,7 +518,7 @@ Buttons */
 		padding:10px;
 		margin:auto;
 		height: 25px;
-		width: 90%;
+		width: 204px;
 		color: #fff;
 		font-family: 'Helvetica',sans-serif;
 		-webkit-border-radius: 10px;
