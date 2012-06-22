@@ -301,54 +301,33 @@ Players Toolbar */
 		height: 28px;
 	}
 
-	.playersNumber{
+
+	#players .player {
+		height: 28px;
+		list-style-type: none;
+		float:left;
+		text-align:center;
+		background: #424242;
+		color: #fff;
+		font-weight:300;
+		font-size:12px;
+		font-family: 'Helvetica',sans-serif;
+	}
+
+	#two-players li.player { width: 50%; }
+	#three-players li.player { width: 33.3%; }
+	#four-players li.player { width: 25%; }
+	.selected-player { background: #898989; }
+
+	.player .name {
+		/* styles */
+	}
+
+	.player .score{
 		font-size: 18px;
 		font-weight:bold;
 		color: #c4d7d2;
 		margin-top: 10px;
-	}
-
-	#players2 li{
-		height: 28px;
-		width: 50%;
-		list-style-type: none;
-		float:left;
-		text-align:center;
-		background: #424242;
-		font-family: 'Helvetica',sans-serif;
-
-	}
-
-	.players3 {
-		height: 28px;
-		width: 33.3%;
-		list-style-type: none;
-		float:left;
-		text-align:center;
-		background: #424242;
-		color: #fff;
-		font-weight:300;
-		font-size:12px;
-		font-family: 'Helvetica',sans-serif;
-
-	}
-
-	.playersSelected {
-		background: #898989;
-	}
-
-	.players4 {
-		height: 28px;
-		width: 25%;
-		list-style-type: none;
-		float:left;
-		text-align:center;
-		background: #424242;
-		color: #fff;
-		font-weight:300;
-		font-size:12px;
-		font-family: 'Helvetica',sans-serif;
-
 	}
 
 /* 

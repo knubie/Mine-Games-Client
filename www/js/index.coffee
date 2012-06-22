@@ -416,6 +416,20 @@ onDeviceReady = ->
             to_spend += cards[card].value
         to_spend
 
+      total_points: ->
+        console.log "Deck#total_points"
+        total_points = 0
+        console.log " - Iterating @get('cards').."
+        console.log @get('cards')
+        for card in @get('cards')
+          console.log ' - - Checking type'
+          console.log " - - Card: #{cards[card].name}"
+          if cards[card].type == 'money'
+            console.log ' - - - Type: money, getting value'
+            total_points += cards[card].value
+        total_points + @to_spend()
+
+
       spend: (value) ->
         console.log 'Deck#spend'
         money_cards = []
@@ -760,6 +774,7 @@ onDeviceReady = ->
 
       render: ->
         console.log 'MatchView#render'
+        console.log current.match
         console.log ' - Updating log DOM'
         @$el.find('#log').html(_.last(current.match.get('log')))
         console.log ' - clearing #hand'
@@ -789,6 +804,38 @@ onDeviceReady = ->
           player = _.find players, (player) ->
             player.id == current.match.get('turn')
           @$el.find('#turn > .count').html(player.username)
+        console.log " - Updating player score DOM"
+        switch current.match.get('players').length
+          when 1
+            console.log " - - Adding current.user"
+            $("#two-players").html('')
+            $player = $('#templates').find(".player").clone()
+            $player.find('.name').html(current.user.username)
+            $player.find('.score').html(current.deck.total_points())
+            $("#two-players").append($player)
+            console.log " - - Iterating match.players"
+            for player in current.match.get('players')
+              console.log " - - - Iterating.."
+              console.log " - - - player:"
+              console.log player
+              $player = $('#templates').find(".player").clone()
+              $player.find('.name').html(player.username)
+              players_decks = new Decks()
+              players_decks.url = "#{server_url}/decks_by_user/#{player.id}"
+              console.log " - - - Fetching decks"
+              players_decks.fetch
+                success: ->
+                  console.log ' - - - - Fetch success'
+                  console.log " - - - - deck:"
+                  console.log  players_decks.where(match_id: current.match.get('id'))[0]
+                  deck = players_decks.where(match_id: current.match.get('id'))[0]
+                  $player.find('.score').html(deck.total_points())
+              $("#two-players").append($player)
+          when 2 then
+            # three-players
+          when 3 then
+            # four-players
+
 
       end_turn: ->
         console.log 'ending turn'

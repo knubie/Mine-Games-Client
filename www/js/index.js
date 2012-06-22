@@ -490,6 +490,25 @@ onDeviceReady = function() {
         return to_spend;
       };
 
+      Deck.prototype.total_points = function() {
+        var card, total_points, _i, _len, _ref;
+        console.log("Deck#total_points");
+        total_points = 0;
+        console.log(" - Iterating @get('cards')..");
+        console.log(this.get('cards'));
+        _ref = this.get('cards');
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          card = _ref[_i];
+          console.log(' - - Checking type');
+          console.log(" - - Card: " + cards[card].name);
+          if (cards[card].type === 'money') {
+            console.log(' - - - Type: money, getting value');
+            total_points += cards[card].value;
+          }
+        }
+        return total_points + this.to_spend();
+      };
+
       Deck.prototype.spend = function(value) {
         var card, money_cards, new_hand, _i, _j, _len, _len1, _ref;
         console.log('Deck#spend');
@@ -979,8 +998,9 @@ onDeviceReady = function() {
       };
 
       MatchView.prototype.render = function() {
-        var card, player, players, view, _i, _len, _ref;
+        var $player, card, player, players, players_decks, view, _i, _j, _len, _len1, _ref, _ref1, _results;
         console.log('MatchView#render');
+        console.log(current.match);
         console.log(' - Updating log DOM');
         this.$el.find('#log').html(_.last(current.match.get('log')));
         console.log(' - clearing #hand');
@@ -1003,7 +1023,7 @@ onDeviceReady = function() {
         if (current.turn) {
           console.log(" - - current.turn: true");
           this.$el.find('#end_turn').show();
-          return this.$el.find('#turn').hide();
+          this.$el.find('#turn').hide();
         } else {
           console.log(" - - current.turn: false");
           this.$el.find('#end_turn').hide();
@@ -1012,7 +1032,51 @@ onDeviceReady = function() {
           player = _.find(players, function(player) {
             return player.id === current.match.get('turn');
           });
-          return this.$el.find('#turn > .count').html(player.username);
+          this.$el.find('#turn > .count').html(player.username);
+        }
+        console.log(" - Updating player score DOM");
+        switch (current.match.get('players').length) {
+          case 1:
+            console.log(" - - Adding current.user");
+            $("#two-players").html('');
+            $player = $('#templates').find(".player").clone();
+            $player.find('.name').html(current.user.username);
+            $player.find('.score').html(current.deck.total_points());
+            $("#two-players").append($player);
+            console.log(" - - Iterating match.players");
+            _ref1 = current.match.get('players');
+            _results = [];
+            for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+              player = _ref1[_j];
+              console.log(" - - - Iterating..");
+              console.log(" - - - player:");
+              console.log(player);
+              $player = $('#templates').find(".player").clone();
+              $player.find('.name').html(player.username);
+              players_decks = new Decks();
+              players_decks.url = "" + server_url + "/decks_by_user/" + player.id;
+              console.log(" - - - Fetching decks");
+              players_decks.fetch({
+                success: function() {
+                  var deck;
+                  console.log(' - - - - Fetch success');
+                  console.log(" - - - - deck:");
+                  console.log(players_decks.where({
+                    match_id: current.match.get('id')
+                  })[0]);
+                  deck = players_decks.where({
+                    match_id: current.match.get('id')
+                  })[0];
+                  return $player.find('.score').html(deck.total_points());
+                }
+              });
+              _results.push($("#two-players").append($player));
+            }
+            return _results;
+            break;
+          case 2:
+            break;
+          case 3:
         }
       };
 
