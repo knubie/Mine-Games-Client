@@ -395,6 +395,14 @@ Background Declarations */
 		background-repeat: none;
 	}
 
+@media only screen and (-webkit-min-device-pixel-ratio: 2) {
+    	#match{
+		background: url('../images/game_bg@2x.jpg');
+		background-repeat: none;
+		background-size: 100%;
+	}
+}
+
 	#shopBtn{
 		margin-top:20px;
 		float:left;
