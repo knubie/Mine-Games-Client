@@ -369,7 +369,7 @@ onDeviceReady = function() {
           console.log(" - Check for options.random");
           if (options.random === true) {
             console.log(" - - random: true");
-            r = Math.floor(Math.floor(Math.random() * source.length - 1));
+            r = Math.floor(Math.floor(Math.random() * (source.length - 1)));
             newcard = source[r];
             [].splice.apply(source, [r, r - r + 1].concat(_ref1 = [])), _ref1;
           } else {
@@ -377,6 +377,7 @@ onDeviceReady = function() {
             newcard = source[0];
             [].splice.apply(source, [0, 1].concat(_ref2 = [])), _ref2;
           }
+          console.log(" - newcard: " + newcard);
           console.log(" - Pushing new card");
           hand.push(newcard);
           newcards.push(newcard);
@@ -563,7 +564,6 @@ onDeviceReady = function() {
       return Decks;
 
     })(Backbone.Collection);
-    console.log("creating new decks and matches collections");
     matches = new Matches;
     decks = new Decks;
     console.log(matches);

@@ -325,7 +325,7 @@ onDeviceReady = ->
           console.log " - Check for options.random"
           if options.random == true
             console.log " - - random: true"
-            r = Math.floor(Math.floor(Math.random()*source.length-1))
+            r = Math.floor(Math.floor(Math.random()*(source.length-1)))
             newcard = source[r]
             source[r..r] = []
           else
@@ -333,6 +333,7 @@ onDeviceReady = ->
             newcard = source[0]
             source[0..0] = []
 
+          console.log " - newcard: #{newcard}"
           console.log " - Pushing new card"
           hand.push newcard
           newcards.push newcard
@@ -459,12 +460,11 @@ onDeviceReady = ->
       model: Deck
       url: "#{server_url}/decks"
 
-
-    console.log "creating new decks and matches collections"
     matches = new Matches
     decks = new Decks
     console.log matches
     console.log decks
+
 
     # Views
     # ============================================
