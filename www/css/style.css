@@ -32,20 +32,26 @@ Match Page */
 		width: 25%;
 		background: #fbb032;
 		float: left;
-		height:70px;
+		height:62px;
+		padding-top: 8px;
 	 	text-align:center;
+	}
+
+	#to_spend .headerTitle{
+		color: #fff;
+		font-size: 12px;;
+		font-family: 'Gotham-Bold';
+		text-align: center;
+		text-transform: uppercase;
+	}
+
+	#to_spend .count{
 		color: #fff;
 		font-size: 28px;
 		font-weight:bold;
-		line-height: 28px;
+		line-height: 27px;	
 		font-family: 'Helvetica', sans-serif;
 
-	}
-
-	#spend img{
-		display: block;
-	    margin-left: auto;
-	    margin-right: auto; 
 	}
 
 	#actions{
@@ -395,13 +401,6 @@ Background Declarations */
 		background-repeat: none;
 	}
 
-@media only screen and (-webkit-min-device-pixel-ratio: 2) {
-    	#match{
-		background: url('../images/game_bg@2x.jpg');
-		background-repeat: none;
-		background-size: 100%;
-	}
-}
 
 	#shopBtn{
 		margin-top:20px;
@@ -429,6 +428,21 @@ Background Declarations */
 		display: none;
 		-webkit-transition: opacity .05s ease-in-out;
 	}
+
+/*  Retina */
+@media only screen and (-webkit-min-device-pixel-ratio: 2) {
+    	#match{
+		background: url('../images/game_bg@2x.jpg');
+		background-repeat: none;
+		background-size: 100%;
+	}
+
+		#shop{
+		background: url('../images/shopscreen@2x.jpg');
+		background-repeat: none;
+	}
+}
+
 
 /* 
 Form Imputs */
