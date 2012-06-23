@@ -128,12 +128,13 @@ Match Page */
 	}
 
 	#mine{
+		float: left;
 		font-size: 25px;
 		height: 30px;
-		margin: auto;
+		margin-left: 6px;
 		padding-top: 29px;
 		text-align: center;
-		width: 35px;
+		width: 125px;
 	}
 
 /* 
