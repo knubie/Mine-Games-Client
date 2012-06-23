@@ -454,6 +454,12 @@ Background Declarations */
 		background-size: 100%;		
 	}
 
+	#home {
+		background: url('../images/login.jpg');
+		background-repeat: none;
+		background-size: 100%;		
+	}
+
 /*  Retina */
 @media only screen and (-webkit-min-device-pixel-ratio: 2) {
     	#match{
@@ -473,6 +479,13 @@ Background Declarations */
 		background-repeat: none;
 		background-size: 100%;		
 	}
+
+		#home {
+		background: url('../images/login@2x.jpg');
+		background-repeat: none;
+		background-size: 100%;		
+	}
+
 }
 
 
