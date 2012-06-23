@@ -127,6 +127,15 @@ Match Page */
 		size: 16px;
 	}
 
+	#mine{
+		font-size: 25px;
+		height: 30px;
+		margin: auto;
+		padding-top: 29px;
+		text-align: center;
+		width: 35px;
+	}
+
 /* 
 Cards */
 
@@ -520,7 +529,7 @@ Buttons */
 		height: 25px;
 		width: 204px;
 		color: #fff;
-		font-family: 'Helvetica',sans-serif;
+		font-family: 'Gotham-Bold';
 		-webkit-border-radius: 10px;
 		text-align:center;
 		margin-bottom: 15px;
@@ -529,7 +538,7 @@ Buttons */
 	}
 
 	.yellow a{
-		color:#fff;
+		color:#4e3b2a;
 		text-decoration: none;
 		display:block;
 	}
