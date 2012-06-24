@@ -1029,33 +1029,14 @@ onDeviceReady = ->
           console.log 6
           callback()
 
-    # $.cookie 'token', 'LollakwpnMXj54X6oWwt2g'
-    
-    # TODO: add a timeout
-    if $.cookie("token")?
-      # TODO: match token with user on server side, if match, execute the below block
-      console.log 'cookie found'
-      # TODO: add 'logging in' animation loader
-      $('#loader').show()
-      $('#loader').css('opacity', 1)
-      $('#loader').find('#loading-text').html('Logging in...')
-      $.getJSON("#{server_url}/users/99", (user) ->
-        current.user = user
-        user_channel = pusher.subscribe("#{current.user.id}")
-        console.log 'instantiating LobbyView'
-        current.lobby = new LobbyView
-        changePage "#lobby",
-          transition: "none"
-      )
-    else
-      console.log 'cookie not found'
-
-    $("#facebook-auth").on 'click', ->
-      console.log 'clicked facebook'
-      facebook_auth ->
-        console.log 7
-        $.getJSON "#{server_url}/users/1", (user) ->
-          console.log 8
+    set_user = ->
+      $.getJSON "#{server_url}/users/1", (user) -> # users/:id param is arbitrary.
+        if user == null
+          alert "Sorry, there was an error. Please relink your account with facebook"
+          $('#loader').css('opacity', 0)
+          $('#loader').hide()
+          facebook_auth set_user
+        else
           current.user = user
           user_channel = pusher.subscribe("#{current.user.id}")
           console.log 'instantiating LobbyView'
@@ -1066,6 +1047,26 @@ onDeviceReady = ->
 
           changePage "#lobby",
             transition: "none"
+
+
+    # $.cookie 'token', 'LollakwpnMXj54X6oWwt2g'
+    
+    # TODO: add a timeout
+    if $.cookie("token")?
+      # TODO: match token with user on server side, if match, execute the below block
+      console.log 'cookie found'
+      console.log $.cookie('token')
+      # TODO: add 'logging in' animation loader
+      $('#loader').show()
+      $('#loader').css('opacity', 1)
+      $('#loader').find('#loading-text').html('Logging in...')
+      set_user()
+    else
+      console.log 'cookie not found'
+
+    $("#facebook-auth").on 'click', ->
+      console.log 'clicked facebook'
+      facebook_auth set_user
 
     $('#login-form').submit (e) ->
       $('#loader').show()

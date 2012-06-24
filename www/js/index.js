@@ -11,7 +11,7 @@ onBodyLoad = function() {
 
 onDeviceReady = function() {
   return $(function() {
-    var CardDetailView, CardListView, ChooseOpponentsView, Deck, Decks, LobbyView, Match, MatchListView, MatchView, Matches, OpponentsListView, ShopListView, ShopView, aOrAn, actions, cards, changePage, current, decks, facebook_auth, gsub, match_channel, matches, pushLog, pusher, user_channel;
+    var CardDetailView, CardListView, ChooseOpponentsView, Deck, Decks, LobbyView, Match, MatchListView, MatchView, Matches, OpponentsListView, ShopListView, ShopView, aOrAn, actions, cards, changePage, current, decks, facebook_auth, gsub, match_channel, matches, pushLog, pusher, set_user, user_channel;
     gsub = function(source, pattern, replacement) {
       var match, result;
       if (!((pattern != null) && (replacement != null))) {
@@ -1338,29 +1338,14 @@ onDeviceReady = function() {
         }
       };
     };
-    if ($.cookie("token") != null) {
-      console.log('cookie found');
-      $('#loader').show();
-      $('#loader').css('opacity', 1);
-      $('#loader').find('#loading-text').html('Logging in...');
-      $.getJSON("" + server_url + "/users/99", function(user) {
-        current.user = user;
-        user_channel = pusher.subscribe("" + current.user.id);
-        console.log('instantiating LobbyView');
-        current.lobby = new LobbyView;
-        return changePage("#lobby", {
-          transition: "none"
-        });
-      });
-    } else {
-      console.log('cookie not found');
-    }
-    $("#facebook-auth").on('click', function() {
-      console.log('clicked facebook');
-      return facebook_auth(function() {
-        console.log(7);
-        return $.getJSON("" + server_url + "/users/1", function(user) {
-          console.log(8);
+    set_user = function() {
+      return $.getJSON("" + server_url + "/users/1", function(user) {
+        if (user === null) {
+          alert("Sorry, there was an error. Please relink your account with facebook");
+          $('#loader').css('opacity', 0);
+          $('#loader').hide();
+          return facebook_auth(set_user);
+        } else {
           current.user = user;
           user_channel = pusher.subscribe("" + current.user.id);
           console.log('instantiating LobbyView');
@@ -1372,8 +1357,22 @@ onDeviceReady = function() {
           return changePage("#lobby", {
             transition: "none"
           });
-        });
+        }
       });
+    };
+    if ($.cookie("token") != null) {
+      console.log('cookie found');
+      console.log($.cookie('token'));
+      $('#loader').show();
+      $('#loader').css('opacity', 1);
+      $('#loader').find('#loading-text').html('Logging in...');
+      set_user();
+    } else {
+      console.log('cookie not found');
+    }
+    $("#facebook-auth").on('click', function() {
+      console.log('clicked facebook');
+      return facebook_auth(set_user);
     });
     $('#login-form').submit(function(e) {
       $('#loader').show();
