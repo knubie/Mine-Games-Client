@@ -368,6 +368,11 @@ Shop Screen */
 		padding-top: 3px;
 	}
 
+	.shop-item img{
+		width:45px;
+	}
+
+
 /* 
 Players Toolbar */
 
