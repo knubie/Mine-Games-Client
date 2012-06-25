@@ -54,11 +54,22 @@ Match Page */
 
 	#to_spend .count{
 		color: #fff;
+		float: right;
+		font-family: Helvetica, sans-serif;
 		font-size: 28px;
-		font-weight:bold;
-		line-height: 27px;	
-		font-family: 'Helvetica', sans-serif;
+		font-weight: bold;
+		line-height: 27px;
+		margin-right: 31px;
+	}
 
+	#to_spend .money{
+		color: #fff;
+		float: left;
+		font-family: Helvetica, sans-serif;
+		font-size: 18px;
+		font-weight: bold;
+		line-height: 27px;
+		margin-left: 19px;
 	}
 
 	#actions{
@@ -140,6 +151,15 @@ Match Page */
 		font-weight:bold;
 	}
 
+	#itemsBtn img{
+		width:92px;
+	}
+
+	#shopBtn img{
+		width:92px;
+	}
+
+
 /* 
 Cards */
 
@@ -175,14 +195,14 @@ Cards */
 	}
 
 	.card img{
-		width:150px;
+		width: 44px;
 
 	}
 
 	/*  Retina */
 @media only screen and (-webkit-min-device-pixel-ratio: 2) {
     	.card img{
-		
+		width: 44px;
 	}
 
 	
@@ -357,6 +377,11 @@ Shop Screen */
 		padding-top: 3px;
 	}
 
+	.shop-item img{
+		width:45px;
+	}
+
+
 /* 
 Players Toolbar */
 
@@ -474,8 +499,21 @@ Background Declarations */
 		background-size: 100%;		
 	}
 
+	#lobby{
+		background: url('../images/lobby/background.jpg');
+		background-repeat: none;
+		background-size: 100%;
+	}
+
+
 /*  Retina */
 @media only screen and (-webkit-min-device-pixel-ratio: 2) {
+		#lobby{
+		background: url('../images/lobby/background.jpg');
+		background-repeat: none;
+		background-size: 100%;
+	}    
+
     	#match{
 		background: url('../images/game_bg@2x.jpg');
 		background-repeat: none;
@@ -498,6 +536,18 @@ Background Declarations */
 		background: url('../images/login@2x.jpg');
 		background-repeat: none;
 		background-size: 100%;		
+	}
+
+		.card img{
+		width: 45px;
+	}
+
+		#itemsBtn img{
+		width:92px;
+	}
+
+		#shopBtn img{
+		width:92px;
 	}
 
 }

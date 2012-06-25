@@ -97,17 +97,17 @@
 
 		<div id="lobby" class="page green">
 			<div id="lobby_header">
-				<a class="logout">Log Out</a>
+				<a id="refresh_lobby">Refresh</a>
 			</div>
 			<div id="divTitle" class="lobbyTitle">
-				Lobby
+				MineGames
 			</div>
-			<a href="#new_match" id="create_match">Create Match!</a>
 			<ul id="matches" data-role="listview">
 			</ul>
-			<a id="refresh_lobby" data-role="button">refresh!</a>
 
-
+			<div id="w90" class="yellow">
+				<a href="#new_match" id="create_match">Create Match!</a>
+			</div>	
 		</div>
 
 		<div id="new_match" class="page">
@@ -153,7 +153,8 @@
 			</div>
 			<div id="to_spend">
 				<span class="headerTitle">In Hand</span><br/ >
-				$<div class="count">0</div>				
+				<div class="money">$</div>				
+				<div class="count">0</div>				
 			</div>
 			<div id="turn">
 				<span class="headerTitle">Turn</span><br/ >
@@ -179,7 +180,7 @@
 			
 			<div id="shopBtn">
 				<a href="#shop">
-					<img src="images/buttons/shopTMP.png" border="0">
+					<img src="images/buttons/shop@2x.png" border="0">
 				</a>
 			</div>
 
@@ -189,7 +190,7 @@
 
 			<div id="itemsBtn">
 				<a href="#deck">
-					<img src="images/buttons/itemsTMP.png" border="0">
+					<img src="images/buttons/items@2x.png" border="0">
 				</a>
 			</div>
 		</div>
@@ -212,17 +213,7 @@
 
 			<div class="clear"></div>
 				<div id="players">
-					<ul>
-						<li class="players3  playersSelected"> 
-							Jeremy 
-							<span class="playersNumber">33</span> </li>
-						<li class="players3"> 
-							Christopher 
-							<span class="playersNumber">33</span> </li>
-						<li class="players3"> 
-							Matthew 
-							<span class="playersNumber">33</span> </li>
-
+					<ul id="two-players">
 					</ul>	
 				</div>	
 				<div id="shopContainer"> 
