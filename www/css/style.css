@@ -151,6 +151,15 @@ Match Page */
 		font-weight:bold;
 	}
 
+	#itemsBtn img{
+		width:92px;
+	}
+
+	#shopBtn img{
+		width:92px;
+	}
+
+
 /* 
 Cards */
 
@@ -490,8 +499,21 @@ Background Declarations */
 		background-size: 100%;		
 	}
 
+	#lobby{
+		background: url('../images/lobby/background.jpg');
+		background-repeat: none;
+		background-size: 100%;
+	}
+
+
 /*  Retina */
 @media only screen and (-webkit-min-device-pixel-ratio: 2) {
+		#lobby{
+		background: url('../images/lobby/background.jpg');
+		background-repeat: none;
+		background-size: 100%;
+	}    
+
     	#match{
 		background: url('../images/game_bg@2x.jpg');
 		background-repeat: none;
@@ -516,8 +538,16 @@ Background Declarations */
 		background-size: 100%;		
 	}
 
-	.card img{
+		.card img{
 		width: 45px;
+	}
+
+		#itemsBtn img{
+		width:92px;
+	}
+
+		#shopBtn img{
+		width:92px;
 	}
 
 }
