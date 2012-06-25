@@ -334,7 +334,7 @@ Lobby */
 	}	
 
 	#matchContainer li{
-		width: 90%;
+		width: 88%;
 		height: 51px;
 		margin: auto;
 		margin-top: 10px;
@@ -348,7 +348,15 @@ Lobby */
 		background-repeat: repeat-y;
 		background-position: left;
 		overflow: hidden;
+		display:block;
+		padding:2%;
 	}
+
+	#matchContainer li a{
+		font-family:'Gotham-Book';
+		color: #424242;
+		text-decoration: none;
+	}	
 
 /* 
 Shop Screen */
