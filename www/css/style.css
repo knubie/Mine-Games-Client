@@ -326,6 +326,30 @@ Lobby */
 		text-decoration: none;
 	}
 
+	#matchContainer{
+		height: 340px;
+		margin: auto;
+		overflow: scroll;
+		width: 296px;
+	}	
+
+	#matchContainer li{
+		width: 90%;
+		height: 51px;
+		margin: auto;
+		margin-top: 10px;
+		-webkit-border-radius: 8px;
+		-webkit-user-select: none;
+		-webkit-transition: all .1s ease;
+		-webkit-perspective: 0;
+		-webkit-backface-visibility: hidden;
+		position: relative;
+		background-color: #efebe1;
+		background-repeat: repeat-y;
+		background-position: left;
+		overflow: hidden;
+	}
+
 /* 
 Shop Screen */
 
