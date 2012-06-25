@@ -806,6 +806,7 @@ onDeviceReady = ->
           @$el.find('#turn > .count').html(player.username)
         console.log " - Updating player score DOM"
         # TODO: add string truncation for names
+        # TODO: DRY this switch statement up
         switch current.match.get('players').length
           when 1
             console.log " - - Adding current.user"
