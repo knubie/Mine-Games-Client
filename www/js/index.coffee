@@ -737,6 +737,7 @@ onDeviceReady = ->
 
         console.log " - Binding pusher channels"
         match_channel.bind 'update', (data) ->
+          console.log "match_channel:update"
           current.match.fetch() if not current.turn
 
         user_channel.bind 'update_deck', (data) =>
@@ -744,6 +745,11 @@ onDeviceReady = ->
           @refresh()
 
         match_channel.bind 'change_turn', (data) =>
+          console.log "match_channel:change_turn"
+          @refresh()
+
+        match_channel.bind 'update_score', (data) =>
+          console.log "match_channel:update_score"
           @refresh()
 
         @refresh()
