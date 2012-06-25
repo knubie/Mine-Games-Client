@@ -54,11 +54,22 @@ Match Page */
 
 	#to_spend .count{
 		color: #fff;
+		float: right;
+		font-family: Helvetica, sans-serif;
 		font-size: 28px;
-		font-weight:bold;
-		line-height: 27px;	
-		font-family: 'Helvetica', sans-serif;
+		font-weight: bold;
+		line-height: 27px;
+		margin-right: 31px;
+	}
 
+	#to_spend .money{
+		color: #fff;
+		float: left;
+		font-family: Helvetica, sans-serif;
+		font-size: 18px;
+		font-weight: bold;
+		line-height: 27px;
+		margin-left: 19px;
 	}
 
 	#actions{
@@ -175,14 +186,14 @@ Cards */
 	}
 
 	.card img{
-		width:150px;
+		width: 44px;
 
 	}
 
 	/*  Retina */
 @media only screen and (-webkit-min-device-pixel-ratio: 2) {
     	.card img{
-		
+		width: 44px;
 	}
 
 	
@@ -498,6 +509,10 @@ Background Declarations */
 		background: url('../images/login@2x.jpg');
 		background-repeat: none;
 		background-size: 100%;		
+	}
+
+	.card img{
+		width: 45px;
 	}
 
 }
