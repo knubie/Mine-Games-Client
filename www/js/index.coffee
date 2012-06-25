@@ -901,10 +901,13 @@ onDeviceReady = ->
         $('#loader').show()
         $('#loader').css('opacity', 1)
         $('#loader').find('#loading-text').html('Submitting turn...')
-        $.post "#{server_url}/end_turn/#{current.match.get('id')}", (data) =>
-          console.log data
-          console.log 'fetching match data'
-          # @refresh()
+        current.match.set('last_move', new Date().toString().split(' ').slice(0,5).join(' '))
+        current.match.save
+          success: ->
+            $.post "#{server_url}/end_turn/#{current.match.get('id')}", (data) =>
+              console.log data
+              console.log 'fetching match data'
+              # @refresh()
 
       refresh: ->
         # TODO: wait until all models have been fetched before changing page.
@@ -942,6 +945,15 @@ onDeviceReady = ->
       render: ->
         console.log 'MatchListView#render'
         $('#matches').append(@el)
+        @$el.find('.head').html("Mining with #{player.username for player in @match.get('players')}")
+        console.log 'last_move:'
+        console.log "#{@match.get('last_move')}"
+        console.log $.timeago("2008-07-17")
+        if "#{@match.get('last_move')}" == "null"
+          # think of something to do here
+          @$el.find('.subhead').html("No moves yet!")
+        else
+          @$el.find('.subhead').html("Last move #{$.timeago @match.get('last_move')}")
         @$el.on 'click', (e) ->
           e.preventDefault()
 
