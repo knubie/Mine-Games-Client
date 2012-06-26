@@ -292,7 +292,7 @@ onDeviceReady = ->
         name: 'headlamp'
         type: 'action'
         cost: 4
-        short_desc: 'Choose 2 cards from your inventory before you draw your next hand.'
+        short_desc: 'Draw two additional cards next hand.'
         long_desc: 'long description'
 
       gopher:
@@ -613,7 +613,7 @@ onDeviceReady = ->
         #@$el.find('img')
         @$el.find('.count').html(@amount)
         @$el.find('.price').html(@card.cost)
-        @$el.find('.name').html(@card.name)
+        @$el.find('img').attr('src', "images/cards/#{gsub(@card.name, ' ', '_')}_thumb.png")
 
       buy: ->
         console.log "ShopListView#buy"
@@ -699,7 +699,7 @@ onDeviceReady = ->
 
       render: ->
         console.log "CardListView#render"
-        @$el.find('.thumb').attr('src', "images/cards/#{gsub(@card.name, ' ', '_')}_thumb.png") # FIXME: this breaks transition from lobby to matchview
+        @$el.find('.thumb').attr('src', "images/cards/#{gsub(@card.name, ' ', '_')}_thumb.png")
         console.log " - Setting DOM name & desc"
         @$el.find('.name').html(@card.name)
         @$el.find('.desc').html(@card.short_desc)
