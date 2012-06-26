@@ -388,8 +388,43 @@ Lobby */
 	}
 
 /* 
-Items Screen */
+Deck Screen */
 
+	#backGame{
+		width: 50%;
+		background: #ef6b56;
+		float: left;
+		height:62px;
+		padding-top: 8px;
+		text-align:center;
+	}
+
+	#backGame a{
+		color: #fff;
+		font-size: 12px;;
+		font-family: 'Gotham-Bold';
+		text-align: center;
+		text-transform: uppercase;
+		text-decoration:none;
+	}
+
+	#backShop{
+		width: 50%;
+		background: #e29d29;
+		float: left;
+		height:62px;
+		padding-top: 8px;
+		text-align:center;
+	}
+
+	#backShop a{
+		color: #fff;
+		font-size: 12px;;
+		font-family: 'Gotham-Bold';
+		text-align: center;
+		text-transform: uppercase;
+		text-decoration:none;
+	}
 
 
 /* 
