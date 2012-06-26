@@ -355,6 +355,26 @@ onDeviceReady = ->
         cost: 6
         short_desc: 'Turns 2 coals into a Diamond'
         long_desc: 'long description'
+        use: ->
+          source = _.clone current.deck.get 'hand'
+          coals = _.filter source, (card) ->
+            card == 'coal'
+          source = _.reject source, (card) ->
+            card == 'coal'
+          console.log 'coals:'
+          console.log coals
+          if coals.length >= 2
+            source.push 'diamond'
+            current.deck.set('hand', source)
+            pushLog "<span class='name'>#{current.user.username}</span> used <span class='item action'>Alchemy</span> and got a <span class='money'>Diamond</span>"
+            current.match.save()
+            current.deck.save()
+          else
+            current.deck.set('actions', current.deck.get('actions') + 1 )
+            new_hand = _.clone current.deck.get 'hand'
+            new_hand.push 'alchemy'
+            current.deck.set 'hand', new_hand
+            alert 'You need at least two coals in hand to make use this card!'
 
       shield:
         name: 'shield'
