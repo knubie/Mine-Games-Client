@@ -1158,19 +1158,16 @@ onDeviceReady = function() {
       };
 
       MatchView.prototype.end_turn = function() {
+        var _this = this;
         console.log('ending turn');
         $('#loader').show();
         $('#loader').css('opacity', 1);
         $('#loader').find('#loading-text').html('Submitting turn...');
         current.match.set('last_move', new Date().toString().split(' ').slice(0, 5).join(' '));
-        return current.match.save({
-          success: function() {
-            var _this = this;
-            return $.post("" + server_url + "/end_turn/" + (current.match.get('id')), function(data) {
-              console.log(data);
-              return console.log('fetching match data');
-            });
-          }
+        current.match.save;
+        return $.post("" + server_url + "/end_turn/" + (current.match.get('id')), function(data) {
+          console.log(data);
+          return console.log('fetching match data');
         });
       };
 

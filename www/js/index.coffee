@@ -903,11 +903,10 @@ onDeviceReady = ->
         $('#loader').find('#loading-text').html('Submitting turn...')
         current.match.set('last_move', new Date().toString().split(' ').slice(0,5).join(' '))
         current.match.save
-          success: ->
-            $.post "#{server_url}/end_turn/#{current.match.get('id')}", (data) =>
-              console.log data
-              console.log 'fetching match data'
-              # @refresh()
+        $.post "#{server_url}/end_turn/#{current.match.get('id')}", (data) =>
+          console.log data
+          console.log 'fetching match data'
+          # @refresh()
 
       refresh: ->
         # TODO: wait until all models have been fetched before changing page.
