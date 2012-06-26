@@ -225,10 +225,60 @@ onDeviceReady = function() {
       tnt: {
         name: 'tnt',
         type: 'action',
-        cost: 6,
+        cost: 1,
         short_desc: "Destroy 2 items from an opponent's hand",
         long_desc: 'long description',
-        use: function() {}
+        use: function() {
+          console.log("tnt#use");
+          current.attack = function(player) {
+            var opponents_decks;
+            console.log("current#attack");
+            console.log("chosen opponent:");
+            console.log(player);
+            opponents_decks = new Decks();
+            opponents_decks.url = "" + server_url + "/decks_by_user/" + player.id;
+            console.log("fetching decks");
+            opponents_decks.fetch({
+              success: function() {
+                var target_deck;
+                console.log('fetch success');
+                target_deck = new Deck;
+                console.log("opponents deck:");
+                console.log(opponents_decks.where({
+                  match_id: current.match.get('id')
+                })[0]);
+                target_deck.set(opponents_decks.where({
+                  match_id: current.match.get('id')
+                })[0]);
+                return actions.trash(target_deck, 'hand', {
+                  random: true,
+                  number: 2,
+                  callback: function(newcards) {
+                    console.log('calling callback');
+                    pushLog("<span class='name'>" + current.user.username + "</span> used a <span class='item action'>TNT</span> on " + player.username + " and trashed a <span class='money'>" + cards[newcards[0]].name + "</span> and <span class='money'>" + cards[newcards[1]].name + "</span>");
+                    current.match.save();
+                    current.deck.save();
+                    target_deck.save();
+                    return current.deck.trigger('update_to_spend');
+                  }
+                });
+              }
+            });
+            if (current.match.get('players').length > 1) {
+              return changePage('#match', {
+                transition: 'slide'
+              });
+            }
+          };
+          if (current.match.get('players').length > 1) {
+            current.opponentsview = new ChooseOpponentsView();
+            return changePage('#choose-opponents', {
+              transition: 'slideup'
+            });
+          } else {
+            return current.attack(current.match.get('players')[0]);
+          }
+        }
       },
       minecart: {
         name: 'minecart',
@@ -402,7 +452,41 @@ onDeviceReady = function() {
           discard_type: options.type
         });
       },
-      trash: function(i, type, cb) {}
+      trash: function(model, attribute, options) {
+        var i, newcard, newcards, r, source, _i, _ref, _ref1, _ref2;
+        console.log("actions#trash");
+        if (typeof options.number === 'undefined') {
+          optoins.number = 1;
+        }
+        if (typeof options.number === 'undefined') {
+          optoins.random = false;
+        }
+        newcards = [];
+        console.log(" - Iterating..");
+        source = _.clone(model.get(attribute));
+        for (i = _i = 1, _ref = options.number; 1 <= _ref ? _i <= _ref : _i >= _ref; i = 1 <= _ref ? ++_i : --_i) {
+          console.log(" - Check for options.random");
+          if (options.random === true) {
+            console.log(" - - random: true");
+            r = Math.floor(Math.floor(Math.random() * (source.length - 1)));
+            newcard = source[r];
+            [].splice.apply(source, [r, r - r + 1].concat(_ref1 = [])), _ref1;
+          } else {
+            console.log(" - - random: false");
+            newcard = source[0];
+            [].splice.apply(source, [0, 1].concat(_ref2 = [])), _ref2;
+          }
+          console.log(" - newcard: " + newcard);
+          console.log(" - Pushing new card");
+          newcards.push(newcard);
+          console.log(" - Setting model: " + attribute);
+          model.set(attribute, source);
+        }
+        console.log(" - Firing callback");
+        if (typeof options.callback === 'function') {
+          return options.callback(newcards);
+        }
+      }
     };
     current = {
       lobby: 0,
@@ -1164,10 +1248,13 @@ onDeviceReady = function() {
         $('#loader').css('opacity', 1);
         $('#loader').find('#loading-text').html('Submitting turn...');
         current.match.set('last_move', new Date().toString().split(' ').slice(0, 5).join(' '));
-        current.match.save;
-        return $.post("" + server_url + "/end_turn/" + (current.match.get('id')), function(data) {
-          console.log(data);
-          return console.log('fetching match data');
+        return current.match.save({}, {
+          success: function() {
+            return $.post("" + server_url + "/end_turn/" + (current.match.get('id')), function(data) {
+              console.log(data);
+              return console.log('fetching match data');
+            });
+          }
         });
       };
 
@@ -1240,9 +1327,6 @@ onDeviceReady = function() {
           }
           return _results;
         }).call(this)));
-        console.log('last_move:');
-        console.log("" + (this.match.get('last_move')));
-        console.log($.timeago("2008-07-17"));
         if (("" + (this.match.get('last_move'))) === "null") {
           this.$el.find('.subhead').html("No moves yet!");
         } else {

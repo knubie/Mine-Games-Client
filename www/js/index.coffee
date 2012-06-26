@@ -197,10 +197,51 @@ onDeviceReady = ->
       tnt:
         name: 'tnt'
         type: 'action'
-        cost: 6
+        cost: 1
         short_desc: "Destroy 2 items from an opponent's hand"
         long_desc: 'long description'
         use: ->
+          console.log "tnt#use"
+          current.attack = (player) ->
+            console.log "current#attack"
+            console.log "chosen opponent:"
+            console.log player
+            # create new deck model from selected opponent
+            opponents_decks = new Decks()
+            opponents_decks.url = "#{server_url}/decks_by_user/#{player.id}"
+            console.log "fetching decks"
+            opponents_decks.fetch
+              success: ->
+                console.log 'fetch success'
+                target_deck = new Deck
+                console.log "opponents deck:"
+                console.log  opponents_decks.where(match_id: current.match.get('id'))[0]
+                target_deck.set opponents_decks.where(match_id: current.match.get('id'))[0]
+
+                actions.trash target_deck, 'hand',
+                  random: true
+                  number: 2
+                  callback: (newcards) ->
+                    console.log 'calling callback'
+                    pushLog "<span class='name'>#{current.user.username}</span> used a <span class='item action'>TNT</span> on #{player.username} and trashed a <span class='money'>#{cards[newcards[0]].name}</span> and <span class='money'>#{cards[newcards[1]].name}</span>"
+                    current.match.save()
+                    current.deck.save()
+                    target_deck.save()
+                    current.deck.trigger 'update_to_spend'
+
+
+
+            if current.match.get('players').length > 1
+              changePage '#match',
+                transition: 'slide'
+
+          if current.match.get('players').length > 1
+            current.opponentsview = new ChooseOpponentsView()
+            changePage '#choose-opponents',
+              transition: 'slideup'
+          else
+            current.attack(current.match.get('players')[0])
+
           #do something
 
       minecart:
@@ -359,8 +400,36 @@ onDeviceReady = ->
           amount_discarded: 0
           discard_type: options.type
 
-      trash: (i, type, cb) ->
-        # do something
+      trash: (model, attribute, options) ->
+        console.log "actions#trash"
+        optoins.number = 1 if typeof options.number == 'undefined'
+        optoins.random = false if typeof options.number == 'undefined'
+        newcards = []
+
+        console.log " - Iterating.."
+        source = _.clone model.get(attribute)
+
+        for i in [1..options.number]
+          console.log " - Check for options.random"
+          if options.random == true
+            console.log " - - random: true"
+            r = Math.floor(Math.floor(Math.random()*(source.length-1)))
+            newcard = source[r]
+            source[r..r] = []
+          else
+            console.log " - - random: false"
+            newcard = source[0]
+            source[0..0] = []
+
+          console.log " - newcard: #{newcard}"
+          console.log " - Pushing new card"
+          newcards.push newcard
+
+          console.log " - Setting model: #{attribute}"
+          model.set(attribute, source)
+
+        console.log " - Firing callback"
+        options.callback(newcards) if typeof options.callback == 'function'
 
     current = # namespace.
       lobby: 0 # LobbyView
@@ -428,7 +497,6 @@ onDeviceReady = ->
             console.log ' - - - Type: money, getting value'
             total_points += cards[card].value
         total_points + @to_spend()
-
 
       spend: (value) ->
         console.log 'Deck#spend'
@@ -828,6 +896,7 @@ onDeviceReady = ->
               console.log player
               $player = $('#templates').find(".player").clone()
               $player.find('.name').html(player.username)
+              # TODO: add this as a global variable
               players_decks = new Decks()
               players_decks.url = "#{server_url}/decks_by_user/#{player.id}"
               console.log " - - - Fetching decks"
@@ -902,11 +971,12 @@ onDeviceReady = ->
         $('#loader').css('opacity', 1)
         $('#loader').find('#loading-text').html('Submitting turn...')
         current.match.set('last_move', new Date().toString().split(' ').slice(0,5).join(' '))
-        current.match.save
-        $.post "#{server_url}/end_turn/#{current.match.get('id')}", (data) =>
-          console.log data
-          console.log 'fetching match data'
-          # @refresh()
+        current.match.save {},
+          success: =>
+            $.post "#{server_url}/end_turn/#{current.match.get('id')}", (data) =>
+              console.log data
+              console.log 'fetching match data'
+              # @refresh()
 
       refresh: ->
         # TODO: wait until all models have been fetched before changing page.
@@ -948,9 +1018,6 @@ onDeviceReady = ->
         else
           $('#matches').find('#their-turn').append(@el)
         @$el.find('.head').html("Mining with #{player.username for player in @match.get('players')}")
-        console.log 'last_move:'
-        console.log "#{@match.get('last_move')}"
-        console.log $.timeago("2008-07-17")
         if "#{@match.get('last_move')}" == "null"
           # think of something to do here
           @$el.find('.subhead').html("No moves yet!")
