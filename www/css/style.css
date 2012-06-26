@@ -388,6 +388,11 @@ Lobby */
 	}
 
 /* 
+Items Screen */
+
+
+
+/* 
 Shop Screen */
 
 	#shopContainer{
@@ -570,6 +575,11 @@ Background Declarations */
 		background-size: 100%;
 	}
 
+	#deck{
+		background: url('../images/items/background.jpg');
+		background-repeat: none;
+		background-size: 100%;	
+	}
 
 /*  Retina */
 @media only screen and (-webkit-min-device-pixel-ratio: 2) {
@@ -587,6 +597,12 @@ Background Declarations */
 
 		#shop{
 		background: url('../images/shopscreen@2x.jpg');
+		background-repeat: none;
+		background-size: 100%;	
+	}
+
+		#deck{
+		background: url('../images/items/background.jpg');
 		background-repeat: none;
 		background-size: 100%;	
 	}
