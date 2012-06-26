@@ -218,7 +218,7 @@ onDeviceReady = ->
                 target_deck.set opponents_decks.where(match_id: current.match.get('id'))[0]
 
                 reaction = false
-                for card in current.deck.get('hand')
+                for card in target_deck.get('hand')
                   if cards[card].type == 'reaction'
                     reaction = true
                     break

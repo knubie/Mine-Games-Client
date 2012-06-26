@@ -251,7 +251,7 @@ onDeviceReady = function() {
                   match_id: current.match.get('id')
                 })[0]);
                 reaction = false;
-                _ref = current.deck.get('hand');
+                _ref = target_deck.get('hand');
                 for (_i = 0, _len = _ref.length; _i < _len; _i++) {
                   card = _ref[_i];
                   if (cards[card].type === 'reaction') {
