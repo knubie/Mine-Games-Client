@@ -913,6 +913,7 @@ onDeviceReady = function() {
 
       CardListView.prototype.render = function() {
         console.log("CardListView#render");
+        this.$el.find('.thumb').attr('src', "images/cards/" + (gsub(this.card.name, ' ', '_')) + "_thumb.png");
         console.log(" - Setting DOM name & desc");
         this.$el.find('.name').html(this.card.name);
         this.$el.find('.desc').html(this.card.short_desc);

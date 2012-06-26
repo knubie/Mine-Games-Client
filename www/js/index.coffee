@@ -699,7 +699,7 @@ onDeviceReady = ->
 
       render: ->
         console.log "CardListView#render"
-        # @$el.find('.thumb').attr('src', "images/#{gsub(@card.name, ' ', '_')}") # FIXME: this breaks transition from lobby to matchview
+        @$el.find('.thumb').attr('src', "images/cards/#{gsub(@card.name, ' ', '_')}_thumb.png") # FIXME: this breaks transition from lobby to matchview
         console.log " - Setting DOM name & desc"
         @$el.find('.name').html(@card.name)
         @$el.find('.desc').html(@card.short_desc)
