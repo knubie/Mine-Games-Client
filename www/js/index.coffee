@@ -104,7 +104,6 @@ onDeviceReady = ->
               current.deck.save()
               current.deck.trigger 'update_to_spend'
 
-
       iron_pickaxe:
         name: 'iron pickaxe'
         type: 'action'
@@ -218,16 +217,25 @@ onDeviceReady = ->
                 console.log  opponents_decks.where(match_id: current.match.get('id'))[0]
                 target_deck.set opponents_decks.where(match_id: current.match.get('id'))[0]
 
-                actions.trash target_deck, 'hand',
-                  random: true
-                  number: 2
-                  callback: (newcards) ->
-                    console.log 'calling callback'
-                    pushLog "<span class='name'>#{current.user.username}</span> used a <span class='item action'>TNT</span> on #{player.username} and trashed a <span class='money'>#{cards[newcards[0]].name}</span> and <span class='money'>#{cards[newcards[1]].name}</span>"
-                    current.match.save()
-                    current.deck.save()
-                    target_deck.save()
-                    current.deck.trigger 'update_to_spend'
+                reaction = false
+                for card in current.deck.get('hand')
+                  if cards[card].type == 'reaction'
+                    reaction = true
+                    break
+
+                if reaction == false
+                  actions.trash target_deck, 'hand',
+                    random: true
+                    number: 2
+                    callback: (newcards) ->
+                      console.log 'calling callback'
+                      pushLog "<span class='name'>#{current.user.username}</span> used a <span class='item action'>TNT</span> on #{player.username} and trashed a <span class='money'>#{cards[newcards[0]].name}</span> and <span class='money'>#{cards[newcards[1]].name}</span>"
+                      current.match.save()
+                      current.deck.save()
+                      target_deck.save()
+                      current.deck.trigger 'update_to_spend'
+                else
+                  alert "#{player.username} used a fuckn' reaction card and blocked yo attack nigga!"
 
 
 
@@ -334,7 +342,6 @@ onDeviceReady = ->
           else
             current.attack(current.match.get('players')[0])
 
-
       magnet:
         name: 'magnet'
         type: 'action'
@@ -348,6 +355,13 @@ onDeviceReady = ->
         cost: 6
         short_desc: 'Turns 2 coals into a Diamond'
         long_desc: 'long description'
+
+      shield:
+        name: 'shield'
+        type: 'reaction'
+        cost: 1
+        short_desc: 'Blocks an incoming attack'
+        long_desc: "Prevents a single attack from affecting you. This card is then returned to your inventory after it's been used."
 
     actions = # Actions are decoupled from cards.
 

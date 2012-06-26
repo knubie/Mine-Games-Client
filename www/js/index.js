@@ -240,7 +240,7 @@ onDeviceReady = function() {
             console.log("fetching decks");
             opponents_decks.fetch({
               success: function() {
-                var target_deck;
+                var card, reaction, target_deck, _i, _len, _ref;
                 console.log('fetch success');
                 target_deck = new Deck;
                 console.log("opponents deck:");
@@ -250,18 +250,31 @@ onDeviceReady = function() {
                 target_deck.set(opponents_decks.where({
                   match_id: current.match.get('id')
                 })[0]);
-                return actions.trash(target_deck, 'hand', {
-                  random: true,
-                  number: 2,
-                  callback: function(newcards) {
-                    console.log('calling callback');
-                    pushLog("<span class='name'>" + current.user.username + "</span> used a <span class='item action'>TNT</span> on " + player.username + " and trashed a <span class='money'>" + cards[newcards[0]].name + "</span> and <span class='money'>" + cards[newcards[1]].name + "</span>");
-                    current.match.save();
-                    current.deck.save();
-                    target_deck.save();
-                    return current.deck.trigger('update_to_spend');
+                reaction = false;
+                _ref = current.deck.get('hand');
+                for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+                  card = _ref[_i];
+                  if (cards[card].type === 'reaction') {
+                    reaction = true;
+                    break;
                   }
-                });
+                }
+                if (reaction === false) {
+                  return actions.trash(target_deck, 'hand', {
+                    random: true,
+                    number: 2,
+                    callback: function(newcards) {
+                      console.log('calling callback');
+                      pushLog("<span class='name'>" + current.user.username + "</span> used a <span class='item action'>TNT</span> on " + player.username + " and trashed a <span class='money'>" + cards[newcards[0]].name + "</span> and <span class='money'>" + cards[newcards[1]].name + "</span>");
+                      current.match.save();
+                      current.deck.save();
+                      target_deck.save();
+                      return current.deck.trigger('update_to_spend');
+                    }
+                  });
+                } else {
+                  return alert("" + player.username + " used a fuckn' reaction card and blocked yo attack nigga!");
+                }
               }
             });
             if (current.match.get('players').length > 1) {
@@ -399,6 +412,13 @@ onDeviceReady = function() {
         cost: 6,
         short_desc: 'Turns 2 coals into a Diamond',
         long_desc: 'long description'
+      },
+      shield: {
+        name: 'shield',
+        type: 'reaction',
+        cost: 1,
+        short_desc: 'Blocks an incoming attack',
+        long_desc: "Prevents a single attack from affecting you. This card is then returned to your inventory after it's been used."
       }
     };
     actions = {
