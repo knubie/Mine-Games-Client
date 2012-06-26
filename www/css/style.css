@@ -375,6 +375,18 @@ Lobby */
 		margin-top:10px;
 	}
 
+	#lobbyTitle{
+		width: 75%;
+		background-image:url('../images/lobby/header.jpg');
+		background-repeat:no-repeat;
+		background-size: 293px;
+		float: left;
+		height:55px;
+		padding-top: 15px;
+		text-align:center;
+		line-height: 34px;
+	}
+
 /* 
 Shop Screen */
 
@@ -417,7 +429,7 @@ Shop Screen */
 		height:20px;
 		background-color: #faaf32;
 		-webkit-border-bottom-right-radius: 12px;
-		-webkit-border-bottom-left-rad ius: 12px; 
+		-webkit-border-bottom-left-radius: 12px; 
 		color: #4f3b29;
 		font-family:'Gotham-Medium', sans-serif;
 		font-weight:bold;
