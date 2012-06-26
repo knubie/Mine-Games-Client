@@ -22,6 +22,7 @@
 		<script src="js/lib/backbone-min.js"></script>
 		<script src="js/lib/ChildBrowser.js"></script>
 		<script src="js/lib/zepto.cookie.min.js"></script>
+		<script src="js/lib/zepto.timeago.js"></script>
 		<script src="http://js.pusher.com/1.11/pusher.min.js" type="text/javascript"></script>
 		<script src="js/index.js"></script>
 
@@ -101,10 +102,15 @@
 			<div id="divTitle" class="lobbyTitle">
 				MineGames
 			</div>
-			<div id="matchContainer">
-				<ul id="matches" data-role="listview">
-				</ul>
+			<div id="matches">
+				your turn
+				<ul id="your-turn"></ul>
+				their turn
+				<ul id="their-turn"></ul>
+				game over
+				<ul id="game-over"></ul>
 			</div>
+
 			<div id="w90" class="yellow">
 				<a href="#new_match" id="create_match">Create Match!</a>
 			</div>	
@@ -242,14 +248,17 @@
 				<span class="desc">stone pickaxe</span>
 			</li>
 			<!-- Match list item -->
-			<li class='match-item-view'><a href="#match">match</a></li>
+			<li class='match-item-view'>
+				<div class="head"></div>
+				<div class="subhead"></div>
+			</li>
 			<!-- Opponent selection list item -->
 			<li class='opponent-item'></li>
 			<!-- Shop items -->
 			<div class='shop-item'>
 				<img src='images/_thumb.png' border='0' />
 				<div class='count'>0</div><div class="price">$0</div>
-				<!--<div class='name' style="display:hidden;"></div>-->
+				<div class='name' style="display:hidden;"></div>
 			</div>
 			<!-- Player list item -->
 			<li class="player"> 

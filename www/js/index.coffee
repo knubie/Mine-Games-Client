@@ -812,6 +812,7 @@ onDeviceReady = ->
           @$el.find('#turn > .count').html(player.username)
         console.log " - Updating player score DOM"
         # TODO: add string truncation for names
+        # TODO: DRY this switch statement up
         switch current.match.get('players').length
           when 1
             console.log " - - Adding current.user"
@@ -896,10 +897,12 @@ onDeviceReady = ->
             transition: 'slide'
 
       end_turn: ->
-        console.log 'ending turn'
+        console.log 'MatchView#end_turn'
         $('#loader').show()
         $('#loader').css('opacity', 1)
         $('#loader').find('#loading-text').html('Submitting turn...')
+        current.match.set('last_move', new Date().toString().split(' ').slice(0,5).join(' '))
+        current.match.save
         $.post "#{server_url}/end_turn/#{current.match.get('id')}", (data) =>
           console.log data
           console.log 'fetching match data'
@@ -940,7 +943,19 @@ onDeviceReady = ->
 
       render: ->
         console.log 'MatchListView#render'
-        $('#matches').append(@el)
+        if @match.get('turn') == current.user.id
+          $('#matches').find('#your-turn').append(@el)
+        else
+          $('#matches').find('#their-turn').append(@el)
+        @$el.find('.head').html("Mining with #{player.username for player in @match.get('players')}")
+        console.log 'last_move:'
+        console.log "#{@match.get('last_move')}"
+        console.log $.timeago("2008-07-17")
+        if "#{@match.get('last_move')}" == "null"
+          # think of something to do here
+          @$el.find('.subhead').html("No moves yet!")
+        else
+          @$el.find('.subhead').html("Last move #{$.timeago @match.get('last_move')}")
         @$el.on 'click', (e) ->
           e.preventDefault()
 
@@ -997,7 +1012,9 @@ onDeviceReady = ->
               success: =>
                 $('#loader').css('opacity', 0)
                 $('#loader').hide()
-                $('#matches').html('')
+                $('#matches').find('#your-turn').html('')
+                $('#matches').find('#their-turn').html('')
+                $('#matches').find('#game-over').html('')
                 console.log 'fetched data for matches and decks'
                 console.log 'about to iterate matches in LobbyView#render'
                 for match in matches.models
