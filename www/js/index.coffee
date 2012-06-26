@@ -1059,7 +1059,7 @@ onDeviceReady = ->
       el: '#lobby'
 
       events:
-        # 'click #refresh_lobby': 'refresh'
+        'click #refresh_lobby': 'render'
         'click .logout': 'logout'
 
       logout: ->
@@ -1210,6 +1210,8 @@ onDeviceReady = ->
         list friend, 'play_friends' for friend in data.play_friends
         # list friend, 'invite_friends' for friend in data.invite_friends
 
+    $('#back-to-lobby').on 'click', ->
+      current.lobby.render()
 
     # Create Game
     # ============================================

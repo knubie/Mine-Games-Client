@@ -1381,6 +1381,7 @@ onDeviceReady = function() {
       LobbyView.prototype.el = '#lobby';
 
       LobbyView.prototype.events = {
+        'click #refresh_lobby': 'render',
         'click .logout': 'logout'
       };
 
@@ -1552,6 +1553,9 @@ onDeviceReady = function() {
         }
         return _results;
       });
+    });
+    $('#back-to-lobby').on('click', function() {
+      return current.lobby.render();
     });
     $('#new-match-username-form').submit(function(e) {
       $.post("" + server_url + "/matches.json", $(this).serialize(), function(data) {
