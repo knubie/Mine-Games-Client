@@ -897,7 +897,7 @@ onDeviceReady = ->
             transition: 'slide'
 
       end_turn: ->
-        console.log 'ending turn'
+        console.log 'MatchView#end_turn'
         $('#loader').show()
         $('#loader').css('opacity', 1)
         $('#loader').find('#loading-text').html('Submitting turn...')
@@ -943,7 +943,10 @@ onDeviceReady = ->
 
       render: ->
         console.log 'MatchListView#render'
-        $('#matches').append(@el)
+        if @match.get('turn') == current.user.id
+          $('#matches').find('#your-turn').append(@el)
+        else
+          $('#matches').find('#their-turn').append(@el)
         @$el.find('.head').html("Mining with #{player.username for player in @match.get('players')}")
         console.log 'last_move:'
         console.log "#{@match.get('last_move')}"
@@ -1009,7 +1012,9 @@ onDeviceReady = ->
               success: =>
                 $('#loader').css('opacity', 0)
                 $('#loader').hide()
-                $('#matches').html('')
+                $('#matches').find('#your-turn').html('')
+                $('#matches').find('#their-turn').html('')
+                $('#matches').find('#game-over').html('')
                 console.log 'fetched data for matches and decks'
                 console.log 'about to iterate matches in LobbyView#render'
                 for match in matches.models

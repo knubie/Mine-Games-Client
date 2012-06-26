@@ -1159,7 +1159,7 @@ onDeviceReady = function() {
 
       MatchView.prototype.end_turn = function() {
         var _this = this;
-        console.log('ending turn');
+        console.log('MatchView#end_turn');
         $('#loader').show();
         $('#loader').css('opacity', 1);
         $('#loader').find('#loading-text').html('Submitting turn...');
@@ -1225,7 +1225,11 @@ onDeviceReady = function() {
       MatchListView.prototype.render = function() {
         var player;
         console.log('MatchListView#render');
-        $('#matches').append(this.el);
+        if (this.match.get('turn') === current.user.id) {
+          $('#matches').find('#your-turn').append(this.el);
+        } else {
+          $('#matches').find('#their-turn').append(this.el);
+        }
         this.$el.find('.head').html("Mining with " + ((function() {
           var _i, _len, _ref, _results;
           _ref = this.match.get('players');
@@ -1317,7 +1321,9 @@ onDeviceReady = function() {
                 var d, match, view, _i, _len, _ref, _results;
                 $('#loader').css('opacity', 0);
                 $('#loader').hide();
-                $('#matches').html('');
+                $('#matches').find('#your-turn').html('');
+                $('#matches').find('#their-turn').html('');
+                $('#matches').find('#game-over').html('');
                 console.log('fetched data for matches and decks');
                 console.log('about to iterate matches in LobbyView#render');
                 _ref = matches.models;
