@@ -335,7 +335,7 @@ Lobby */
 
 	#matchContainer li{
 		width: 88%;
-		height: 51px;
+		height: 31px;
 		margin: auto;
 		margin-top: 10px;
 		-webkit-border-radius: 8px;
@@ -344,19 +344,36 @@ Lobby */
 		-webkit-perspective: 0;
 		-webkit-backface-visibility: hidden;
 		position: relative;
-		background-color: #efebe1;
+		background-color: #fff;
 		background-repeat: repeat-y;
 		background-position: left;
 		overflow: hidden;
 		display:block;
 		padding:2%;
+		color: #000;		
+		font-family: 'Gotham-Medium';
+		font-size: 13px;
+		text-decoration: none;		
 	}
 
 	#matchContainer li a{
-		font-family:'Gotham-Book';
-		color: #424242;
+		color: #898989;
+		font-family: 'Gotham-Medium';
+		font-size: 15px;
 		text-decoration: none;
 	}	
+
+	#matchContainer .subhead {
+		color: #898989;
+		font-family: 'Gotham-book';
+		font-size: 10px;
+		text-decoration: none;
+	}
+
+	.matchTitle{
+		width: 44%;
+		margin-top:10px;
+	}
 
 /* 
 Shop Screen */
