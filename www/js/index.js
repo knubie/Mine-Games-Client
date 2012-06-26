@@ -1008,7 +1008,7 @@ onDeviceReady = function() {
           this.dx = 0;
           if (current.deck.get('actions') > 0 && current.turn) {
             console.log(' - Using card');
-            if (this.card.type === 'action') {
+            if (this.card.type === 'action' || this.card.type === 'attack') {
               current.deck.set('actions', current.deck.get('actions') - 1);
             }
             this.discard();

@@ -773,7 +773,7 @@ onDeviceReady = ->
           @dx = 0
           if current.deck.get('actions') > 0 and current.turn
             console.log ' - Using card'
-            current.deck.set('actions', current.deck.get('actions') - 1 ) if @card.type == 'action'
+            current.deck.set('actions', current.deck.get('actions') - 1 ) if @card.type == 'action' or @card.type == 'attack'
             @discard()
             @card.use()
           else
