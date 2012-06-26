@@ -363,12 +363,12 @@ Shop Screen */
 
 	#shopContainer{
 		padding-left: 42px;
-		padding-top: 19px;
+		padding-top: 6px;
 	}
 
 	.shop-item{
 		width: 80px;
-		height: 90px;
+		height: 89px;
 		float:left;
 		margin-left: 5px;
 		position:relative;	
@@ -377,10 +377,10 @@ Shop Screen */
 	.shop-item .count{
 		position:absolute;
 		z-index: 99;
-		left:30px;
-		top:20px;
+		left:39px;
+		top:1px;
 		width: 20px;
-		height:17px;
+		height: 16px;
 		background-color: #4f3b29;
 		border-radius:10px;
 		color: #fff;
@@ -388,29 +388,33 @@ Shop Screen */
 		font-weight:bold;
 		text-align:center;
 		font-size: 9px;
-		padding-top: 3px;
+		padding-top: 4px;
 	}
 
 	.shop-item .price{
 		position:absolute;
 		z-index: 98;
-		left:6px;
-		top:38px;
+		left:4px;
+		top:54px;
 		width: 50px;
 		height:20px;
-		background-image: url('../images/shop/priceTag.png');
-		background-repeat: no-repeat;
-		background-position:center;
+		background-color: #faaf32;
+		-webkit-border-bottom-right-radius: 12px;
+		-webkit-border-bottom-left-rad ius: 12px; 
 		color: #4f3b29;
 		font-family:'Gotham-Medium', sans-serif;
 		font-weight:bold;
 		text-align:center;
 		font-size: 12px;
 		padding-top: 3px;
+		border-right: 3px solid #4f3b29;
+		border-left: 3px solid #4f3b29;
+		border-bottom: 3px solid #4f3b29;
+
 	}
 
 	.shop-item img{
-		width:45px;
+		width:56px;
 	}
 
 
