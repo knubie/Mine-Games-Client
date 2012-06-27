@@ -1579,24 +1579,28 @@ onDeviceReady = function() {
       return current.lobby.render();
     });
     $('#new-match-username-form').submit(function(e) {
-      $.post("" + server_url + "/matches.json", $(this).serialize(), function(data) {
-        var error, _i, _len, _ref, _results;
-        if (data.errors.length > 0) {
-          _ref = data.errors;
-          _results = [];
-          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-            error = _ref[_i];
-            _results.push(alert(error));
+      if ($('#username').val() === current.user.username) {
+        alert("You can't start a game with yourself!");
+      } else {
+        $.post("" + server_url + "/matches.json", $(this).serialize(), function(data) {
+          var error, _i, _len, _ref, _results;
+          if (data.errors.length > 0) {
+            _ref = data.errors;
+            _results = [];
+            for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+              error = _ref[_i];
+              _results.push(alert(error));
+            }
+            return _results;
+          } else {
+            alert("match created");
+            current.lobby.render();
+            return changePage("#lobby", {
+              transition: "none"
+            });
           }
-          return _results;
-        } else {
-          alert("match created");
-          current.lobby.render();
-          return changePage("#lobby", {
-            transition: "none"
-          });
-        }
-      }, 'json');
+        }, 'json');
+      }
       return e.preventDefault();
     });
     return $('a').on('click', function(e) {

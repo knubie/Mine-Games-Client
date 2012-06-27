@@ -1233,17 +1233,20 @@ onDeviceReady = ->
 
     $('#new-match-username-form').submit (e) ->
       # show loader
-      $.post("#{server_url}/matches.json", $(this).serialize(), (data) ->
-        if data.errors.length > 0
-          # end loader
-          alert error for error in data.errors
-        else
-          # end loader
-          alert "match created"
-          current.lobby.render()
-          changePage "#lobby",
-            transition: "none"
-      , 'json')
+      if $('#username').val() == current.user.username
+        alert "You can't start a game with yourself!"
+      else
+        $.post("#{server_url}/matches.json", $(this).serialize(), (data) ->
+          if data.errors.length > 0
+            # end loader
+            alert error for error in data.errors
+          else
+            # end loader
+            alert "match created"
+            current.lobby.render()
+            changePage "#lobby",
+              transition: "none"
+        , 'json')
       e.preventDefault()
 
     $('a').on 'click', (e) ->
