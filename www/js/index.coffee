@@ -256,10 +256,10 @@ onDeviceReady = ->
         name: 'minecart'
         type: 'action'
         cost: 5
-        short_desc: '+1 Action, +1 Card'
+        short_desc: '+2 Action, +1 Card'
         long_desc: 'long description'
         use: ->
-          current.deck.set('actions', current.deck.get('actions')+1)
+          current.deck.set('actions', current.deck.get('actions')+2)
           actions.draw current.deck, 'cards',
             number: 1
             random: false
