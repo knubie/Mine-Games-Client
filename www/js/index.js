@@ -996,14 +996,13 @@ onDeviceReady = function() {
           this.$el.addClass("drag");
         }
         if (this.swiping && this.dx > 0) {
-          if (this.dx > 0 && this.dx < this.w) {
+          if (this.dx < this.w) {
             this.use = false;
             pct = this.dx / this.w;
             if (pct < 0.05) {
               pct = 0;
             }
-          } else if (this.dx < 0 && this.dx > -this.w) {
-
+            this.$el.find('.use').css("opacity", "" + pct);
           } else if (this.dx >= this.w) {
             this.use = true;
             this.dx = this.w + (this.dx - this.w) * .25;

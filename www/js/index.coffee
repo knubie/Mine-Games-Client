@@ -758,11 +758,11 @@ onDeviceReady = ->
           window.inAction = true
           @$el.addClass "drag"
         if @swiping and @dx > 0
-          if @dx > 0 and @dx < @w
+          if @dx < @w
             @use = false
             pct = @dx / @w
             pct = 0  if pct < 0.05
-          else if @dx < 0 and @dx > -@w
+            @$el.find('.use').css "opacity", "#{pct}"
           else if @dx >= @w
             @use = true
             @dx = @w + (@dx - @w) * .25
