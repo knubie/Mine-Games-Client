@@ -748,7 +748,7 @@ onDeviceReady = ->
         @clicked = true
         setTimeout =>
           @clicked = false
-        , 650
+        , 250
         console.log 'touch start'
         # touch.x1 = e.touches[0].pageX
         # touch.y1 = e.touches[0].pageY
@@ -762,7 +762,7 @@ onDeviceReady = ->
           @swiping = true
           window.inAction = true
           @$el.addClass "drag"
-        if @swiping
+        if @swiping and @dx > 0
           if @dx > 0 and @dx < @w
             @use = false
             pct = @dx / @w
@@ -771,15 +771,17 @@ onDeviceReady = ->
           else if @dx >= @w
             @use = true
             @dx = @w + (@dx - @w) * .25
+            # useX = @dx - 55
+            # @$el.find('.card-notch > .use').css "-webkit-transform", "translate3d(" + useX + "px, 0, 0)"  #if dx <= 0 #or list.todos.length > 0
           else if @dx <= -@w
             @dx = -@w + (@dx + @w) * .25
           if @dx >= @w - 1
-            @$el.addClass "green"
+            @$el.find('.card-main').addClass "green"
             @used = true
             # trigger use event
           else
-            @$el.removeClass "green"
-          @$el.css "-webkit-transform", "translate3d(" + @dx + "px, 0, 0)"  #if dx <= 0 #or list.todos.length > 0
+            @$el.find('.card-main').removeClass "green"
+          @$el.find('.card-main').css "-webkit-transform", "translate3d(" + @dx + "px, 0, 0)"  #if dx <= 0 #or list.todos.length > 0
 
       swiperight: (e) ->
         console.log 'swiping right'
@@ -788,7 +790,8 @@ onDeviceReady = ->
         console.log "CardListView#touchend"
         console.log "dy: #{@dy}"
         console.log 'touch end'
-        @$el.removeClass("drag green").css "-webkit-transform", "translate3d(0,0,0)"
+        @$el.find('.card-main').removeClass("drag").css "-webkit-transform", "translate3d(0,0,0)"
+        @$el.find('.card-main > .use').removeClass("green").css "-webkit-transform", "translate3d(0,0,0)"
         if @use and @dx >= @w - 1
           @dx = 0
           if current.deck.get('actions') > 0 and current.turn
