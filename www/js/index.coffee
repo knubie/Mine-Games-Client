@@ -709,7 +709,7 @@ onDeviceReady = ->
         'swiperight': 'swiperight'
         'touchend': 'touchend'
         'touchcancel': 'touchend'
-        'click .discard': 'discard'
+        'tap .discard': 'discard'
         # 'click .trash': 'trash'
 
       render: ->
@@ -757,9 +757,8 @@ onDeviceReady = ->
           if Math.abs(@dy) < 6 and Math.abs(@dx) > 0 and not @swiping and not @dragging
             @swiping = true
             window.inAction = true
-            @$el.addClass "drag"
-          else
-            @swiping = false
+            @$el.find('.card-main').addClass "drag"
+            @$el.find('.card-notch').addClass "drag"
           if @swiping and @dx > 0
             if @dx < @w
               @use = false
@@ -1006,6 +1005,9 @@ onDeviceReady = ->
               $("#four-players").append($player)
 
 
+        $('#loader').css('opacity', 0)
+        $('#loader').hide()
+
         if @$el.css('display') == 'none'
           changePage '#match',
             transition: 'slide'
@@ -1053,7 +1055,7 @@ onDeviceReady = ->
         @render()
 
       events:
-        'click': 'render_match'
+        'tap': 'render_match'
 
       render: ->
         console.log 'MatchListView#render'
@@ -1076,6 +1078,9 @@ onDeviceReady = ->
         current.deck = @deck
         match_channel = pusher.subscribe("#{current.match.get('id')}")
 
+        $('#loader').show()
+        $('#loader').css('opacity', 1)
+        $('#loader').find('#loading-text').html('Setting up match...')
 
         console.log "checking if MatchView instance exists."
         if current.matchview
@@ -1197,7 +1202,7 @@ onDeviceReady = ->
     else
       console.log 'cookie not found'
 
-    $("#facebook-auth").on 'click', ->
+    $("#facebook-auth").on 'tap', ->
       console.log 'clicked facebook'
       facebook_auth set_user
 
@@ -1253,7 +1258,7 @@ onDeviceReady = ->
         list friend, 'play_friends' for friend in data.play_friends
         # list friend, 'invite_friends' for friend in data.invite_friends
 
-    $('#back-to-lobby').on 'click', ->
+    $('#back-to-lobby').on 'tap', ->
       current.lobby.render()
 
     # Create Game
@@ -1278,7 +1283,7 @@ onDeviceReady = ->
         , 'json')
       e.preventDefault()
 
-    $('a').on 'click', (e) ->
+    $('a').on 'tap', (e) ->
       e.preventDefault()
       reverse = false
       if $(this).attr('data-transition') == 'reverse'

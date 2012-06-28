@@ -933,7 +933,7 @@ onDeviceReady = function() {
         'swiperight': 'swiperight',
         'touchend': 'touchend',
         'touchcancel': 'touchend',
-        'click .discard': 'discard'
+        'tap .discard': 'discard'
       };
 
       CardListView.prototype.render = function() {
@@ -996,9 +996,8 @@ onDeviceReady = function() {
           if (Math.abs(this.dy) < 6 && Math.abs(this.dx) > 0 && !this.swiping && !this.dragging) {
             this.swiping = true;
             window.inAction = true;
-            this.$el.addClass("drag");
-          } else {
-            this.swiping = false;
+            this.$el.find('.card-main').addClass("drag");
+            this.$el.find('.card-notch').addClass("drag");
           }
           if (this.swiping && this.dx > 0) {
             if (this.dx < this.w) {
@@ -1304,6 +1303,8 @@ onDeviceReady = function() {
               $("#four-players").append($player);
             }
         }
+        $('#loader').css('opacity', 0);
+        $('#loader').hide();
         if (this.$el.css('display') === 'none') {
           return changePage('#match', {
             transition: 'slide'
@@ -1376,7 +1377,7 @@ onDeviceReady = function() {
       };
 
       MatchListView.prototype.events = {
-        'click': 'render_match'
+        'tap': 'render_match'
       };
 
       MatchListView.prototype.render = function() {
@@ -1412,6 +1413,9 @@ onDeviceReady = function() {
         current.match = this.match;
         current.deck = this.deck;
         match_channel = pusher.subscribe("" + (current.match.get('id')));
+        $('#loader').show();
+        $('#loader').css('opacity', 1);
+        $('#loader').find('#loading-text').html('Setting up match...');
         console.log("checking if MatchView instance exists.");
         if (current.matchview) {
           console.log('MatchView instance exists. Refreshing');
@@ -1558,7 +1562,7 @@ onDeviceReady = function() {
     } else {
       console.log('cookie not found');
     }
-    $("#facebook-auth").on('click', function() {
+    $("#facebook-auth").on('tap', function() {
       console.log('clicked facebook');
       return facebook_auth(set_user);
     });
@@ -1624,7 +1628,7 @@ onDeviceReady = function() {
         return _results;
       });
     });
-    $('#back-to-lobby').on('click', function() {
+    $('#back-to-lobby').on('tap', function() {
       return current.lobby.render();
     });
     $('#new-match-username-form').submit(function(e) {
@@ -1652,7 +1656,7 @@ onDeviceReady = function() {
       }
       return e.preventDefault();
     });
-    return $('a').on('click', function(e) {
+    return $('a').on('tap', function(e) {
       var reverse;
       e.preventDefault();
       reverse = false;
