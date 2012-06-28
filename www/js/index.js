@@ -984,41 +984,45 @@ onDeviceReady = function() {
           return _this.clicked = false;
         }, 250);
         console.log('touch start');
-        this.touch.x1 = e.pageX;
-        return this.touch.y1 = e.pageY;
+        this.touch.x1 = e.touches[0].pageX;
+        return this.touch.y1 = e.touches[0].pageY;
       };
 
       CardListView.prototype.touchmove = function(e) {
         var pct;
-        this.dx = e.pageX - this.touch.x1;
-        this.dy = e.pageY - this.touch.y1;
-        if (Math.abs(this.dy) < 6 && Math.abs(this.dx) > 0 && !this.swiping && !this.dragging) {
-          this.swiping = true;
-          window.inAction = true;
-          this.$el.addClass("drag");
-        }
-        if (this.swiping && this.dx > 0) {
-          if (this.dx < this.w) {
-            this.use = false;
-            pct = this.dx / this.w;
-            if (pct < 0.05) {
-              pct = 0;
-            }
-            this.$el.find('.use').css("opacity", "" + pct);
-          } else if (this.dx >= this.w) {
-            this.use = true;
-            this.dx = this.w + (this.dx - this.w) * .25;
-            this.$el.find('.card-notch').css("-webkit-transform", "translate3d(" + (this.dx - this.w) + "px, 0, 0)");
-          } else if (this.dx <= -this.w) {
-            this.dx = -this.w + (this.dx + this.w) * .25;
-          }
-          if (this.dx >= this.w - 1) {
-            this.$el.find('.card-main').addClass("green");
-            this.used = true;
+        if (!window.globalDrag && e.touches.length === 1) {
+          this.dx = e.touches[0].pageX - this.touch.x1;
+          this.dy = e.touches[0].pageY - this.touch.y1;
+          if (Math.abs(this.dy) < 6 && Math.abs(this.dx) > 0 && !this.swiping && !this.dragging) {
+            this.swiping = true;
+            window.inAction = true;
+            this.$el.addClass("drag");
           } else {
-            this.$el.find('.card-main').removeClass("green");
+            this.swiping = false;
           }
-          return this.$el.find('.card-main').css("-webkit-transform", "translate3d(" + this.dx + "px, 0, 0)");
+          if (this.swiping && this.dx > 0) {
+            if (this.dx < this.w) {
+              this.use = false;
+              pct = this.dx / this.w;
+              if (pct < 0.05) {
+                pct = 0;
+              }
+              this.$el.find('.use').css("opacity", "" + pct);
+            } else if (this.dx >= this.w) {
+              this.use = true;
+              this.dx = this.w + (this.dx - this.w) * .25;
+              this.$el.find('.card-notch').css("-webkit-transform", "translate3d(" + (this.dx - this.w) + "px, 0, 0)");
+            } else if (this.dx <= -this.w) {
+              this.dx = -this.w + (this.dx + this.w) * .25;
+            }
+            if (this.dx >= this.w - 1) {
+              this.$el.find('.card-main').addClass("green");
+              this.used = true;
+            } else {
+              this.$el.find('.card-main').removeClass("green");
+            }
+            return this.$el.find('.card-main').css("-webkit-transform", "translate3d(" + this.dx + "px, 0, 0)");
+          }
         }
       };
 
@@ -1030,8 +1034,18 @@ onDeviceReady = function() {
         console.log("CardListView#touchend");
         console.log("dy: " + this.dy);
         console.log('touch end');
-        this.$el.find('.card-main').removeClass("drag").css("-webkit-transform", "translate3d(0,0,0)");
-        this.$el.find('.card-notch').removeClass("green").css("-webkit-transform", "translate3d(0,0,0)");
+        if (e.touches.length === 0) {
+          window.inAction = false;
+          this.touch = {
+            x1: 0,
+            y1: 0
+          };
+          this.$el.find('.card-main').removeClass("drag").css("-webkit-transform", "translate3d(0,0,0)");
+          this.$el.find('.card-notch').removeClass("green").css("-webkit-transform", "translate3d(0,0,0)");
+          if (this.swiping) {
+            this.swiping = false;
+          }
+        }
         if (this.use && this.dx >= this.w - 1) {
           this.dx = 0;
           if (current.deck.get('actions') > 0 && current.turn) {
@@ -1195,6 +1209,7 @@ onDeviceReady = function() {
               $player = $('#templates').find(".player").clone();
               $player.find('.name').html(player.username);
               if (current.match.get('turn') === player.id) {
+                console.log("BOOYAH");
                 $player.addClass('active');
               }
               players_decks = new Decks();
@@ -1639,17 +1654,24 @@ onDeviceReady = function() {
     });
     return $('a').on('click', function(e) {
       var reverse;
-      if ($($(this).attr('href')).length > 0) {
-        e.preventDefault();
-        reverse = false;
-        if ($(this).attr('data-transition') === 'reverse') {
-          reverse = true;
-        }
-        return changePage($(this).attr('href'), {
-          transition: 'slide',
-          reverse: reverse
-        });
+      e.preventDefault();
+      reverse = false;
+      if ($(this).attr('data-transition') === 'reverse') {
+        reverse = true;
       }
+      changePage($(this).attr('href'), {
+        transition: 'slide',
+        reverse: reverse
+      });
+      return $(document).bind('touchmove', function(e) {
+        if (window.inAction) {
+          return e.preventDefault();
+        } else {
+          return window.globalDrag = true;
+        }
+      }).bind('touchend touchcancel', function(e) {
+        return window.globalDrag = false;
+      });
     });
   });
 };

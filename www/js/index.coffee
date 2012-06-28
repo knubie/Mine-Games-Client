@@ -747,37 +747,38 @@ onDeviceReady = ->
           @clicked = false
         , 250
         console.log 'touch start'
-        # touch.x1 = e.touches[0].pageX
-        # touch.y1 = e.touches[0].pageY
-        @touch.x1 = e.pageX
-        @touch.y1 = e.pageY
+        @touch.x1 = e.touches[0].pageX
+        @touch.y1 = e.touches[0].pageY
 
       touchmove: (e) ->
-        @dx = e.pageX - @touch.x1
-        @dy = e.pageY - @touch.y1
-        if Math.abs(@dy) < 6 and Math.abs(@dx) > 0 and not @swiping and not @dragging
-          @swiping = true
-          window.inAction = true
-          @$el.addClass "drag"
-        if @swiping and @dx > 0
-          if @dx < @w
-            @use = false
-            pct = @dx / @w
-            pct = 0  if pct < 0.05
-            @$el.find('.use').css "opacity", "#{pct}"
-          else if @dx >= @w
-            @use = true
-            @dx = @w + (@dx - @w) * .25
-            @$el.find('.card-notch').css "-webkit-transform", "translate3d(#{@dx-@w}px, 0, 0)"  #if dx <= 0 #or list.todos.length > 0
-          else if @dx <= -@w
-            @dx = -@w + (@dx + @w) * .25
-          if @dx >= @w - 1
-            @$el.find('.card-main').addClass "green"
-            @used = true
-            # trigger use event
+        if not window.globalDrag and e.touches.length == 1
+          @dx = e.touches[0].pageX - @touch.x1
+          @dy = e.touches[0].pageY - @touch.y1
+          if Math.abs(@dy) < 6 and Math.abs(@dx) > 0 and not @swiping and not @dragging
+            @swiping = true
+            window.inAction = true
+            @$el.addClass "drag"
           else
-            @$el.find('.card-main').removeClass "green"
-          @$el.find('.card-main').css "-webkit-transform", "translate3d(#{@dx}px, 0, 0)"  #if dx <= 0 #or list.todos.length > 0
+            @swiping = false
+          if @swiping and @dx > 0
+            if @dx < @w
+              @use = false
+              pct = @dx / @w
+              pct = 0  if pct < 0.05
+              @$el.find('.use').css "opacity", "#{pct}"
+            else if @dx >= @w
+              @use = true
+              @dx = @w + (@dx - @w) * .25
+              @$el.find('.card-notch').css "-webkit-transform", "translate3d(#{@dx-@w}px, 0, 0)"  #if dx <= 0 #or list.todos.length > 0
+            else if @dx <= -@w
+              @dx = -@w + (@dx + @w) * .25
+            if @dx >= @w - 1
+              @$el.find('.card-main').addClass "green"
+              @used = true
+              # trigger use event
+            else
+              @$el.find('.card-main').removeClass "green"
+            @$el.find('.card-main').css "-webkit-transform", "translate3d(#{@dx}px, 0, 0)"  #if dx <= 0 #or list.todos.length > 0
 
       swiperight: (e) ->
         console.log 'swiping right'
@@ -786,8 +787,15 @@ onDeviceReady = ->
         console.log "CardListView#touchend"
         console.log "dy: #{@dy}"
         console.log 'touch end'
-        @$el.find('.card-main').removeClass("drag").css "-webkit-transform", "translate3d(0,0,0)"
-        @$el.find('.card-notch').removeClass("green").css "-webkit-transform", "translate3d(0,0,0)"
+        if e.touches.length == 0
+          window.inAction = false
+          @touch =
+            x1: 0
+            y1: 0
+          @$el.find('.card-main').removeClass("drag").css "-webkit-transform", "translate3d(0,0,0)"
+          @$el.find('.card-notch').removeClass("green").css "-webkit-transform", "translate3d(0,0,0)"
+          if @swiping
+            @swiping = false
         if @use and @dx >= @w - 1
           @dx = 0
           if current.deck.get('actions') > 0 and current.turn
@@ -931,6 +939,7 @@ onDeviceReady = ->
               $player = $('#templates').find(".player").clone()
               $player.find('.name').html(player.username)
               if current.match.get('turn') == player.id
+                console.log "BOOYAH"
                 $player.addClass('active')
               # TODO: add this as a global variable
               players_decks = new Decks()
@@ -1270,14 +1279,22 @@ onDeviceReady = ->
       e.preventDefault()
 
     $('a').on 'click', (e) ->
-      if $($(this).attr('href')).length > 0
-        e.preventDefault()
-        reverse = false
-        if $(this).attr('data-transition') == 'reverse'
-          reverse = true
-        changePage $(this).attr('href'),
-          transition: 'slide'
-          reverse: reverse
+      e.preventDefault()
+      reverse = false
+      if $(this).attr('data-transition') == 'reverse'
+        reverse = true
+      changePage $(this).attr('href'),
+        transition: 'slide'
+        reverse: reverse
+
+      $(document).bind('touchmove', (e) ->
+        if window.inAction
+          e.preventDefault()
+        else
+          window.globalDrag = true;
+      ).bind('touchend touchcancel', (e) ->
+        window.globalDrag = false
+      )
 
 
 
