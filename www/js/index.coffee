@@ -49,8 +49,8 @@ onDeviceReady = ->
       console.log page
       console.log 'options undefined' if typeof options == 'undefined'
       if options.reverse == true
-          $curr.addClass('reverse')
-          $page.addClass('reverse')
+        $curr.addClass('reverse')
+        $page.addClass('reverse')
 
       if options.transition == 'none'
         console.log 'switch'
@@ -717,7 +717,9 @@ onDeviceReady = ->
         @$el.find('.thumb').attr('src', "images/cards/#{gsub(@card.name, ' ', '_')}_thumb.png")
         console.log " - Setting DOM name & desc"
         @$el.find('.name').html(@card.name)
+        @$el.find('.name').addClass("name-#{@card.type}")
         @$el.find('.desc').html(@card.short_desc)
+        @$el.find('.card-notch').addClass(@card.type)
         console.log " - Appending to #hand"
         $('#hand').append(@el)
 
@@ -918,6 +920,8 @@ onDeviceReady = ->
             $player = $('#templates').find(".player").clone()
             $player.find('.name').html(current.user.username)
             $player.find('.score').html(current.deck.total_points())
+            if current.turn
+              $player.addClass('active')
             $("#two-players").append($player)
             console.log " - - Iterating match.players"
             for player in current.match.get('players')
@@ -926,6 +930,8 @@ onDeviceReady = ->
               console.log player
               $player = $('#templates').find(".player").clone()
               $player.find('.name').html(player.username)
+              if current.match.get('turn') == player.id
+                $player.addClass('active')
               # TODO: add this as a global variable
               players_decks = new Decks()
               players_decks.url = "#{server_url}/decks_by_user/#{player.id}"

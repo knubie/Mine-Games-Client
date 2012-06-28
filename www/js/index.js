@@ -941,7 +941,9 @@ onDeviceReady = function() {
         this.$el.find('.thumb').attr('src', "images/cards/" + (gsub(this.card.name, ' ', '_')) + "_thumb.png");
         console.log(" - Setting DOM name & desc");
         this.$el.find('.name').html(this.card.name);
+        this.$el.find('.name').addClass("name-" + this.card.type);
         this.$el.find('.desc').html(this.card.short_desc);
+        this.$el.find('.card-notch').addClass(this.card.type);
         console.log(" - Appending to #hand");
         return $('#hand').append(this.el);
       };
@@ -1179,6 +1181,9 @@ onDeviceReady = function() {
             $player = $('#templates').find(".player").clone();
             $player.find('.name').html(current.user.username);
             $player.find('.score').html(current.deck.total_points());
+            if (current.turn) {
+              $player.addClass('active');
+            }
             $("#two-players").append($player);
             console.log(" - - Iterating match.players");
             _ref1 = current.match.get('players');
@@ -1189,6 +1194,9 @@ onDeviceReady = function() {
               console.log(player);
               $player = $('#templates').find(".player").clone();
               $player.find('.name').html(player.username);
+              if (current.match.get('turn') === player.id) {
+                $player.addClass('active');
+              }
               players_decks = new Decks();
               players_decks.url = "" + server_url + "/decks_by_user/" + player.id;
               console.log(" - - - Fetching decks");
