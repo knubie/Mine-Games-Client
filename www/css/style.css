@@ -185,6 +185,7 @@ Cards */
 		overflow: hidden;
 		z-index: 1;
 		background-color: #efebe1;
+    -webkit-box-shadow: -5px 0 6px -6px rgba(0,0,0,0.3);
 	}
 
 	.card img{

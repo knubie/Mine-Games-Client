@@ -586,7 +586,6 @@ onDeviceReady = ->
     # ============================================
 
     class OpponentsListView extends Backbone.View
-
       initialize: (@player) ->
         console.log "initializing opponentslistview"
         @setElement $('#templates').find(".opponent-item").clone()
@@ -605,7 +604,6 @@ onDeviceReady = ->
         current.attack(@player)
 
     class ChooseOpponentsView extends Backbone.View
-
       initialize: ->
         console.log "initializing ChooseOpponentsView"
         @render()
@@ -662,7 +660,6 @@ onDeviceReady = ->
           alert "not enough money!"
 
     class ShopView extends Backbone.View
-
       initialize: (@card) ->
         console.log 'init ShopView'
         # TODO: add listener for shop change
@@ -690,7 +687,6 @@ onDeviceReady = ->
           view = new ShopListView(cards[card], amount)
 
     class CardDetailView extends Backbone.View
-
       initialize: ->
 
       el: '#card-detail'
@@ -700,7 +696,6 @@ onDeviceReady = ->
         @$el.find('#card-detail-desc').html(card.long_desc)
 
     class CardListView extends Backbone.View
-
       initialize: (@card) ->
         console.log 'CardListView#initialize'
         console.log " - #{@card.name}"
@@ -726,7 +721,7 @@ onDeviceReady = ->
         console.log " - Appending to #hand"
         $('#hand').append(@el)
 
-      w: 55
+      w: 50
       touch:
         x1: 0
         y1: 0
@@ -771,8 +766,7 @@ onDeviceReady = ->
           else if @dx >= @w
             @use = true
             @dx = @w + (@dx - @w) * .25
-            # useX = @dx - 55
-            # @$el.find('.card-notch > .use').css "-webkit-transform", "translate3d(" + useX + "px, 0, 0)"  #if dx <= 0 #or list.todos.length > 0
+            @$el.find('.card-notch').css "-webkit-transform", "translate3d(#{@dx-@w}px, 0, 0)"  #if dx <= 0 #or list.todos.length > 0
           else if @dx <= -@w
             @dx = -@w + (@dx + @w) * .25
           if @dx >= @w - 1
@@ -781,7 +775,7 @@ onDeviceReady = ->
             # trigger use event
           else
             @$el.find('.card-main').removeClass "green"
-          @$el.find('.card-main').css "-webkit-transform", "translate3d(" + @dx + "px, 0, 0)"  #if dx <= 0 #or list.todos.length > 0
+          @$el.find('.card-main').css "-webkit-transform", "translate3d(#{@dx}px, 0, 0)"  #if dx <= 0 #or list.todos.length > 0
 
       swiperight: (e) ->
         console.log 'swiping right'
@@ -791,7 +785,7 @@ onDeviceReady = ->
         console.log "dy: #{@dy}"
         console.log 'touch end'
         @$el.find('.card-main').removeClass("drag").css "-webkit-transform", "translate3d(0,0,0)"
-        @$el.find('.card-main > .use').removeClass("green").css "-webkit-transform", "translate3d(0,0,0)"
+        @$el.find('.card-notch').removeClass("green").css "-webkit-transform", "translate3d(0,0,0)"
         if @use and @dx >= @w - 1
           @dx = 0
           if current.deck.get('actions') > 0 and current.turn
@@ -833,7 +827,6 @@ onDeviceReady = ->
         #   $('.discard').hide()
 
     class MatchView extends Backbone.View
-
       initialize: () ->
         console.log 'MatchView#initialize'
 
@@ -1039,7 +1032,6 @@ onDeviceReady = ->
             alert 'error getting match data'
 
     class MatchListView extends Backbone.View
-
       initialize: (@match, @deck) ->
         console.log 'init MatchListView'
         @setElement $('#templates').find(".match-item-view").clone()
@@ -1084,7 +1076,6 @@ onDeviceReady = ->
           current.shopview = new ShopView
 
     class LobbyView extends Backbone.View
-
       initialize: () ->
         console.log 'init LobbyView'
         user_channel.bind('new_match', (data) =>
