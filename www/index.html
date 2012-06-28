@@ -44,15 +44,14 @@
   		</div>
 
 		<div id="home" class="active page">
-			<div id="logo">
-			</div>
+			<div id="logo"></div>
 
-			<div id="w90" class="yellow">
-				<a href="#login"> LOGIN</a>
+			<div id="login-button" class="yellow">
+				LOGIN
 			</div>	
 
-			<div id="w90" class="yellow">
-				<a href="#signup"> SIGN UP</a>
+			<div id="signup-button" class="yellow">
+				SIGN UP
 			</div>
 		</div>
 		<div id="login" class="brown page">
@@ -72,7 +71,7 @@
 			    </form>
 			</div>    
     
-    <a id="facebook-auth"><img src="images/signin_fb.png" border="0"></a>
+	<img src="images/signin_fb.png" id="facebook-auth" border="0" />
 	</div>
 
 	<div id="signup" class="brown page">
@@ -92,7 +91,7 @@
 			        <input name="commit" type="submit" class="bigButton" value="Sign Up" />
 	      		</form>
 	      	</div>	
-			</div>
+		</div>
 
 		<div id="lobby" class="page green">
 			<div id="lobby_header">
@@ -101,15 +100,13 @@
 			</div>
 			<div id="lobbyTitle" class="lobbyTitle">
 			</div>
-			<div id="matchContainer">
-				<div id="matches">
-					<img class="matchTitle" src="images/lobby/yourTurn.jpg">
-					<ul id="your-turn"></ul>
-					<img class="matchTitle" src="images/lobby/theirTurn.jpg">
-					<ul id="their-turn"></ul>
-					<img class="matchTitle" src="images/lobby/gameOver.jpg">
-					<ul id="game-over"></ul>
-				</div>
+			<div id="matches">
+				<img class="matchTitle" src="images/lobby/yourTurn.jpg">
+				<ul id="your-turn"></ul>
+				<img class="matchTitle" src="images/lobby/theirTurn.jpg">
+				<ul id="their-turn"></ul>
+				<img class="matchTitle" src="images/lobby/gameOver.jpg">
+				<ul id="game-over"></ul>
 			</div>
 
 			<div id="w90" class="yellow">
@@ -150,9 +147,7 @@
 
 		<div id="match" class="page"> 
 			<div id="lobby_header">
-				<a id="back-to-lobby" href="#lobby" data-transition="reverse">
-					Lobby
-				</a>
+				Lobby
 			</div>
 			<div id="actions">
 				<span class="headerTitle">Actions</span><br/ >
@@ -210,9 +205,7 @@
 
 		<div id="shop" class="page">
 			<div id="lobby_header">
-				<a href="#match">
-					Hand
-				</a>
+				Hand
 			</div>
 			<div id="divTitle" class="lobbyTitle">
 				SHOP

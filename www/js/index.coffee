@@ -476,6 +476,9 @@ onDeviceReady = ->
       before_turn: ->
         # do nothing
 
+    collections = {}
+
+    views = {}
     # Models / Collections
     # ============================================
 
@@ -576,10 +579,10 @@ onDeviceReady = ->
       model: Deck
       url: "#{server_url}/decks"
 
-    matches = new Matches
-    decks = new Decks
-    console.log matches
-    console.log decks
+    # matches = new Matches
+    # decks = new Decks
+    # console.log matches
+    # console.log decks
 
 
     # Views
@@ -615,6 +618,9 @@ onDeviceReady = ->
           console.log "opponent: #{player.username}"
           view = new OpponentsListView(player)
 
+
+    # Shop
+    
     class ShopListView extends Backbone.View
       initialize: (@card, @amount) ->
         console.log 'initializing ShopListView'
@@ -685,6 +691,9 @@ onDeviceReady = ->
         for card, amount of shop
           console.log cards[card]
           view = new ShopListView(cards[card], amount)
+
+
+    # Match
 
     class CardDetailView extends Backbone.View
       initialize: ->
@@ -878,12 +887,13 @@ onDeviceReady = ->
         current.deck.on 'update_to_spend', =>
           console.log "event: update_to_spend"
           @$el.find('#to_spend > .count').html(current.deck.to_spend())
-          @render()
+          # @render()
 
       el: '#match'
 
       events:
-        'click #end_turn': 'end_turn'
+        'tap #end_turn': 'end_turn'
+        'tap #lobby_header': 'back_to_lobby'
 
       render: ->
         console.log 'MatchView#render'
@@ -1025,6 +1035,12 @@ onDeviceReady = ->
               console.log 'fetching match data'
               # @refresh()
 
+      back_to_lobby: ->
+        changePage "#lobby",
+          transition: 'slide'
+          reverse: true
+
+
       refresh: ->
         # TODO: wait until all models have been fetched before changing page.
         console.log "MatchView#refresh"
@@ -1047,6 +1063,9 @@ onDeviceReady = ->
 
           error: =>
             alert 'error getting match data'
+
+
+    # Lobby
 
     class MatchListView extends Backbone.View
       initialize: (@match, @deck) ->
@@ -1098,155 +1117,172 @@ onDeviceReady = ->
     class LobbyView extends Backbone.View
       initialize: () ->
         console.log 'init LobbyView'
-        user_channel.bind('new_match', (data) =>
-          alert "You've been challenged to a new game!"
-          @render()
-        )
-        @render()
+        @fetch_collections(@render)
 
       el: '#lobby'
 
       events:
-        'click #refresh_lobby': 'render'
-        'click .logout': 'logout'
+        'tap #refresh_lobby': 'render'
+        'tap .logout': 'logout'
 
       logout: ->
         console.log "LobbyView#logout"
         $.cookie('token', null)
-        changePage "#home",
-          transition: "flip"
+        changePage "#home"
 
-      render: ->
-        console.log 'LobbyView#render'
+      fetch_collections: (callback) ->
+        # user_channel.bind 'new_match', (data) =>
+        #   alert "You've been challenged to a new game!"
+
+        console.log 'LobbyView#fetch_collections'
         console.log 'fetching decks/matches'
         $('#loader').find('#loading-text').html('Finding matches...')
-        matches.fetch
+        collections.matches.fetch
           success: =>
             console.log 'got match data, waiting on decks'
-            decks.fetch
+            collections.decks.fetch
               success: =>
-                $('#loader').css('opacity', 0)
                 $('#loader').hide()
-                $('#matches').find('#your-turn').html('')
-                $('#matches').find('#their-turn').html('')
-                $('#matches').find('#game-over').html('')
-                console.log 'fetched data for matches and decks'
-                console.log 'about to iterate matches in LobbyView#render'
-                for match in matches.models
-                  console.log 'iterating matches in LobbyView#render'
-                  d = decks.where(match_id: match.get('id'))
-                  view = new MatchListView(match, d[0])
+                callback()
             
-        
+      render: ->
+        # @$el.find('.match-item-view').remove()
+        for match in collections.matches.models
+          console.log 'iterating matches in LobbyView#render'
+          d = collections.decks.where(match_id: match.get('id'))
+          view = new MatchListView(match, d[0]) # TODO: use underscore find
 
-      refresh: ->
-        @render()
+          
+    # Home
 
+    class LoginView extends Backbone.View
+      initialize: ->
 
+      el: '#login'
 
-    # Authorization
-    # ============================================
+      events:
+        'submit #login-form': 'login'
+        'tap #facebook-auth': 'facebook_auth'
 
+      facebook_auth: (e) ->
+        console.log 'facebook_auth function'
+        window.plugins.childBrowser.showWebPage "#{server_url}/auth/facebook?display=touch"
+        window.plugins.childBrowser.onLocationChange = (loc) =>
+          if /access_token/.test(loc)
+            # URL looks like: server.com/access_token/:access_token
+            access_token = unescape(loc).split("access_token/")[1]
+            $.cookie "token", access_token,
+              expires: 7300
 
-    facebook_auth = (callback) ->
-      console.log 'facebook_auth function'
-      window.plugins.childBrowser.showWebPage "#{server_url}/auth/facebook?display=touch"
-      console.log 1
-      window.plugins.childBrowser.onLocationChange = (loc) ->
-        console.log 2
-        if /access_token/.test(loc)
-          # URL looks like: server.com/access_token/:access_token
-          console.log 3
-          access_token = unescape(loc).split("access_token/")[1]
-          console.log 4
-          $.cookie "token", access_token,
-            expires: 7300
+            window.plugins.childBrowser.close()
+            views.home.set_user()
 
-          console.log 5
-          window.plugins.childBrowser.close()
-          console.log 6
-          callback()
-
-    set_user = ->
-      $.getJSON "#{server_url}/users/1", (user) -> # users/:id param is arbitrary.
-        if user == null
-          alert "Sorry, there was an error. Please relink your account with facebook"
-          $('#loader').css('opacity', 0)
-          $('#loader').hide()
-          facebook_auth set_user
-        else
-          current.user = user
-          user_channel = pusher.subscribe("#{current.user.id}")
-          console.log 'instantiating LobbyView'
-          if current.lobby
-            current.lobby.render()
+      login: (e) ->
+        $('#loader').show()
+        $('#loader').css('opacity', 1)
+        $.post("#{server_url}/signin.json", $('#login-form').serialize(), (user) ->
+          if user.error?
+            alert 'invalid username and/or password'
+            $('#loader').hide()
+            $('#loader').css('opacity', 0)
           else
-            current.lobby = new LobbyView
+            $('#loader').hide()
+            $('#loader').css('opacity', 0)
+            $.cookie 'token', user.token,
+              expires: 7300
+            console.log $.cookie 'token'
+            current.user = user
+            user_channel = pusher.subscribe("#{current.user.id}")
 
-          changePage "#lobby",
-            transition: "none"
+            if current.lobby
+              current.lobby.render()
+            else
+              current.lobby = new LobbyView
+              current.lobby.render()            
 
+            changePage "#lobby",
+              transition: "none"
 
-    # $.cookie 'token', 'LollakwpnMXj54X6oWwt2g'
-    
-    # TODO: add a timeout
-    if $.cookie("token")?
-      # TODO: match token with user on server side, if match, execute the below block
-      console.log 'cookie found'
-      console.log $.cookie('token')
-      # TODO: add 'logging in' animation loader
-      $('#loader').show()
-      $('#loader').css('opacity', 1)
-      $('#loader').find('#loading-text').html('Logging in...')
-      set_user()
-    else
-      console.log 'cookie not found'
+        , 'json')
+        e.preventDefault()
 
-    $("#facebook-auth").on 'tap', ->
-      console.log 'clicked facebook'
-      facebook_auth set_user
+    class SignupView extends Backbone.View
+      initialize: ->
 
-    $('#login-form').submit (e) ->
-      $('#loader').show()
-      $('#loader').css('opacity', 1)
-      $.post("#{server_url}/signin.json", $(this).serialize(), (user) ->
-        if user.error?
-          alert 'invalid username and/or password'
-          $('#loader').hide()
-          $('#loader').css('opacity', 0)
-        else
-          $('#loader').hide()
-          $('#loader').css('opacity', 0)
-          $.cookie 'token', user.token,
-            expires: 7300
-          console.log $.cookie 'token'
-          current.user = user
-          user_channel = pusher.subscribe("#{current.user.id}")
+      el: '#signup'
 
-          if current.lobby
-            current.lobby.render()
+      events:
+        'submit #signup-form': 'signup'
+
+      signup: (e) ->
+        $.post("#{server_url}/users.json", $('#signup-form').serialize(), (user) ->
+          if user.error?
+            alert 'error'
           else
-            current.lobby = new LobbyView
-            current.lobby.render()            
+            console.log $.cookie 'token',
+              expires: 7300
+            current.lobby.render()
+            changePage '#lobby',
+              transition: 'slidedown'
+        , 'json')
+        e.preventDefault()
 
-          changePage "#lobby",
-            transition: "none"
+    class HomeView extends Backbone.View
+      initialize: ->
+        collections.matches = new Matches
+        collections.decks = new Decks
 
-      , 'json')
-      e.preventDefault()
-
-    $('#signup-form').submit (e) ->
-      $.post("#{server_url}/users.json", $(this).serialize(), (user) ->
-        if user.error?
-          alert 'error'
+        if $.cookie("token")?
+          # TODO: match token with user on server side, if match, execute the below block
+          console.log 'cookie found'
+          console.log $.cookie('token')
+          # TODO: add 'logging in' animation loader
+          $('#loader').show()
+          $('#loader').find('#loading-text').html('Logging in...')
+          @set_user()
         else
-          console.log $.cookie 'token',
-            expires: 7300
-          current.lobby.render()
-          changePage '#lobby',
-            transition: 'slidedown'
-      , 'json')
-      e.preventDefault()
+          console.log 'cookie not found'
+
+      el: '#home'
+
+      events:
+        'tap #login-button': 'login'
+        'tap #signup-button': 'signup'
+
+      login: ->
+        unless views.login
+          views.login = new LoginView
+
+        changePage "#login",
+          transition: "slide"
+
+      signup: ->
+        unless views.signup
+          views.lobby = new SignupView
+
+        changePage "#signup",
+          transition: "slide"
+
+
+      set_user: ->
+        $.getJSON "#{server_url}/users/1", (user) -> # users/:id param is arbitrary.
+          if user == null
+            alert "Sorry, there was an error. Please relink your account with facebook"
+            $('#loader').hide()
+            facebook_auth set_user
+          else
+            current.user = user
+            user_channel = pusher.subscribe("#{current.user.id}")
+            console.log 'instantiating LobbyView'
+            if views.lobby
+              views.lobby.fetch_collections(views.lobby.render)
+            else
+              views.lobby = new LobbyView
+
+            changePage "#lobby",
+              transition: "none"
+
+
 
     $('#new_match_facebook').on 'pageshow', ->
       # TODO: send to facebook auth if token fails
@@ -1258,8 +1294,6 @@ onDeviceReady = ->
         list friend, 'play_friends' for friend in data.play_friends
         # list friend, 'invite_friends' for friend in data.invite_friends
 
-    $('#back-to-lobby').on 'tap', ->
-      current.lobby.render()
 
     # Create Game
     # ============================================
@@ -1284,24 +1318,26 @@ onDeviceReady = ->
       e.preventDefault()
 
     $('a').on 'tap', (e) ->
-      e.preventDefault()
-      reverse = false
-      if $(this).attr('data-transition') == 'reverse'
-        reverse = true
-      changePage $(this).attr('href'),
-        transition: 'slide'
-        reverse: reverse
+      if $(this).attr('href')
+        e.preventDefault()
+        reverse = false
+        if $(this).attr('data-transition') == 'reverse'
+          reverse = true
+        changePage $(this).attr('href'),
+          transition: 'slide'
+          reverse: reverse
 
-      $(document).bind('touchmove', (e) ->
-        if window.inAction
-          e.preventDefault()
-        else
-          window.globalDrag = true;
-      ).bind('touchend touchcancel', (e) ->
-        window.globalDrag = false
-      )
+    $(document).bind('touchmove', (e) ->
+      if window.inAction
+        e.preventDefault()
+      else
+        window.globalDrag = true;
+    ).bind('touchend touchcancel', (e) ->
+      window.globalDrag = false
+    )
 
 
+    views.home = new HomeView
 
 
 

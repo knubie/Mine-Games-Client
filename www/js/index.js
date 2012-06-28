@@ -11,7 +11,7 @@ onBodyLoad = function() {
 
 onDeviceReady = function() {
   return $(function() {
-    var CardDetailView, CardListView, ChooseOpponentsView, Deck, Decks, LobbyView, Match, MatchListView, MatchView, Matches, OpponentsListView, ShopListView, ShopView, aOrAn, actions, cards, changePage, current, decks, facebook_auth, gsub, match_channel, matches, pushLog, pusher, set_user, user_channel;
+    var CardDetailView, CardListView, ChooseOpponentsView, Deck, Decks, HomeView, LobbyView, LoginView, Match, MatchListView, MatchView, Matches, OpponentsListView, ShopListView, ShopView, SignupView, aOrAn, actions, cards, changePage, collections, current, gsub, match_channel, pushLog, pusher, user_channel, views;
     gsub = function(source, pattern, replacement) {
       var match, result;
       if (!((pattern != null) && (replacement != null))) {
@@ -543,6 +543,8 @@ onDeviceReady = function() {
       to_spend: 0,
       before_turn: function() {}
     };
+    collections = {};
+    views = {};
     Match = (function(_super) {
 
       __extends(Match, _super);
@@ -712,10 +714,6 @@ onDeviceReady = function() {
       return Decks;
 
     })(Backbone.Collection);
-    matches = new Matches;
-    decks = new Decks;
-    console.log(matches);
-    console.log(decks);
     OpponentsListView = (function(_super) {
 
       __extends(OpponentsListView, _super);
@@ -1138,15 +1136,15 @@ onDeviceReady = function() {
         });
         return current.deck.on('update_to_spend', function() {
           console.log("event: update_to_spend");
-          _this.$el.find('#to_spend > .count').html(current.deck.to_spend());
-          return _this.render();
+          return _this.$el.find('#to_spend > .count').html(current.deck.to_spend());
         });
       };
 
       MatchView.prototype.el = '#match';
 
       MatchView.prototype.events = {
-        'click #end_turn': 'end_turn'
+        'tap #end_turn': 'end_turn',
+        'tap #lobby_header': 'back_to_lobby'
       };
 
       MatchView.prototype.render = function() {
@@ -1329,6 +1327,13 @@ onDeviceReady = function() {
         });
       };
 
+      MatchView.prototype.back_to_lobby = function() {
+        return changePage("#lobby", {
+          transition: 'slide',
+          reverse: true
+        });
+      };
+
       MatchView.prototype.refresh = function() {
         var _this = this;
         console.log("MatchView#refresh");
@@ -1443,175 +1448,235 @@ onDeviceReady = function() {
       }
 
       LobbyView.prototype.initialize = function() {
-        var _this = this;
         console.log('init LobbyView');
-        user_channel.bind('new_match', function(data) {
-          alert("You've been challenged to a new game!");
-          return _this.render();
-        });
-        return this.render();
+        return this.fetch_collections(this.render);
       };
 
       LobbyView.prototype.el = '#lobby';
 
       LobbyView.prototype.events = {
-        'click #refresh_lobby': 'render',
-        'click .logout': 'logout'
+        'tap #refresh_lobby': 'render',
+        'tap .logout': 'logout'
       };
 
       LobbyView.prototype.logout = function() {
         console.log("LobbyView#logout");
         $.cookie('token', null);
-        return changePage("#home", {
-          transition: "flip"
-        });
+        return changePage("#home");
       };
 
-      LobbyView.prototype.render = function() {
+      LobbyView.prototype.fetch_collections = function(callback) {
         var _this = this;
-        console.log('LobbyView#render');
+        console.log('LobbyView#fetch_collections');
         console.log('fetching decks/matches');
         $('#loader').find('#loading-text').html('Finding matches...');
-        return matches.fetch({
+        return collections.matches.fetch({
           success: function() {
             console.log('got match data, waiting on decks');
-            return decks.fetch({
+            return collections.decks.fetch({
               success: function() {
-                var d, match, view, _i, _len, _ref, _results;
-                $('#loader').css('opacity', 0);
                 $('#loader').hide();
-                $('#matches').find('#your-turn').html('');
-                $('#matches').find('#their-turn').html('');
-                $('#matches').find('#game-over').html('');
-                console.log('fetched data for matches and decks');
-                console.log('about to iterate matches in LobbyView#render');
-                _ref = matches.models;
-                _results = [];
-                for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-                  match = _ref[_i];
-                  console.log('iterating matches in LobbyView#render');
-                  d = decks.where({
-                    match_id: match.get('id')
-                  });
-                  _results.push(view = new MatchListView(match, d[0]));
-                }
-                return _results;
+                return callback();
               }
             });
           }
         });
       };
 
-      LobbyView.prototype.refresh = function() {
-        return this.render();
+      LobbyView.prototype.render = function() {
+        var d, match, view, _i, _len, _ref, _results;
+        _ref = collections.matches.models;
+        _results = [];
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          match = _ref[_i];
+          console.log('iterating matches in LobbyView#render');
+          d = collections.decks.where({
+            match_id: match.get('id')
+          });
+          _results.push(view = new MatchListView(match, d[0]));
+        }
+        return _results;
       };
 
       return LobbyView;
 
     })(Backbone.View);
-    facebook_auth = function(callback) {
-      console.log('facebook_auth function');
-      window.plugins.childBrowser.showWebPage("" + server_url + "/auth/facebook?display=touch");
-      console.log(1);
-      return window.plugins.childBrowser.onLocationChange = function(loc) {
-        var access_token;
-        console.log(2);
-        if (/access_token/.test(loc)) {
-          console.log(3);
-          access_token = unescape(loc).split("access_token/")[1];
-          console.log(4);
-          $.cookie("token", access_token, {
-            expires: 7300
-          });
-          console.log(5);
-          window.plugins.childBrowser.close();
-          console.log(6);
-          return callback();
+    LoginView = (function(_super) {
+
+      __extends(LoginView, _super);
+
+      function LoginView() {
+        return LoginView.__super__.constructor.apply(this, arguments);
+      }
+
+      LoginView.prototype.initialize = function() {};
+
+      LoginView.prototype.el = '#login';
+
+      LoginView.prototype.events = {
+        'submit #login-form': 'login',
+        'tap #facebook-auth': 'facebook_auth'
+      };
+
+      LoginView.prototype.facebook_auth = function(e) {
+        var _this = this;
+        console.log('facebook_auth function');
+        window.plugins.childBrowser.showWebPage("" + server_url + "/auth/facebook?display=touch");
+        return window.plugins.childBrowser.onLocationChange = function(loc) {
+          var access_token;
+          if (/access_token/.test(loc)) {
+            access_token = unescape(loc).split("access_token/")[1];
+            $.cookie("token", access_token, {
+              expires: 7300
+            });
+            window.plugins.childBrowser.close();
+            return views.home.set_user();
+          }
+        };
+      };
+
+      LoginView.prototype.login = function(e) {
+        $('#loader').show();
+        $('#loader').css('opacity', 1);
+        $.post("" + server_url + "/signin.json", $('#login-form').serialize(), function(user) {
+          if (user.error != null) {
+            alert('invalid username and/or password');
+            $('#loader').hide();
+            return $('#loader').css('opacity', 0);
+          } else {
+            $('#loader').hide();
+            $('#loader').css('opacity', 0);
+            $.cookie('token', user.token, {
+              expires: 7300
+            });
+            console.log($.cookie('token'));
+            current.user = user;
+            user_channel = pusher.subscribe("" + current.user.id);
+            if (current.lobby) {
+              current.lobby.render();
+            } else {
+              current.lobby = new LobbyView;
+              current.lobby.render();
+            }
+            return changePage("#lobby", {
+              transition: "none"
+            });
+          }
+        }, 'json');
+        return e.preventDefault();
+      };
+
+      return LoginView;
+
+    })(Backbone.View);
+    SignupView = (function(_super) {
+
+      __extends(SignupView, _super);
+
+      function SignupView() {
+        return SignupView.__super__.constructor.apply(this, arguments);
+      }
+
+      SignupView.prototype.initialize = function() {};
+
+      SignupView.prototype.el = '#signup';
+
+      SignupView.prototype.events = {
+        'submit #signup-form': 'signup'
+      };
+
+      SignupView.prototype.signup = function(e) {
+        $.post("" + server_url + "/users.json", $('#signup-form').serialize(), function(user) {
+          if (user.error != null) {
+            return alert('error');
+          } else {
+            console.log($.cookie('token', {
+              expires: 7300
+            }));
+            current.lobby.render();
+            return changePage('#lobby', {
+              transition: 'slidedown'
+            });
+          }
+        }, 'json');
+        return e.preventDefault();
+      };
+
+      return SignupView;
+
+    })(Backbone.View);
+    HomeView = (function(_super) {
+
+      __extends(HomeView, _super);
+
+      function HomeView() {
+        return HomeView.__super__.constructor.apply(this, arguments);
+      }
+
+      HomeView.prototype.initialize = function() {
+        collections.matches = new Matches;
+        collections.decks = new Decks;
+        if ($.cookie("token") != null) {
+          console.log('cookie found');
+          console.log($.cookie('token'));
+          $('#loader').show();
+          $('#loader').find('#loading-text').html('Logging in...');
+          return this.set_user();
+        } else {
+          return console.log('cookie not found');
         }
       };
-    };
-    set_user = function() {
-      return $.getJSON("" + server_url + "/users/1", function(user) {
-        if (user === null) {
-          alert("Sorry, there was an error. Please relink your account with facebook");
-          $('#loader').css('opacity', 0);
-          $('#loader').hide();
-          return facebook_auth(set_user);
-        } else {
-          current.user = user;
-          user_channel = pusher.subscribe("" + current.user.id);
-          console.log('instantiating LobbyView');
-          if (current.lobby) {
-            current.lobby.render();
+
+      HomeView.prototype.el = '#home';
+
+      HomeView.prototype.events = {
+        'tap #login-button': 'login',
+        'tap #signup-button': 'signup'
+      };
+
+      HomeView.prototype.login = function() {
+        if (!views.login) {
+          views.login = new LoginView;
+        }
+        return changePage("#login", {
+          transition: "slide"
+        });
+      };
+
+      HomeView.prototype.signup = function() {
+        if (!views.signup) {
+          views.lobby = new SignupView;
+        }
+        return changePage("#signup", {
+          transition: "slide"
+        });
+      };
+
+      HomeView.prototype.set_user = function() {
+        return $.getJSON("" + server_url + "/users/1", function(user) {
+          if (user === null) {
+            alert("Sorry, there was an error. Please relink your account with facebook");
+            $('#loader').hide();
+            return facebook_auth(set_user);
           } else {
-            current.lobby = new LobbyView;
+            current.user = user;
+            user_channel = pusher.subscribe("" + current.user.id);
+            console.log('instantiating LobbyView');
+            if (views.lobby) {
+              views.lobby.fetch_collections(views.lobby.render);
+            } else {
+              views.lobby = new LobbyView;
+            }
+            return changePage("#lobby", {
+              transition: "none"
+            });
           }
-          return changePage("#lobby", {
-            transition: "none"
-          });
-        }
-      });
-    };
-    if ($.cookie("token") != null) {
-      console.log('cookie found');
-      console.log($.cookie('token'));
-      $('#loader').show();
-      $('#loader').css('opacity', 1);
-      $('#loader').find('#loading-text').html('Logging in...');
-      set_user();
-    } else {
-      console.log('cookie not found');
-    }
-    $("#facebook-auth").on('tap', function() {
-      console.log('clicked facebook');
-      return facebook_auth(set_user);
-    });
-    $('#login-form').submit(function(e) {
-      $('#loader').show();
-      $('#loader').css('opacity', 1);
-      $.post("" + server_url + "/signin.json", $(this).serialize(), function(user) {
-        if (user.error != null) {
-          alert('invalid username and/or password');
-          $('#loader').hide();
-          return $('#loader').css('opacity', 0);
-        } else {
-          $('#loader').hide();
-          $('#loader').css('opacity', 0);
-          $.cookie('token', user.token, {
-            expires: 7300
-          });
-          console.log($.cookie('token'));
-          current.user = user;
-          user_channel = pusher.subscribe("" + current.user.id);
-          if (current.lobby) {
-            current.lobby.render();
-          } else {
-            current.lobby = new LobbyView;
-            current.lobby.render();
-          }
-          return changePage("#lobby", {
-            transition: "none"
-          });
-        }
-      }, 'json');
-      return e.preventDefault();
-    });
-    $('#signup-form').submit(function(e) {
-      $.post("" + server_url + "/users.json", $(this).serialize(), function(user) {
-        if (user.error != null) {
-          return alert('error');
-        } else {
-          console.log($.cookie('token', {
-            expires: 7300
-          }));
-          current.lobby.render();
-          return changePage('#lobby', {
-            transition: 'slidedown'
-          });
-        }
-      }, 'json');
-      return e.preventDefault();
-    });
+        });
+      };
+
+      return HomeView;
+
+    })(Backbone.View);
     $('#new_match_facebook').on('pageshow', function() {
       return $.getJSON("" + server_url + "/friends.json", function(data) {
         var friend, list, _i, _len, _ref, _results;
@@ -1627,9 +1692,6 @@ onDeviceReady = function() {
         }
         return _results;
       });
-    });
-    $('#back-to-lobby').on('tap', function() {
-      return current.lobby.render();
     });
     $('#new-match-username-form').submit(function(e) {
       if ($('#username').val() === current.user.username) {
@@ -1656,26 +1718,29 @@ onDeviceReady = function() {
       }
       return e.preventDefault();
     });
-    return $('a').on('tap', function(e) {
+    $('a').on('tap', function(e) {
       var reverse;
-      e.preventDefault();
-      reverse = false;
-      if ($(this).attr('data-transition') === 'reverse') {
-        reverse = true;
-      }
-      changePage($(this).attr('href'), {
-        transition: 'slide',
-        reverse: reverse
-      });
-      return $(document).bind('touchmove', function(e) {
-        if (window.inAction) {
-          return e.preventDefault();
-        } else {
-          return window.globalDrag = true;
+      if ($(this).attr('href')) {
+        e.preventDefault();
+        reverse = false;
+        if ($(this).attr('data-transition') === 'reverse') {
+          reverse = true;
         }
-      }).bind('touchend touchcancel', function(e) {
-        return window.globalDrag = false;
-      });
+        return changePage($(this).attr('href'), {
+          transition: 'slide',
+          reverse: reverse
+        });
+      }
     });
+    $(document).bind('touchmove', function(e) {
+      if (window.inAction) {
+        return e.preventDefault();
+      } else {
+        return window.globalDrag = true;
+      }
+    }).bind('touchend touchcancel', function(e) {
+      return window.globalDrag = false;
+    });
+    return views.home = new HomeView;
   });
 };

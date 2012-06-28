@@ -49,11 +49,7 @@ ul {
 	font-family: 'Gotham-Bold';
 	font-size: 13px;
 	text-transform: uppercase;		
-}
-
-#lobby_header a{
 	color: #c4d7d2;
-	text-decoration: none;
 }
 
 #to_spend{
@@ -195,12 +191,6 @@ background: #747a78;
 	height: 244px;
 	overflow-y: scroll;
 	-webkit-overflow-scrolling: touch;
-}
-
-.cardContainer{
-	width: 90%;
-	margin: auto;
-	margin-top: 10px;
 }
 
 .drag {
@@ -359,14 +349,14 @@ background: #747a78;
 
 
 
-#matchContainer{
+#matches {
 	height: 340px;
 	margin: auto;
 	overflow: scroll;
 	width: 296px;
 }	
 
-#matchContainer li{
+#matches li{
 	width: 88%;
 	height: 31px;
 	margin: auto;
@@ -389,14 +379,14 @@ background: #747a78;
 	text-decoration: none;		
 }
 
-#matchContainer li a{
+#matches li a{
 	color: #898989;
 	font-family: 'Gotham-Medium';
 	font-size: 15px;
 	text-decoration: none;
 }	
 
-#matchContainer .subhead {
+#matches .subhead {
 	color: #898989;
 	font-family: 'Gotham-book';
 	font-size: 10px;
