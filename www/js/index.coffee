@@ -936,7 +936,7 @@ onDeviceReady = ->
         current.match.set('last_move', new Date().toString().split(' ').slice(0,5).join(' '))
         current.match.save {},
           success: =>
-            $.post "#{server_url}/end_turn/#{current.match.get('id')}", (data) =>
+            $.post "#{server_url}/end_turn/#{current.match.get('id')}", JSON.stringify(current.match.toJSON()), (data) =>
               console.log data
               console.log 'fetching match data'
               # @refresh()

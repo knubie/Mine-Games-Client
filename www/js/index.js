@@ -1182,7 +1182,7 @@ onDeviceReady = function() {
         current.match.set('last_move', new Date().toString().split(' ').slice(0, 5).join(' '));
         return current.match.save({}, {
           success: function() {
-            return $.post("" + server_url + "/end_turn/" + (current.match.get('id')), function(data) {
+            return $.post("" + server_url + "/end_turn/" + (current.match.get('id')), JSON.stringify(current.match.toJSON()), function(data) {
               console.log(data);
               return console.log('fetching match data');
             });
