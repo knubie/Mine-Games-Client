@@ -234,20 +234,20 @@ onDeviceReady = ->
                       target_deck.save()
                       current.deck.trigger 'update_to_spend'
                 else
-                  alert "#{player.username} used a fuckn' reaction card and blocked yo attack nigga!"
+                  alert "#{player.username} used a reaction card and blocked your attack!"
 
 
 
-            if current.match.get('players').length > 1
+            if current.match.get('players').length > 2
               changePage '#match',
                 transition: 'slide'
 
-          if current.match.get('players').length > 1
+          if current.match.get('players').length > 2
             current.opponentsview = new ChooseOpponentsView()
             changePage '#choose-opponents',
               transition: 'slideup'
           else
-            current.attack(current.match.get('players')[0])
+            current.attack(current.match.get('players').find (player) -> player.id isnt current.user.id)
 
           #do something
 
@@ -330,16 +330,16 @@ onDeviceReady = ->
 
 
 
-            if current.match.get('players').length > 1
+            if current.match.get('players').length > 2
               changePage '#match',
                 transition: 'slide'
 
-          if current.match.get('players').length > 1
+          if current.match.get('players').length > 2
             current.opponentsview = new ChooseOpponentsView()
             changePage '#choose-opponents',
               transition: 'slideup'
           else
-            current.attack(current.match.get('players')[0])
+            current.attack(current.match.get('players').find (player) -> player.id isnt current.user.id)
 
       magnet:
         name: 'magnet'
@@ -599,7 +599,7 @@ onDeviceReady = ->
       render: ->
         for player in current.match.get('players')
           console.log "opponent: #{player.username}"
-          view = new OpponentsListView(player)
+          view = new OpponentsListView(player) unless player.id == current.user.id
 
 
     # Shop
@@ -902,12 +902,7 @@ onDeviceReady = ->
             $players_bar = $(".four.players")
 
         $players_bar.show().html('')
-        $player = $('#templates').find(".player").clone()
-        $player.find('.name').html(current.user.username)
-        $player.find('.score').html(current.deck.total_points())
 
-        if current.turn
-          $player.addClass('turn')
         $players_bar.append($player)
         for player in current.match.get('players')
           $player = $('#templates').find(".player").clone()
@@ -915,12 +910,15 @@ onDeviceReady = ->
           if current.match.get('turn') == player.id
             $player.addClass('turn')
           # TODO: add this as a global variable
-          players_decks = new Decks()
-          players_decks.url = "#{server_url}/decks_by_user/#{player.id}"
-          players_decks.fetch
-            success: ->
-              deck = players_decks.where(match_id: current.match.get('id'))[0]
-              $player.find('.score').html(deck.total_points())
+          if player.id == current.user.id
+            $player.find('.score').html(current.deck.total_points())
+          else
+            players_decks = new Decks()
+            players_decks.url = "#{server_url}/decks_by_user/#{player.id}"
+            players_decks.fetch
+              success: ->
+                deck = players_decks.where(match_id: current.match.get('id'))[0]
+                $player.find('.score').html(deck.total_points())
           $players_bar.append($player)
 
         if @$el.css('display') == 'none'
@@ -941,6 +939,7 @@ onDeviceReady = ->
           @render()
 
       back_to_lobby: ->
+        pusher.unsubscribe("#{current.match.get('id')}")
         changePage "#lobby",
           transition: 'slide'
           reverse: true
@@ -989,7 +988,9 @@ onDeviceReady = ->
           $('#matches').find('#your-turn').prepend(@el)
         else
           $('#matches').find('#their-turn').prepend(@el)
-        @$el.find('.head').html("Mining with #{player.username for player in @match.get('players')}")
+        players = @match.get('players').filter (player) ->
+          player.id isnt current.user.id
+        @$el.find('.head').html("Mining with #{player.username for player in players}")
         console.log 'checking last move'
         if "#{@match.get('last_move')}" == "null"
           # think of something to say here
@@ -1025,13 +1026,17 @@ onDeviceReady = ->
 
         # Initiate Pusher subscriptions
 
-        user_channel.bind 'new_match', (data) =>
-          collections.matches.fetch
+        user_channel.bind 'new_match', (match) =>
+          collections.matches.add match
+          collections.decks.fetch
             success: =>
-              collections.decks.fetch
-                success: =>
-                  alert "You've been challenged to a new game!"
-                  @render()
+              alert "You've been challenged to a new game!"
+              @render()
+              
+        # collections.matches.each (match) ->
+        #   sub = pusher.subscribe("#{match.get('id')}")
+        #   sub.bind 'update', (data) =>
+
 
         @render()
 
@@ -1046,19 +1051,6 @@ onDeviceReady = ->
         'tap .logout': 'logout'
 
       render: ->
-        # user_channel.bind 'new_match', (data) =>
-        #   alert "You've been challenged to a new game!"
-
-        # console.log 'LobbyView#fetch_collections'
-        # console.log 'fetching decks/matches'
-        # $('#loader').find('#loading-text').html('Finding matches...')
-        # # TODO: get matches and decks in one request
-        # collections.matches.fetch
-        #   success: =>
-        #     console.log 'got match data, waiting on decks'
-        #     collections.decks.fetch
-        #       success: =>
-        #         $('#loader').hide()
         @$el.find('.match-item-view').remove()
         $('#loader').hide()
         collections.matches.each (match) ->
@@ -1070,6 +1062,7 @@ onDeviceReady = ->
       logout: ->
         console.log "LobbyView#logout"
         $.cookie('token', null)
+        pusher.unsubscribe("#{current.user.id}")
         changePage "#home"
           
       create_match: ->

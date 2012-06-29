@@ -268,23 +268,25 @@ onDeviceReady = function() {
                     }
                   });
                 } else {
-                  return alert("" + player.username + " used a fuckn' reaction card and blocked yo attack nigga!");
+                  return alert("" + player.username + " used a reaction card and blocked your attack!");
                 }
               }
             });
-            if (current.match.get('players').length > 1) {
+            if (current.match.get('players').length > 2) {
               return changePage('#match', {
                 transition: 'slide'
               });
             }
           };
-          if (current.match.get('players').length > 1) {
+          if (current.match.get('players').length > 2) {
             current.opponentsview = new ChooseOpponentsView();
             return changePage('#choose-opponents', {
               transition: 'slideup'
             });
           } else {
-            return current.attack(current.match.get('players')[0]);
+            return current.attack(current.match.get('players').find(function(player) {
+              return player.id !== current.user.id;
+            }));
           }
         }
       },
@@ -378,19 +380,21 @@ onDeviceReady = function() {
                 });
               }
             });
-            if (current.match.get('players').length > 1) {
+            if (current.match.get('players').length > 2) {
               return changePage('#match', {
                 transition: 'slide'
               });
             }
           };
-          if (current.match.get('players').length > 1) {
+          if (current.match.get('players').length > 2) {
             current.opponentsview = new ChooseOpponentsView();
             return changePage('#choose-opponents', {
               transition: 'slideup'
             });
           } else {
-            return current.attack(current.match.get('players')[0]);
+            return current.attack(current.match.get('players').find(function(player) {
+              return player.id !== current.user.id;
+            }));
           }
         }
       },
@@ -756,7 +760,11 @@ onDeviceReady = function() {
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           player = _ref[_i];
           console.log("opponent: " + player.username);
-          _results.push(view = new OpponentsListView(player));
+          if (player.id !== current.user.id) {
+            _results.push(view = new OpponentsListView(player));
+          } else {
+            _results.push(void 0);
+          }
         }
         return _results;
       };
@@ -1143,12 +1151,6 @@ onDeviceReady = function() {
             $players_bar = $(".four.players");
         }
         $players_bar.show().html('');
-        $player = $('#templates').find(".player").clone();
-        $player.find('.name').html(current.user.username);
-        $player.find('.score').html(current.deck.total_points());
-        if (current.turn) {
-          $player.addClass('turn');
-        }
         $players_bar.append($player);
         _ref1 = current.match.get('players');
         for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
@@ -1158,17 +1160,21 @@ onDeviceReady = function() {
           if (current.match.get('turn') === player.id) {
             $player.addClass('turn');
           }
-          players_decks = new Decks();
-          players_decks.url = "" + server_url + "/decks_by_user/" + player.id;
-          players_decks.fetch({
-            success: function() {
-              var deck;
-              deck = players_decks.where({
-                match_id: current.match.get('id')
-              })[0];
-              return $player.find('.score').html(deck.total_points());
-            }
-          });
+          if (player.id === current.user.id) {
+            $player.find('.score').html(current.deck.total_points());
+          } else {
+            players_decks = new Decks();
+            players_decks.url = "" + server_url + "/decks_by_user/" + player.id;
+            players_decks.fetch({
+              success: function() {
+                var deck;
+                deck = players_decks.where({
+                  match_id: current.match.get('id')
+                })[0];
+                return $player.find('.score').html(deck.total_points());
+              }
+            });
+          }
           $players_bar.append($player);
         }
         if (this.$el.css('display') === 'none') {
@@ -1197,6 +1203,7 @@ onDeviceReady = function() {
       };
 
       MatchView.prototype.back_to_lobby = function() {
+        pusher.unsubscribe("" + (current.match.get('id')));
         return changePage("#lobby", {
           transition: 'slide',
           reverse: true
@@ -1251,23 +1258,25 @@ onDeviceReady = function() {
       };
 
       MatchListView.prototype.render = function() {
-        var player;
+        var player, players;
         console.log('MatchListView#render');
         if (this.match.get('turn') === current.user.id) {
           $('#matches').find('#your-turn').prepend(this.el);
         } else {
           $('#matches').find('#their-turn').prepend(this.el);
         }
+        players = this.match.get('players').filter(function(player) {
+          return player.id !== current.user.id;
+        });
         this.$el.find('.head').html("Mining with " + ((function() {
-          var _i, _len, _ref, _results;
-          _ref = this.match.get('players');
+          var _i, _len, _results;
           _results = [];
-          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-            player = _ref[_i];
+          for (_i = 0, _len = players.length; _i < _len; _i++) {
+            player = players[_i];
             _results.push(player.username);
           }
           return _results;
-        }).call(this)));
+        })()));
         console.log('checking last move');
         if (("" + (this.match.get('last_move'))) === "null") {
           return this.$el.find('.subhead').html("No moves yet!");
@@ -1305,15 +1314,12 @@ onDeviceReady = function() {
         var _this = this;
         console.log('init LobbyView');
         views.newmatchview = new NewMatchView;
-        user_channel.bind('new_match', function(data) {
-          return collections.matches.fetch({
+        user_channel.bind('new_match', function(match) {
+          collections.matches.add(match);
+          return collections.decks.fetch({
             success: function() {
-              return collections.decks.fetch({
-                success: function() {
-                  alert("You've been challenged to a new game!");
-                  return _this.render();
-                }
-              });
+              alert("You've been challenged to a new game!");
+              return _this.render();
             }
           });
         });
@@ -1344,6 +1350,7 @@ onDeviceReady = function() {
       LobbyView.prototype.logout = function() {
         console.log("LobbyView#logout");
         $.cookie('token', null);
+        pusher.unsubscribe("" + current.user.id);
         return changePage("#home");
       };
 
