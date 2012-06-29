@@ -53,28 +53,23 @@ onDeviceReady = function() {
       var $curr, $page;
       $curr = $('.active');
       $page = $(page);
-      console.log(page);
-      if (typeof options === 'undefined') {
-        console.log('options undefined');
-      }
       if (options.reverse === true) {
         $curr.addClass('reverse');
         $page.addClass('reverse');
       }
       if (options.transition === 'none') {
-        console.log('switch');
-        console.log('no transition');
         $curr.removeClass('active reverse');
         $page.addClass('active');
         return $page.removeClass('reverse');
       } else {
-        console.log("changing page to " + page);
         $curr.addClass("" + options.transition + " out");
         $page.addClass("" + options.transition + " in active");
-        return setTimeout(function() {
-          $curr.removeClass("" + options.transition + " out active reverse");
+        $curr.one('webkitAnimationEnd', function() {
+          return $curr.removeClass("" + options.transition + " out active reverse");
+        });
+        return $page.one('webkitAnimationEnd', function() {
           return $page.removeClass("" + options.transition + " in reverse");
-        }, 250);
+        });
       }
     };
     aOrAn = function(word) {
@@ -605,15 +600,10 @@ onDeviceReady = function() {
         var card, to_spend, _i, _len, _ref;
         console.log("Deck#to_spend");
         to_spend = 0;
-        console.log(" - Iterating @get('hand')..");
-        console.log(this.get('hand'));
         _ref = this.get('hand');
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           card = _ref[_i];
-          console.log(' - - Checking type');
-          console.log(" - - Card: " + cards[card].name);
           if (cards[card].type === 'money') {
-            console.log(' - - - Type: money, getting value');
             to_spend += cards[card].value;
           }
         }
@@ -622,17 +612,11 @@ onDeviceReady = function() {
 
       Deck.prototype.total_points = function() {
         var card, total_points, _i, _len, _ref;
-        console.log("Deck#total_points");
         total_points = 0;
-        console.log(" - Iterating @get('cards')..");
-        console.log(this.get('cards'));
         _ref = this.get('cards');
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           card = _ref[_i];
-          console.log(' - - Checking type');
-          console.log(" - - Card: " + cards[card].name);
           if (cards[card].type === 'money') {
-            console.log(' - - - Type: money, getting value');
             total_points += cards[card].value;
           }
         }
@@ -917,8 +901,6 @@ onDeviceReady = function() {
       CardListView.prototype.initialize = function(card) {
         this.card = card;
         console.log('CardListView#initialize');
-        console.log(" - " + this.card.name);
-        console.log(" - Cloning .card template");
         this.setElement($('#templates').find(".card").clone());
         return this.render();
       };
@@ -933,14 +915,11 @@ onDeviceReady = function() {
       };
 
       CardListView.prototype.render = function() {
-        console.log("CardListView#render");
         this.$el.find('.thumb').attr('src', "images/cards/" + (gsub(this.card.name, ' ', '_')) + "_thumb.png");
-        console.log(" - Setting DOM name & desc");
         this.$el.find('.name').html(this.card.name);
         this.$el.find('.name').addClass("name-" + this.card.type);
         this.$el.find('.desc').html(this.card.short_desc);
         this.$el.find('.card-notch').addClass(this.card.type);
-        console.log(" - Appending to #hand");
         return $('#hand').append(this.el);
       };
 
@@ -979,7 +958,6 @@ onDeviceReady = function() {
         setTimeout(function() {
           return _this.clicked = false;
         }, 250);
-        console.log('touch start');
         this.touch.x1 = e.touches[0].pageX;
         return this.touch.y1 = e.touches[0].pageY;
       };

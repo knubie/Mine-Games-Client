@@ -46,26 +46,25 @@ onDeviceReady = ->
     changePage = (page, options) ->
       $curr = $('.active')
       $page = $(page)
-      console.log page
-      console.log 'options undefined' if typeof options == 'undefined'
+
       if options.reverse == true
         $curr.addClass('reverse')
         $page.addClass('reverse')
 
       if options.transition == 'none'
-        console.log 'switch'
-        console.log 'no transition'
         $curr.removeClass 'active reverse'
         $page.addClass 'active'
         $page.removeClass 'reverse'
       else
-        console.log "changing page to #{page}"
         $curr.addClass("#{options.transition} out")
         $page.addClass("#{options.transition} in active")
-        setTimeout ->
+
+        $curr.one 'webkitAnimationEnd', ->
           $curr.removeClass("#{options.transition} out active reverse")
+
+        $page.one 'webkitAnimationEnd', ->
           $page.removeClass("#{options.transition} in reverse")
-        , 250
+
 
     aOrAn = (word) ->
       console.log word.charAt(0)
@@ -513,26 +512,15 @@ onDeviceReady = ->
       to_spend: ->
         console.log "Deck#to_spend"
         to_spend = 0
-        console.log " - Iterating @get('hand').."
-        console.log @get('hand')
         for card in @get('hand')
-          console.log ' - - Checking type'
-          console.log " - - Card: #{cards[card].name}"
           if cards[card].type == 'money'
-            console.log ' - - - Type: money, getting value'
             to_spend += cards[card].value
         to_spend
 
       total_points: ->
-        console.log "Deck#total_points"
         total_points = 0
-        console.log " - Iterating @get('cards').."
-        console.log @get('cards')
         for card in @get('cards')
-          console.log ' - - Checking type'
-          console.log " - - Card: #{cards[card].name}"
           if cards[card].type == 'money'
-            console.log ' - - - Type: money, getting value'
             total_points += cards[card].value
         total_points + @to_spend()
 
@@ -702,8 +690,6 @@ onDeviceReady = ->
     class CardListView extends Backbone.View
       initialize: (@card) ->
         console.log 'CardListView#initialize'
-        console.log " - #{@card.name}"
-        console.log " - Cloning .card template"
         @setElement $('#templates').find(".card").clone()
         @render()
 
@@ -717,14 +703,11 @@ onDeviceReady = ->
         # 'click .trash': 'trash'
 
       render: ->
-        console.log "CardListView#render"
         @$el.find('.thumb').attr('src', "images/cards/#{gsub(@card.name, ' ', '_')}_thumb.png")
-        console.log " - Setting DOM name & desc"
         @$el.find('.name').html(@card.name)
         @$el.find('.name').addClass("name-#{@card.type}")
         @$el.find('.desc').html(@card.short_desc)
         @$el.find('.card-notch').addClass(@card.type)
-        console.log " - Appending to #hand"
         $('#hand').append(@el)
 
       w: 50
@@ -750,7 +733,6 @@ onDeviceReady = ->
         setTimeout =>
           @clicked = false
         , 250
-        console.log 'touch start'
         @touch.x1 = e.touches[0].pageX
         @touch.y1 = e.touches[0].pageY
 
@@ -845,7 +827,7 @@ onDeviceReady = ->
 
         console.log " - instantiating CardDetailView"
         current.carddetailview = new CardDetailView
-        
+
         current.turn = if current.match.get('turn') == current.user.id then true else false
 
         console.log " - Binding pusher channels"
@@ -941,8 +923,6 @@ onDeviceReady = ->
               deck = players_decks.where(match_id: current.match.get('id'))[0]
               $player.find('.score').html(deck.total_points())
           $players_bar.append($player)
-
-        # # $('#loader').hide()
 
         if @$el.css('display') == 'none'
           changePage '#match',
