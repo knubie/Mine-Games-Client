@@ -56,7 +56,7 @@
 		</div>
 		<div id="login" class="brown page">
 			<div id="lobby_header">
-				<a href="#home">Back</a>
+				<a class="back">Back</a>
 			</div>
 			<div id="divTitle" class="lobbyTitle">
 				Login
@@ -76,7 +76,7 @@
 
 		<div id="signup" class="brown page">
 			<div id="lobby_header">
-				<a href="#home">Cancel</a>
+				<a class="back">Back</a>
 			</div>
 			<div id="divTitle" class="lobbyTitle">
 				Sign Up
@@ -94,12 +94,13 @@
 		</div>
 
 		<div id="lobby" class="page green">
-			<div id="lobby_header">
+<!-- 			<div id="lobby_header">
 				<a id="refresh_lobby">Refresh</a>
 				<a class="logout">logout</a>
 			</div>
 			<div id="lobbyTitle" class="lobbyTitle">
 			</div>
+ -->
 			<div id="matches">
 				<img class="matchTitle" src="images/lobby/yourTurn.jpg">
 				<ul id="your-turn"></ul>
@@ -109,21 +110,21 @@
 				<ul id="game-over"></ul>
 			</div>
 
-			<div id="w90" class="yellow">
-				<a href="#new_match" id="create_match">Create Match!</a>
+			<div id="create_match" class="yellow">
+				Create Match!
 			</div>	
 		</div>
 
 		<div id="new_match" class="page">
-				<a href="#lobby">back</a>
-				<h1>New Match</h1>
-			<a href="#new_match_username" data-role="button" data-transition="slide">enter username</a>
-			<a href="#new_match_facebook" data-role="button" data-transition="slide">find friends on facebook</a>
-			<a href="#new_match_random" data-role="button" data-transition="slide">play random opponents</a>
+			<a class="back">back</a>
+			<h1>New Match</h1>
+			<a href="#new_match_username">enter username</a>
+			<a href="#new_match_facebook">find friends on facebook</a>
+			<a href="#new_match_random">play random opponents</a>
 		</div>
 
 		<div id="new_match_username" class="page"> 
-			<a href="#lobby">back</a>
+			<a class="back">back</a>
 			<h1>usernames</h1>
 			<form accept-charset="UTF-8" id="new-match-username-form">
 				<label>enter username</label>
@@ -133,7 +134,7 @@
 		</div>
 
 		<div id="new_match_facebook" class="page"> 
-			<a href="#new_match">back</a>
+			<a class="back">back</a>
 			<h1>Facebook</h1>
 			Play friends:
 			<div id="play_friends"></div>
@@ -167,10 +168,7 @@
 			</div>
 
 			<div class="clear"></div>
-			<div id="players">
-				<ul id="two-players">
-				</ul>	
-			</div>	
+			<ul class="two players"></ul>
 			<div id="log">
 				Game Notifications
 			</div>	

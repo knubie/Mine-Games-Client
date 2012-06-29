@@ -11,7 +11,7 @@ onBodyLoad = function() {
 
 onDeviceReady = function() {
   return $(function() {
-    var CardDetailView, CardListView, ChooseOpponentsView, Deck, Decks, HomeView, LobbyView, LoginView, Match, MatchListView, MatchView, Matches, OpponentsListView, ShopListView, ShopView, SignupView, aOrAn, actions, cards, changePage, collections, current, gsub, match_channel, pushLog, pusher, user_channel, views;
+    var CardDetailView, CardListView, ChooseOpponentsView, Deck, Decks, HomeView, LobbyView, LoginView, Match, MatchListView, MatchView, Matches, NewMatchView, OpponentsListView, ShopListView, ShopView, SignupView, aOrAn, actions, cards, changePage, collections, current, gsub, match_channel, pushLog, pusher, user_channel, views;
     gsub = function(source, pattern, replacement) {
       var match, result;
       if (!((pattern != null) && (replacement != null))) {
@@ -53,15 +53,11 @@ onDeviceReady = function() {
       var $curr, $page;
       $curr = $('.active');
       $page = $(page);
-      if (options.reverse === true) {
-        $curr.addClass('reverse');
-        $page.addClass('reverse');
-      }
-      if (options.transition === 'none') {
-        $curr.removeClass('active reverse');
-        $page.addClass('active');
-        return $page.removeClass('reverse');
-      } else {
+      if (options != null) {
+        if (options.reverse === true) {
+          $curr.addClass('reverse');
+          $page.addClass('reverse');
+        }
         $curr.addClass("" + options.transition + " out");
         $page.addClass("" + options.transition + " in active");
         $curr.one('webkitAnimationEnd', function() {
@@ -70,6 +66,10 @@ onDeviceReady = function() {
         return $page.one('webkitAnimationEnd', function() {
           return $page.removeClass("" + options.transition + " in reverse");
         });
+      } else {
+        $curr.removeClass('active reverse');
+        $page.addClass('active');
+        return $page.removeClass('reverse');
       }
     };
     aOrAn = function(word) {
@@ -1129,20 +1129,20 @@ onDeviceReady = function() {
           });
           this.$el.find('#turn > .count').html(player.username);
         }
-        $players_bar = $("#two-players");
+        $players_bar = $(".two.players");
         switch (current.match.get('players').length) {
           case 2:
-            $players_bar = $("#three-players");
+            $players_bar = $(".three.players");
             break;
           case 3:
-            $players_bar = $("#four-players");
+            $players_bar = $(".four.players");
         }
         $players_bar.show().html('');
         $player = $('#templates').find(".player").clone();
         $player.find('.name').html(current.user.username);
         $player.find('.score').html(current.deck.total_points());
         if (current.turn) {
-          $player.addClass('active');
+          $player.addClass('turn');
         }
         $players_bar.append($player);
         _ref1 = current.match.get('players');
@@ -1151,7 +1151,7 @@ onDeviceReady = function() {
           $player = $('#templates').find(".player").clone();
           $player.find('.name').html(player.username);
           if (current.match.get('turn') === player.id) {
-            $player.addClass('active');
+            $player.addClass('turn');
           }
           players_decks = new Decks();
           players_decks.url = "" + server_url + "/decks_by_user/" + player.id;
@@ -1198,6 +1198,30 @@ onDeviceReady = function() {
       };
 
       return MatchView;
+
+    })(Backbone.View);
+    NewMatchView = (function(_super) {
+
+      __extends(NewMatchView, _super);
+
+      function NewMatchView() {
+        return NewMatchView.__super__.constructor.apply(this, arguments);
+      }
+
+      NewMatchView.prototype.initialize = function() {};
+
+      NewMatchView.prototype.events = {
+        'tap .back': 'back'
+      };
+
+      NewMatchView.prototype.back = function() {
+        return changePage('#lobby', {
+          transition: 'slideup',
+          reverse: true
+        });
+      };
+
+      return NewMatchView;
 
     })(Backbone.View);
     MatchListView = (function(_super) {
@@ -1273,6 +1297,7 @@ onDeviceReady = function() {
 
       LobbyView.prototype.initialize = function() {
         console.log('init LobbyView');
+        views.newmatchview = new NewMatchView;
         return this.render();
       };
 
@@ -1280,13 +1305,8 @@ onDeviceReady = function() {
 
       LobbyView.prototype.events = {
         'tap #refresh_lobby': 'render',
+        'tap #create_match': 'create_match',
         'tap .logout': 'logout'
-      };
-
-      LobbyView.prototype.logout = function() {
-        console.log("LobbyView#logout");
-        $.cookie('token', null);
-        return changePage("#home");
       };
 
       LobbyView.prototype.render = function() {
@@ -1299,6 +1319,18 @@ onDeviceReady = function() {
             return deck.get('match_id') === match.get('id');
           });
           return view = new MatchListView(match, deck);
+        });
+      };
+
+      LobbyView.prototype.logout = function() {
+        console.log("LobbyView#logout");
+        $.cookie('token', null);
+        return changePage("#home");
+      };
+
+      LobbyView.prototype.create_match = function() {
+        return changePage("#new_match", {
+          transition: 'slideup'
         });
       };
 
@@ -1319,7 +1351,8 @@ onDeviceReady = function() {
 
       LoginView.prototype.events = {
         'submit #login-form': 'login',
-        'tap #facebook-auth': 'facebook_auth'
+        'tap #facebook-auth': 'facebook_auth',
+        'tap .back': 'back'
       };
 
       LoginView.prototype.facebook_auth = function(e) {
@@ -1355,18 +1388,17 @@ onDeviceReady = function() {
             console.log($.cookie('token'));
             current.user = user;
             user_channel = pusher.subscribe("" + current.user.id);
-            if (current.lobby) {
-              current.lobby.render();
-            } else {
-              current.lobby = new LobbyView;
-              current.lobby.render();
-            }
-            return changePage("#lobby", {
-              transition: "none"
-            });
+            return views.home.set_user();
           }
         }, 'json');
         return e.preventDefault();
+      };
+
+      LoginView.prototype.back = function() {
+        return changePage("#home", {
+          transition: 'slideup',
+          reverse: true
+        });
       };
 
       return LoginView;
@@ -1385,7 +1417,8 @@ onDeviceReady = function() {
       SignupView.prototype.el = '#signup';
 
       SignupView.prototype.events = {
-        'submit #signup-form': 'signup'
+        'submit #signup-form': 'signup',
+        'tap .back': 'back'
       };
 
       SignupView.prototype.signup = function(e) {
@@ -1403,6 +1436,13 @@ onDeviceReady = function() {
           }
         }, 'json');
         return e.preventDefault();
+      };
+
+      SignupView.prototype.back = function() {
+        return changePage("#home", {
+          transition: 'slideup',
+          reverse: true
+        });
       };
 
       return SignupView;
@@ -1442,7 +1482,7 @@ onDeviceReady = function() {
           views.login = new LoginView;
         }
         return changePage("#login", {
-          transition: "slide"
+          transition: "slideup"
         });
       };
 
@@ -1451,7 +1491,7 @@ onDeviceReady = function() {
           views.lobby = new SignupView;
         }
         return changePage("#signup", {
-          transition: "slide"
+          transition: "slideup"
         });
       };
 
@@ -1471,9 +1511,7 @@ onDeviceReady = function() {
             } else {
               views.lobby = new LobbyView;
             }
-            return changePage("#lobby", {
-              transition: "none"
-            });
+            return changePage("#lobby");
           }
         });
       };

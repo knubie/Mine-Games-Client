@@ -47,15 +47,11 @@ onDeviceReady = ->
       $curr = $('.active')
       $page = $(page)
 
-      if options.reverse == true
-        $curr.addClass('reverse')
-        $page.addClass('reverse')
+      if options?
+        if options.reverse == true
+          $curr.addClass('reverse')
+          $page.addClass('reverse')
 
-      if options.transition == 'none'
-        $curr.removeClass 'active reverse'
-        $page.addClass 'active'
-        $page.removeClass 'reverse'
-      else
         $curr.addClass("#{options.transition} out")
         $page.addClass("#{options.transition} in active")
 
@@ -64,6 +60,10 @@ onDeviceReady = ->
 
         $page.one 'webkitAnimationEnd', ->
           $page.removeClass("#{options.transition} in reverse")
+      else
+        $curr.removeClass 'active reverse'
+        $page.addClass 'active'
+        $page.removeClass 'reverse'
 
 
     aOrAn = (word) ->
@@ -895,12 +895,12 @@ onDeviceReady = ->
         # TODO: add string truncation for names
         # TODO: DRY this switch statement up
 
-        $players_bar = $("#two-players")
+        $players_bar = $(".two.players")
         switch current.match.get('players').length
           when 2
-            $players_bar = $("#three-players")
+            $players_bar = $(".three.players")
           when 3
-            $players_bar = $("#four-players")
+            $players_bar = $(".four.players")
 
         $players_bar.show().html('')
         $player = $('#templates').find(".player").clone()
@@ -908,13 +908,13 @@ onDeviceReady = ->
         $player.find('.score').html(current.deck.total_points())
 
         if current.turn
-          $player.addClass('active')
+          $player.addClass('turn')
         $players_bar.append($player)
         for player in current.match.get('players')
           $player = $('#templates').find(".player").clone()
           $player.find('.name').html(player.username)
           if current.match.get('turn') == player.id
-            $player.addClass('active')
+            $player.addClass('turn')
           # TODO: add this as a global variable
           players_decks = new Decks()
           players_decks.url = "#{server_url}/decks_by_user/#{player.id}"
@@ -963,6 +963,18 @@ onDeviceReady = ->
 
     # Lobby
 
+    class NewMatchView extends Backbone.View
+      initialize: ->
+        # I dunno..
+
+      events:
+        'tap .back': 'back'
+
+      back: ->
+        changePage '#lobby',
+          transition: 'slideup'
+          reverse: true
+
     class MatchListView extends Backbone.View
       initialize: (@match, @deck) ->
         console.log 'init MatchListView'
@@ -1010,6 +1022,7 @@ onDeviceReady = ->
     class LobbyView extends Backbone.View
       initialize: () ->
         console.log 'init LobbyView'
+        views.newmatchview = new NewMatchView
         @render()
         # TODO: add event when matches collection changes
         # TODO: add pusher even when any match changes state
@@ -1018,12 +1031,8 @@ onDeviceReady = ->
 
       events:
         'tap #refresh_lobby': 'render'
+        'tap #create_match': 'create_match'
         'tap .logout': 'logout'
-
-      logout: ->
-        console.log "LobbyView#logout"
-        $.cookie('token', null)
-        changePage "#home"
 
       render: ->
         # user_channel.bind 'new_match', (data) =>
@@ -1046,7 +1055,15 @@ onDeviceReady = ->
           deck = collections.decks.find (deck) ->
             deck.get('match_id') == match.get('id')
           view = new MatchListView(match, deck)
+
+      logout: ->
+        console.log "LobbyView#logout"
+        $.cookie('token', null)
+        changePage "#home"
           
+      create_match: ->
+        changePage "#new_match",
+          transition: 'slideup'
 
     # Home
 
@@ -1058,6 +1075,7 @@ onDeviceReady = ->
       events:
         'submit #login-form': 'login'
         'tap #facebook-auth': 'facebook_auth'
+        'tap .back': 'back'
 
       facebook_auth: (e) ->
         console.log 'facebook_auth function'
@@ -1088,17 +1106,15 @@ onDeviceReady = ->
             current.user = user
             user_channel = pusher.subscribe("#{current.user.id}")
 
-            if current.lobby
-              current.lobby.render()
-            else
-              current.lobby = new LobbyView
-              current.lobby.render()            
-
-            changePage "#lobby",
-              transition: "none"
+            views.home.set_user()
 
         , 'json')
         e.preventDefault()
+
+      back: ->
+        changePage "#home",
+          transition: 'slideup'
+          reverse: true
 
     class SignupView extends Backbone.View
       initialize: ->
@@ -1107,6 +1123,7 @@ onDeviceReady = ->
 
       events:
         'submit #signup-form': 'signup'
+        'tap .back': 'back'
 
       signup: (e) ->
         $.post("#{server_url}/users.json", $('#signup-form').serialize(), (user) ->
@@ -1120,6 +1137,11 @@ onDeviceReady = ->
               transition: 'slidedown'
         , 'json')
         e.preventDefault()
+
+      back: ->
+        changePage "#home",
+          transition: 'slideup'
+          reverse: true
 
     class HomeView extends Backbone.View
       initialize: ->
@@ -1148,14 +1170,14 @@ onDeviceReady = ->
           views.login = new LoginView
 
         changePage "#login",
-          transition: "slide"
+          transition: "slideup"
 
       signup: ->
         unless views.signup
           views.lobby = new SignupView
 
         changePage "#signup",
-          transition: "slide"
+          transition: "slideup"
 
 
       set_user: ->
@@ -1175,8 +1197,7 @@ onDeviceReady = ->
             else
               views.lobby = new LobbyView
 
-            changePage "#lobby",
-              transition: "none"
+            changePage "#lobby"
 
 
 

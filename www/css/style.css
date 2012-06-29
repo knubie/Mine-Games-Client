@@ -146,33 +146,33 @@ ul {
 
 /* Players Toolbar */
 
-#players{
-	background: #424242;
+.players {
+	background-color: #424242;
 	width:100%;
 	height: 25px;
 }
 
 
-#players .player {
+.players .player {
 	height: 25px;
 	list-style-type: none;
-	float:left;
 	text-align:center;
 	background: #424242;
 	color: #fff;
 	font-weight:300;
 	font-size:12px;
 	font-family: 'Helvetica',sans-serif;
+	display: inline-block;
 }
 
-#players .active {
+.players .turn {
 background: #747a78;
 }
 
-#two-players li.player { width: 50%; }
-#three-players li.player { width: 33.3%; }
-#four-players li.player { width: 25%; }
-.selected-player { background: #898989; }
+.two.players li.player { width: 50%; }
+.three.players li.player { width: 33.3%; }
+.four.players li.player { width: 25%; }
+.selected-player { background-color: #898989; }
 
 .player .name {
 	/* styles */
@@ -408,6 +408,10 @@ background: #747a78;
 	padding-top: 15px;
 	text-align:center;
 	line-height: 34px;
+}
+
+#new_match {
+	background: #FFF;
 }
 
 /* Deck Screen
@@ -683,7 +687,6 @@ Buttons */
 		margin-bottom: 5px;
 		margin-left: 17px;
 		border:none;
-
 	}
 
 	#w75{
@@ -710,7 +713,7 @@ Buttons */
 		font-weight: bold;
 	}
 
-	.yellow{
+	.yellow {
 		background: #e8a22e;
 		border: solid 4px #4f3b29;
 		padding:10px;
@@ -724,10 +727,5 @@ Buttons */
 		margin-bottom: 15px;
 		font-size: 20px;
 		font-weight: bold;
-	}
-
-	.yellow a{
 		color:#4e3b2a;
-		text-decoration: none;
-		display:block;
 	}
