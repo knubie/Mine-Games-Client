@@ -1302,8 +1302,21 @@ onDeviceReady = function() {
       }
 
       LobbyView.prototype.initialize = function() {
+        var _this = this;
         console.log('init LobbyView');
         views.newmatchview = new NewMatchView;
+        user_channel.bind('new_match', function(data) {
+          return collections.matches.fetch({
+            success: function() {
+              return collections.decks.fetch({
+                success: function() {
+                  alert("You've been challenged to a new game!");
+                  return _this.render();
+                }
+              });
+            }
+          });
+        });
         return this.render();
       };
 

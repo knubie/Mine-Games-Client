@@ -1022,7 +1022,19 @@ onDeviceReady = ->
       initialize: () ->
         console.log 'init LobbyView'
         views.newmatchview = new NewMatchView
+
+        # Initiate Pusher subscriptions
+
+        user_channel.bind 'new_match', (data) =>
+          collections.matches.fetch
+            success: =>
+              collections.decks.fetch
+                success: =>
+                  alert "You've been challenged to a new game!"
+                  @render()
+
         @render()
+
         # TODO: add event when matches collection changes
         # TODO: add pusher even when any match changes state
 
