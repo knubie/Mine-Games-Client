@@ -340,6 +340,18 @@ background: #747a78;
 		text-transform: uppercase;	
 }
 
+#lobbyTitle{
+		width: 100%;
+		background-image:url('../images/lobby/header.jpg');
+		background-repeat:no-repeat;
+		float: left;
+		height: 54px;
+		padding-top: 15px;
+		text-align:center;
+		line-height: 34px;
+		background-size: 319px;	
+	}
+
 .lobbyTitle{
 		color: #fff;
 		font-family: 'Gotham-Bold';
@@ -398,17 +410,6 @@ background: #747a78;
 	margin-top:10px;
 }
 
-#lobbyTitle{
-	width: 75%;
-	background-image:url('../images/lobby/header.jpg');
-	background-repeat:no-repeat;
-	background-size: 293px;
-	float: left;
-	height:55px;
-	padding-top: 15px;
-	text-align:center;
-	line-height: 34px;
-}
 
 #new_match {
 	background: #FFF;
@@ -619,6 +620,18 @@ Background Declarations */
 		background-repeat: none;
 		background-size: 100%;
 	}    
+
+		#lobbyTitle{
+		width: 100%;
+		background-image:url('../images/lobby/header.jpg');
+		background-repeat:no-repeat;
+		float: left;
+		height:60px;
+		padding-top: 15px;
+		text-align:center;
+		line-height: 34px;
+		background-size: 100%;	
+	}
 
     	#match{
 		background: url('../images/game_bg@2x.jpg');
