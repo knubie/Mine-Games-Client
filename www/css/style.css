@@ -188,7 +188,7 @@ background: #747a78;
 /* Cards */
 
 #hand {
-	height: 244px;
+	height: 237px;
 	overflow-y: scroll;
 	-webkit-overflow-scrolling: touch;
 }
