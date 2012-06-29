@@ -896,20 +896,20 @@ onDeviceReady = ->
 
         $players_bar = $(".two.players")
         switch current.match.get('players').length
-          when 2
-            $players_bar = $(".three.players")
           when 3
+            $players_bar = $(".three.players")
+          when 4
             $players_bar = $(".four.players")
 
         $players_bar.show().html('')
 
-        $players_bar.append($player)
         for player in current.match.get('players')
+          console.log "player bar:"
+          console.log player
           $player = $('#templates').find(".player").clone()
           $player.find('.name').html(player.username)
           if current.match.get('turn') == player.id
             $player.addClass('turn')
-          # TODO: add this as a global variable
           if player.id == current.user.id
             $player.find('.score').html(current.deck.total_points())
           else
@@ -943,20 +943,6 @@ onDeviceReady = ->
         changePage "#lobby",
           transition: 'slide'
           reverse: true
-
-
-      # refresh: ->
-      #   # TODO: wait until all models have been fetched before changing page.
-      #   current.match.fetch
-      #     success: =>
-      #       current.deck.fetch
-      #         success: =>
-      #           $('#loader').hide()
-      #           current.turn = if current.match.get('turn') == current.user.id then true else false
-      #           @render()
-
-      #     error: =>
-      #       alert 'error getting match data'
 
 
     # Lobby
@@ -1002,6 +988,8 @@ onDeviceReady = ->
         console.log 'MatchListView#render_match'
         current.match = @match
         current.deck = @deck
+        console.log "current match:"
+        console.log current.match
         match_channel = pusher.subscribe("#{current.match.get('id')}")
 
         # $('#loader').show()
@@ -1032,7 +1020,7 @@ onDeviceReady = ->
             success: =>
               alert "You've been challenged to a new game!"
               @render()
-              
+
         # collections.matches.each (match) ->
         #   sub = pusher.subscribe("#{match.get('id')}")
         #   sub.bind 'update', (data) =>
@@ -1185,13 +1173,10 @@ onDeviceReady = ->
 
 
       set_user: ->
-        $.getJSON "#{server_url}/users/1", (data) -> # users/:id param is arbitrary.
-          if data.user == null
-            alert "Sorry, there was an error. Please relink your account with facebook"
-            $('#loader').hide()
-            facebook_auth set_user
-          else
-            # TODO: get matches and decks here too
+        $.ajax 
+          url: "#{server_url}/users/1"
+          dataType: 'json'
+          success: (data) -> # users/:id param is arbitrary.
             current.user = data.user
             collections.matches.add data.matches
             collections.decks.add data.decks
@@ -1203,6 +1188,10 @@ onDeviceReady = ->
 
             changePage "#lobby"
 
+          error: (data) ->
+            alert "Sorry, there was an error. Please relink your account with facebook."
+            $('#loader').hide()
+            facebook_auth set_user
 
 
     $('#new_match_facebook').on 'pageshow', ->
