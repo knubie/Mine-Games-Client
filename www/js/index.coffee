@@ -479,6 +479,8 @@ onDeviceReady = ->
     collections = {}
 
     views = {}
+
+
     # Models / Collections
     # ============================================
 
@@ -490,7 +492,6 @@ onDeviceReady = ->
 
     class Matches extends Backbone.Collection
       initialize: ->
-        @fetch()
         console.log 'initializing Matches collection'
 
       model: Match
@@ -574,15 +575,9 @@ onDeviceReady = ->
     class Decks extends Backbone.Collection 
       initialize: ->
         console.log "initializing Decks collection"
-        @fetch()
 
       model: Deck
       url: "#{server_url}/decks"
-
-    # matches = new Matches
-    # decks = new Decks
-    # console.log matches
-    # console.log decks
 
 
     # Views
@@ -620,7 +615,7 @@ onDeviceReady = ->
 
 
     # Shop
-    
+
     class ShopListView extends Backbone.View
       initialize: (@card, @amount) ->
         console.log 'initializing ShopListView'
@@ -868,8 +863,6 @@ onDeviceReady = ->
           console.log "match_channel:update_score"
           @refresh()
 
-        @refresh()
-
         console.log " - Binding backbone events"
 
         current.match.on 'change:log', =>
@@ -887,7 +880,8 @@ onDeviceReady = ->
         current.deck.on 'update_to_spend', =>
           console.log "event: update_to_spend"
           @$el.find('#to_spend > .count').html(current.deck.to_spend())
-          # @render()
+
+        @render()
 
       el: '#match'
 
@@ -896,127 +890,57 @@ onDeviceReady = ->
         'tap #lobby_header': 'back_to_lobby'
 
       render: ->
-        console.log 'MatchView#render'
-        console.log current.match
-        console.log ' - Updating log DOM'
         @$el.find('#log').html(_.last(current.match.get('log')))
-        console.log ' - clearing #hand'
-        @$el.find('#hand').html('')
-        console.log " - Iterating current.deck.get('hand')"
-        console.log current.deck.get('hand')
+        @$el.find('#actions > .count').html(current.deck.get 'actions')
+        @$el.find('#mine > .count').html(current.match.get('mine').length)
+        @$el.find('#to_spend > .count').html(current.deck.to_spend())
+
+        @$el.find('.card').remove()
         for card in current.deck.get('hand')
-          console.log " - - Iterating.."
           view = new CardListView(cards[card])
 
-        console.log " - Updating actions DOM"
-        @$el.find('#actions > .count').html(current.deck.get 'actions')
-        console.log " - Updating mine DOM"
-        @$el.find('#mine > .count').html(current.match.get('mine').length)
-        console.log " - Updating to_spend DOM"
-        @$el.find('#to_spend > .count').html(current.deck.to_spend())
-        console.log " - Updating turn DOM"
         if current.turn
-          console.log " - - current.turn: true"
           @$el.find('#end_turn').show()
           @$el.find('#turn').hide()
         else
-          console.log " - - current.turn: false"
           @$el.find('#end_turn').hide()
           @$el.find('#turn').show()
           players = current.match.get('players')
           player = _.find players, (player) ->
             player.id == current.match.get('turn')
           @$el.find('#turn > .count').html(player.username)
-        console.log " - Updating player score DOM"
         # TODO: add string truncation for names
         # TODO: DRY this switch statement up
+
+        $players_bar = $("#two-players")
         switch current.match.get('players').length
-          when 1
-            console.log " - - Adding current.user"
-            $("#two-players").show().html('')
-            $player = $('#templates').find(".player").clone()
-            $player.find('.name').html(current.user.username)
-            $player.find('.score').html(current.deck.total_points())
-            if current.turn
-              $player.addClass('active')
-            $("#two-players").append($player)
-            console.log " - - Iterating match.players"
-            for player in current.match.get('players')
-              console.log " - - - Iterating.."
-              console.log " - - - player:"
-              console.log player
-              $player = $('#templates').find(".player").clone()
-              $player.find('.name').html(player.username)
-              if current.match.get('turn') == player.id
-                console.log "BOOYAH"
-                $player.addClass('active')
-              # TODO: add this as a global variable
-              players_decks = new Decks()
-              players_decks.url = "#{server_url}/decks_by_user/#{player.id}"
-              console.log " - - - Fetching decks"
-              players_decks.fetch
-                success: ->
-                  console.log ' - - - - Fetch success'
-                  console.log " - - - - deck:"
-                  console.log  players_decks.where(match_id: current.match.get('id'))[0]
-                  deck = players_decks.where(match_id: current.match.get('id'))[0]
-                  $player.find('.score').html(deck.total_points())
-              $("#two-players").append($player)
           when 2
-            console.log " - - Adding current.user"
-            $("#three-players").html('')
-            $player = $('#templates').find(".player").clone()
-            $player.find('.name').html(current.user.username)
-            $player.find('.score').html(current.deck.total_points())
-            $("#three-players").append($player)
-            console.log " - - Iterating match.players"
-            for player in current.match.get('players')
-              console.log " - - - Iterating.."
-              console.log " - - - player:"
-              console.log player
-              $player = $('#templates').find(".player").clone()
-              $player.find('.name').html(player.username)
-              players_decks = new Decks()
-              players_decks.url = "#{server_url}/decks_by_user/#{player.id}"
-              console.log " - - - Fetching decks"
-              players_decks.fetch
-                success: ->
-                  console.log ' - - - - Fetch success'
-                  console.log " - - - - deck:"
-                  console.log  players_decks.where(match_id: current.match.get('id'))[0]
-                  deck = players_decks.where(match_id: current.match.get('id'))[0]
-                  $player.find('.score').html(deck.total_points())
-              $("#three-players").append($player)
-            # three-players
+            $players_bar = $("#three-players")
           when 3
-            console.log " - - Adding current.user"
-            $("#four-players").html('')
-            $player = $('#templates').find(".player").clone()
-            $player.find('.name').html(current.user.username)
-            $player.find('.score').html(current.deck.total_points())
-            $("#four-players").append($player)
-            console.log " - - Iterating match.players"
-            for player in current.match.get('players')
-              console.log " - - - Iterating.."
-              console.log " - - - player:"
-              console.log player
-              $player = $('#templates').find(".player").clone()
-              $player.find('.name').html(player.username)
-              players_decks = new Decks()
-              players_decks.url = "#{server_url}/decks_by_user/#{player.id}"
-              console.log " - - - Fetching decks"
-              players_decks.fetch
-                success: ->
-                  console.log ' - - - - Fetch success'
-                  console.log " - - - - deck:"
-                  console.log  players_decks.where(match_id: current.match.get('id'))[0]
-                  deck = players_decks.where(match_id: current.match.get('id'))[0]
-                  $player.find('.score').html(deck.total_points())
-              $("#four-players").append($player)
+            $players_bar = $("#four-players")
 
+        $players_bar.show().html('')
+        $player = $('#templates').find(".player").clone()
+        $player.find('.name').html(current.user.username)
+        $player.find('.score').html(current.deck.total_points())
+        if current.turn
+          $player.addClass('active')
+        $players_bar.append($player)
+        for player in current.match.get('players')
+          $player = $('#templates').find(".player").clone()
+          $player.find('.name').html(player.username)
+          if current.match.get('turn') == player.id
+            $player.addClass('active')
+          # TODO: add this as a global variable
+          players_decks = new Decks()
+          players_decks.url = "#{server_url}/decks_by_user/#{player.id}"
+          players_decks.fetch
+            success: ->
+              deck = players_decks.where(match_id: current.match.get('id'))[0]
+              $player.find('.score').html(deck.total_points())
+          $players_bar.append($player)
 
-        $('#loader').css('opacity', 0)
-        $('#loader').hide()
+        # $('#loader').hide()
 
         if @$el.css('display') == 'none'
           changePage '#match',
@@ -1041,28 +965,18 @@ onDeviceReady = ->
           reverse: true
 
 
-      refresh: ->
-        # TODO: wait until all models have been fetched before changing page.
-        console.log "MatchView#refresh"
-        console.log " - fetching current.match"
-        current.match.fetch
-          success: =>
-            console.log " - - current.match.fetch: Success"
-            console.log " - - Fetching current.deck"
-            current.deck.fetch
-              success: =>
-                console.log " - - - current.deck.fetch: Success"
-                console.log " - - - Hiding #loader"
-                $('#loader').hide()
-                $('#loader').css('opacity', 0)
-                console.log " - - - Setting current.turn"
-                current.turn = if current.match.get('turn') == current.user.id then true else false
-                console.log " - - - current.turn: #{current.turn}"
-                console.log " - - - rendering.."
-                @render()
+      # refresh: ->
+      #   # TODO: wait until all models have been fetched before changing page.
+      #   current.match.fetch
+      #     success: =>
+      #       current.deck.fetch
+      #         success: =>
+      #           $('#loader').hide()
+      #           current.turn = if current.match.get('turn') == current.user.id then true else false
+      #           @render()
 
-          error: =>
-            alert 'error getting match data'
+      #     error: =>
+      #       alert 'error getting match data'
 
 
     # Lobby
@@ -1079,17 +993,16 @@ onDeviceReady = ->
       render: ->
         console.log 'MatchListView#render'
         if @match.get('turn') == current.user.id
-          $('#matches').find('#your-turn').append(@el)
+          $('#matches').find('#your-turn').prepend(@el)
         else
-          $('#matches').find('#their-turn').append(@el)
+          $('#matches').find('#their-turn').prepend(@el)
         @$el.find('.head').html("Mining with #{player.username for player in @match.get('players')}")
+        console.log 'checking last move'
         if "#{@match.get('last_move')}" == "null"
-          # think of something to do here
+          # think of something to say here
           @$el.find('.subhead').html("No moves yet!")
         else
           @$el.find('.subhead').html("Last move #{$.timeago @match.get('last_move')}")
-        @$el.on 'click', (e) ->
-          e.preventDefault()
 
       render_match: ->
         console.log 'MatchListView#render_match'
@@ -1097,27 +1010,27 @@ onDeviceReady = ->
         current.deck = @deck
         match_channel = pusher.subscribe("#{current.match.get('id')}")
 
-        $('#loader').show()
-        $('#loader').css('opacity', 1)
-        $('#loader').find('#loading-text').html('Setting up match...')
+        # $('#loader').show()
+        # $('#loader').find('#loading-text').html('Setting up match...')
 
         console.log "checking if MatchView instance exists."
         if current.matchview
-          console.log 'MatchView instance exists. Refreshing'
-          current.matchview.refresh()
+          current.matchview.render()
         else
           console.log 'MatchView instance doesnt exist. Creating new matchview'
           current.matchview = new MatchView
 
-        if current.shopview
-          current.shopview.render()
-        else
-          current.shopview = new ShopView
+        # if current.shopview
+        #   current.shopview.render()
+        # else
+        #   current.shopview = new ShopView
 
     class LobbyView extends Backbone.View
       initialize: () ->
         console.log 'init LobbyView'
-        @fetch_collections(@render)
+        @render()
+        # TODO: add event when matches collection changes
+        # TODO: add pusher even when any match changes state
 
       el: '#lobby'
 
@@ -1130,29 +1043,29 @@ onDeviceReady = ->
         $.cookie('token', null)
         changePage "#home"
 
-      fetch_collections: (callback) ->
+      render: ->
         # user_channel.bind 'new_match', (data) =>
         #   alert "You've been challenged to a new game!"
 
-        console.log 'LobbyView#fetch_collections'
-        console.log 'fetching decks/matches'
-        $('#loader').find('#loading-text').html('Finding matches...')
-        collections.matches.fetch
-          success: =>
-            console.log 'got match data, waiting on decks'
-            collections.decks.fetch
-              success: =>
-                $('#loader').hide()
-                callback()
-            
-      render: ->
-        # @$el.find('.match-item-view').remove()
-        for match in collections.matches.models
+        # console.log 'LobbyView#fetch_collections'
+        # console.log 'fetching decks/matches'
+        # $('#loader').find('#loading-text').html('Finding matches...')
+        # # TODO: get matches and decks in one request
+        # collections.matches.fetch
+        #   success: =>
+        #     console.log 'got match data, waiting on decks'
+        #     collections.decks.fetch
+        #       success: =>
+        #         $('#loader').hide()
+        @$el.find('.match-item-view').remove()
+        $('#loader').hide()
+        collections.matches.each (match) ->
           console.log 'iterating matches in LobbyView#render'
-          d = collections.decks.where(match_id: match.get('id'))
-          view = new MatchListView(match, d[0]) # TODO: use underscore find
-
+          deck = collections.decks.find (deck) ->
+            deck.get('match_id') == match.get('id')
+          view = new MatchListView(match, deck)
           
+
     # Home
 
     class LoginView extends Backbone.View
@@ -1265,17 +1178,19 @@ onDeviceReady = ->
 
 
       set_user: ->
-        $.getJSON "#{server_url}/users/1", (user) -> # users/:id param is arbitrary.
-          if user == null
+        $.getJSON "#{server_url}/users/1", (data) -> # users/:id param is arbitrary.
+          if data.user == null
             alert "Sorry, there was an error. Please relink your account with facebook"
             $('#loader').hide()
             facebook_auth set_user
           else
-            current.user = user
+            # TODO: get matches and decks here too
+            current.user = data.user
+            collections.matches.add data.matches
+            collections.decks.add data.decks
             user_channel = pusher.subscribe("#{current.user.id}")
-            console.log 'instantiating LobbyView'
             if views.lobby
-              views.lobby.fetch_collections(views.lobby.render)
+              views.lobby.render()
             else
               views.lobby = new LobbyView
 

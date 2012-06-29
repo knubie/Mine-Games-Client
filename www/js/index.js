@@ -573,7 +573,6 @@ onDeviceReady = function() {
       }
 
       Matches.prototype.initialize = function() {
-        this.fetch();
         return console.log('initializing Matches collection');
       };
 
@@ -703,8 +702,7 @@ onDeviceReady = function() {
       }
 
       Decks.prototype.initialize = function() {
-        console.log("initializing Decks collection");
-        return this.fetch();
+        return console.log("initializing Decks collection");
       };
 
       Decks.prototype.model = Deck;
@@ -1120,7 +1118,6 @@ onDeviceReady = function() {
           console.log("match_channel:update_score");
           return _this.refresh();
         });
-        this.refresh();
         console.log(" - Binding backbone events");
         current.match.on('change:log', function() {
           console.log("current.match change:log");
@@ -1134,10 +1131,11 @@ onDeviceReady = function() {
           console.log("current.deck change:actions");
           return _this.$el.find('#actions > .count').html(current.deck.get('actions'));
         });
-        return current.deck.on('update_to_spend', function() {
+        current.deck.on('update_to_spend', function() {
           console.log("event: update_to_spend");
           return _this.$el.find('#to_spend > .count').html(current.deck.to_spend());
         });
+        return this.render();
       };
 
       MatchView.prototype.el = '#match';
@@ -1148,34 +1146,21 @@ onDeviceReady = function() {
       };
 
       MatchView.prototype.render = function() {
-        var $player, card, player, players, players_decks, view, _i, _j, _k, _l, _len, _len1, _len2, _len3, _ref, _ref1, _ref2, _ref3;
-        console.log('MatchView#render');
-        console.log(current.match);
-        console.log(' - Updating log DOM');
+        var $player, $players_bar, card, player, players, players_decks, view, _i, _j, _len, _len1, _ref, _ref1;
         this.$el.find('#log').html(_.last(current.match.get('log')));
-        console.log(' - clearing #hand');
-        this.$el.find('#hand').html('');
-        console.log(" - Iterating current.deck.get('hand')");
-        console.log(current.deck.get('hand'));
+        this.$el.find('#actions > .count').html(current.deck.get('actions'));
+        this.$el.find('#mine > .count').html(current.match.get('mine').length);
+        this.$el.find('#to_spend > .count').html(current.deck.to_spend());
+        this.$el.find('.card').remove();
         _ref = current.deck.get('hand');
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           card = _ref[_i];
-          console.log(" - - Iterating..");
           view = new CardListView(cards[card]);
         }
-        console.log(" - Updating actions DOM");
-        this.$el.find('#actions > .count').html(current.deck.get('actions'));
-        console.log(" - Updating mine DOM");
-        this.$el.find('#mine > .count').html(current.match.get('mine').length);
-        console.log(" - Updating to_spend DOM");
-        this.$el.find('#to_spend > .count').html(current.deck.to_spend());
-        console.log(" - Updating turn DOM");
         if (current.turn) {
-          console.log(" - - current.turn: true");
           this.$el.find('#end_turn').show();
           this.$el.find('#turn').hide();
         } else {
-          console.log(" - - current.turn: false");
           this.$el.find('#end_turn').hide();
           this.$el.find('#turn').show();
           players = current.match.get('players');
@@ -1184,125 +1169,43 @@ onDeviceReady = function() {
           });
           this.$el.find('#turn > .count').html(player.username);
         }
-        console.log(" - Updating player score DOM");
+        $players_bar = $("#two-players");
         switch (current.match.get('players').length) {
-          case 1:
-            console.log(" - - Adding current.user");
-            $("#two-players").show().html('');
-            $player = $('#templates').find(".player").clone();
-            $player.find('.name').html(current.user.username);
-            $player.find('.score').html(current.deck.total_points());
-            if (current.turn) {
-              $player.addClass('active');
-            }
-            $("#two-players").append($player);
-            console.log(" - - Iterating match.players");
-            _ref1 = current.match.get('players');
-            for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
-              player = _ref1[_j];
-              console.log(" - - - Iterating..");
-              console.log(" - - - player:");
-              console.log(player);
-              $player = $('#templates').find(".player").clone();
-              $player.find('.name').html(player.username);
-              if (current.match.get('turn') === player.id) {
-                console.log("BOOYAH");
-                $player.addClass('active');
-              }
-              players_decks = new Decks();
-              players_decks.url = "" + server_url + "/decks_by_user/" + player.id;
-              console.log(" - - - Fetching decks");
-              players_decks.fetch({
-                success: function() {
-                  var deck;
-                  console.log(' - - - - Fetch success');
-                  console.log(" - - - - deck:");
-                  console.log(players_decks.where({
-                    match_id: current.match.get('id')
-                  })[0]);
-                  deck = players_decks.where({
-                    match_id: current.match.get('id')
-                  })[0];
-                  return $player.find('.score').html(deck.total_points());
-                }
-              });
-              $("#two-players").append($player);
-            }
-            break;
           case 2:
-            console.log(" - - Adding current.user");
-            $("#three-players").html('');
-            $player = $('#templates').find(".player").clone();
-            $player.find('.name').html(current.user.username);
-            $player.find('.score').html(current.deck.total_points());
-            $("#three-players").append($player);
-            console.log(" - - Iterating match.players");
-            _ref2 = current.match.get('players');
-            for (_k = 0, _len2 = _ref2.length; _k < _len2; _k++) {
-              player = _ref2[_k];
-              console.log(" - - - Iterating..");
-              console.log(" - - - player:");
-              console.log(player);
-              $player = $('#templates').find(".player").clone();
-              $player.find('.name').html(player.username);
-              players_decks = new Decks();
-              players_decks.url = "" + server_url + "/decks_by_user/" + player.id;
-              console.log(" - - - Fetching decks");
-              players_decks.fetch({
-                success: function() {
-                  var deck;
-                  console.log(' - - - - Fetch success');
-                  console.log(" - - - - deck:");
-                  console.log(players_decks.where({
-                    match_id: current.match.get('id')
-                  })[0]);
-                  deck = players_decks.where({
-                    match_id: current.match.get('id')
-                  })[0];
-                  return $player.find('.score').html(deck.total_points());
-                }
-              });
-              $("#three-players").append($player);
-            }
+            $players_bar = $("#three-players");
             break;
           case 3:
-            console.log(" - - Adding current.user");
-            $("#four-players").html('');
-            $player = $('#templates').find(".player").clone();
-            $player.find('.name').html(current.user.username);
-            $player.find('.score').html(current.deck.total_points());
-            $("#four-players").append($player);
-            console.log(" - - Iterating match.players");
-            _ref3 = current.match.get('players');
-            for (_l = 0, _len3 = _ref3.length; _l < _len3; _l++) {
-              player = _ref3[_l];
-              console.log(" - - - Iterating..");
-              console.log(" - - - player:");
-              console.log(player);
-              $player = $('#templates').find(".player").clone();
-              $player.find('.name').html(player.username);
-              players_decks = new Decks();
-              players_decks.url = "" + server_url + "/decks_by_user/" + player.id;
-              console.log(" - - - Fetching decks");
-              players_decks.fetch({
-                success: function() {
-                  var deck;
-                  console.log(' - - - - Fetch success');
-                  console.log(" - - - - deck:");
-                  console.log(players_decks.where({
-                    match_id: current.match.get('id')
-                  })[0]);
-                  deck = players_decks.where({
-                    match_id: current.match.get('id')
-                  })[0];
-                  return $player.find('.score').html(deck.total_points());
-                }
-              });
-              $("#four-players").append($player);
-            }
+            $players_bar = $("#four-players");
         }
-        $('#loader').css('opacity', 0);
-        $('#loader').hide();
+        $players_bar.show().html('');
+        $player = $('#templates').find(".player").clone();
+        $player.find('.name').html(current.user.username);
+        $player.find('.score').html(current.deck.total_points());
+        if (current.turn) {
+          $player.addClass('active');
+        }
+        $players_bar.append($player);
+        _ref1 = current.match.get('players');
+        for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+          player = _ref1[_j];
+          $player = $('#templates').find(".player").clone();
+          $player.find('.name').html(player.username);
+          if (current.match.get('turn') === player.id) {
+            $player.addClass('active');
+          }
+          players_decks = new Decks();
+          players_decks.url = "" + server_url + "/decks_by_user/" + player.id;
+          players_decks.fetch({
+            success: function() {
+              var deck;
+              deck = players_decks.where({
+                match_id: current.match.get('id')
+              })[0];
+              return $player.find('.score').html(deck.total_points());
+            }
+          });
+          $players_bar.append($player);
+        }
         if (this.$el.css('display') === 'none') {
           return changePage('#match', {
             transition: 'slide'
@@ -1334,34 +1237,6 @@ onDeviceReady = function() {
         });
       };
 
-      MatchView.prototype.refresh = function() {
-        var _this = this;
-        console.log("MatchView#refresh");
-        console.log(" - fetching current.match");
-        return current.match.fetch({
-          success: function() {
-            console.log(" - - current.match.fetch: Success");
-            console.log(" - - Fetching current.deck");
-            return current.deck.fetch({
-              success: function() {
-                console.log(" - - - current.deck.fetch: Success");
-                console.log(" - - - Hiding #loader");
-                $('#loader').hide();
-                $('#loader').css('opacity', 0);
-                console.log(" - - - Setting current.turn");
-                current.turn = current.match.get('turn') === current.user.id ? true : false;
-                console.log(" - - - current.turn: " + current.turn);
-                console.log(" - - - rendering..");
-                return _this.render();
-              }
-            });
-          },
-          error: function() {
-            return alert('error getting match data');
-          }
-        });
-      };
-
       return MatchView;
 
     })(Backbone.View);
@@ -1389,9 +1264,9 @@ onDeviceReady = function() {
         var player;
         console.log('MatchListView#render');
         if (this.match.get('turn') === current.user.id) {
-          $('#matches').find('#your-turn').append(this.el);
+          $('#matches').find('#your-turn').prepend(this.el);
         } else {
-          $('#matches').find('#their-turn').append(this.el);
+          $('#matches').find('#their-turn').prepend(this.el);
         }
         this.$el.find('.head').html("Mining with " + ((function() {
           var _i, _len, _ref, _results;
@@ -1403,14 +1278,12 @@ onDeviceReady = function() {
           }
           return _results;
         }).call(this)));
+        console.log('checking last move');
         if (("" + (this.match.get('last_move'))) === "null") {
-          this.$el.find('.subhead').html("No moves yet!");
+          return this.$el.find('.subhead').html("No moves yet!");
         } else {
-          this.$el.find('.subhead').html("Last move " + ($.timeago(this.match.get('last_move'))));
+          return this.$el.find('.subhead').html("Last move " + ($.timeago(this.match.get('last_move'))));
         }
-        return this.$el.on('click', function(e) {
-          return e.preventDefault();
-        });
       };
 
       MatchListView.prototype.render_match = function() {
@@ -1418,21 +1291,12 @@ onDeviceReady = function() {
         current.match = this.match;
         current.deck = this.deck;
         match_channel = pusher.subscribe("" + (current.match.get('id')));
-        $('#loader').show();
-        $('#loader').css('opacity', 1);
-        $('#loader').find('#loading-text').html('Setting up match...');
         console.log("checking if MatchView instance exists.");
         if (current.matchview) {
-          console.log('MatchView instance exists. Refreshing');
-          current.matchview.refresh();
+          return current.matchview.render();
         } else {
           console.log('MatchView instance doesnt exist. Creating new matchview');
-          current.matchview = new MatchView;
-        }
-        if (current.shopview) {
-          return current.shopview.render();
-        } else {
-          return current.shopview = new ShopView;
+          return current.matchview = new MatchView;
         }
       };
 
@@ -1449,7 +1313,7 @@ onDeviceReady = function() {
 
       LobbyView.prototype.initialize = function() {
         console.log('init LobbyView');
-        return this.fetch_collections(this.render);
+        return this.render();
       };
 
       LobbyView.prototype.el = '#lobby';
@@ -1465,37 +1329,17 @@ onDeviceReady = function() {
         return changePage("#home");
       };
 
-      LobbyView.prototype.fetch_collections = function(callback) {
-        var _this = this;
-        console.log('LobbyView#fetch_collections');
-        console.log('fetching decks/matches');
-        $('#loader').find('#loading-text').html('Finding matches...');
-        return collections.matches.fetch({
-          success: function() {
-            console.log('got match data, waiting on decks');
-            return collections.decks.fetch({
-              success: function() {
-                $('#loader').hide();
-                return callback();
-              }
-            });
-          }
-        });
-      };
-
       LobbyView.prototype.render = function() {
-        var d, match, view, _i, _len, _ref, _results;
-        _ref = collections.matches.models;
-        _results = [];
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          match = _ref[_i];
+        this.$el.find('.match-item-view').remove();
+        $('#loader').hide();
+        return collections.matches.each(function(match) {
+          var deck, view;
           console.log('iterating matches in LobbyView#render');
-          d = collections.decks.where({
-            match_id: match.get('id')
+          deck = collections.decks.find(function(deck) {
+            return deck.get('match_id') === match.get('id');
           });
-          _results.push(view = new MatchListView(match, d[0]));
-        }
-        return _results;
+          return view = new MatchListView(match, deck);
+        });
       };
 
       return LobbyView;
@@ -1653,17 +1497,18 @@ onDeviceReady = function() {
       };
 
       HomeView.prototype.set_user = function() {
-        return $.getJSON("" + server_url + "/users/1", function(user) {
-          if (user === null) {
+        return $.getJSON("" + server_url + "/users/1", function(data) {
+          if (data.user === null) {
             alert("Sorry, there was an error. Please relink your account with facebook");
             $('#loader').hide();
             return facebook_auth(set_user);
           } else {
-            current.user = user;
+            current.user = data.user;
+            collections.matches.add(data.matches);
+            collections.decks.add(data.decks);
             user_channel = pusher.subscribe("" + current.user.id);
-            console.log('instantiating LobbyView');
             if (views.lobby) {
-              views.lobby.fetch_collections(views.lobby.render);
+              views.lobby.render();
             } else {
               views.lobby = new LobbyView;
             }

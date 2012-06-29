@@ -573,7 +573,6 @@ Background Declarations */
 		width: 100%;
 		background-color: rgba(0, 0, 0, 0.5);
 		z-index: 99;
-		opacity: 0;
 		display: none;
 		-webkit-transition: opacity .05s ease-in-out;
 		text-align: center;
