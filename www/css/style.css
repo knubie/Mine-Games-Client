@@ -162,7 +162,7 @@ ul {
 	font-weight:300;
 	font-size:12px;
 	font-family: 'Helvetica',sans-serif;
-	display: inline-block;
+	float: left;
 }
 
 .players .turn {

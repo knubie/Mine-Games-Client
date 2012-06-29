@@ -1144,17 +1144,18 @@ onDeviceReady = function() {
         }
         $players_bar = $(".two.players");
         switch (current.match.get('players').length) {
-          case 2:
+          case 3:
             $players_bar = $(".three.players");
             break;
-          case 3:
+          case 4:
             $players_bar = $(".four.players");
         }
         $players_bar.show().html('');
-        $players_bar.append($player);
         _ref1 = current.match.get('players');
         for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
           player = _ref1[_j];
+          console.log("player bar:");
+          console.log(player);
           $player = $('#templates').find(".player").clone();
           $player.find('.name').html(player.username);
           if (current.match.get('turn') === player.id) {
@@ -1289,6 +1290,8 @@ onDeviceReady = function() {
         console.log('MatchListView#render_match');
         current.match = this.match;
         current.deck = this.deck;
+        console.log("current match:");
+        console.log(current.match);
         match_channel = pusher.subscribe("" + (current.match.get('id')));
         console.log("checking if MatchView instance exists.");
         if (current.matchview) {
@@ -1522,12 +1525,10 @@ onDeviceReady = function() {
       };
 
       HomeView.prototype.set_user = function() {
-        return $.getJSON("" + server_url + "/users/1", function(data) {
-          if (data.user === null) {
-            alert("Sorry, there was an error. Please relink your account with facebook");
-            $('#loader').hide();
-            return facebook_auth(set_user);
-          } else {
+        return $.ajax({
+          url: "" + server_url + "/users/1",
+          dataType: 'json',
+          success: function(data) {
             current.user = data.user;
             collections.matches.add(data.matches);
             collections.decks.add(data.decks);
@@ -1538,6 +1539,11 @@ onDeviceReady = function() {
               views.lobby = new LobbyView;
             }
             return changePage("#lobby");
+          },
+          error: function(data) {
+            alert("Sorry, there was an error. Please relink your account with facebook.");
+            $('#loader').hide();
+            return facebook_auth(set_user);
           }
         });
       };
