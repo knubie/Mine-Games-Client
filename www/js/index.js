@@ -586,7 +586,12 @@ onDeviceReady = function() {
         return Deck.__super__.constructor.apply(this, arguments);
       }
 
-      Deck.prototype.initialize = function() {};
+      Deck.prototype.initialize = function() {
+        var _this = this;
+        return this.on('change', function() {
+          return console.log("deck changed");
+        });
+      };
 
       Deck.prototype.urlRoot = "" + server_url + "/decks";
 
@@ -1180,13 +1185,14 @@ onDeviceReady = function() {
         $('#loader').css('opacity', 1);
         $('#loader').find('#loading-text').html('Submitting turn...');
         current.match.set('last_move', new Date().toString().split(' ').slice(0, 5).join(' '));
-        return current.match.save({}, {
-          success: function() {
-            return $.post("" + server_url + "/end_turn/" + (current.match.get('id')), JSON.stringify(current.match.toJSON()), function(data) {
-              console.log(data);
-              return console.log('fetching match data');
-            });
-          }
+        return $.post("" + server_url + "/end_turn/" + (current.match.get('id')), {
+          'match': current.match.toJSON()
+        }, function(data) {
+          current.match.set(JSON.parse(data)["match"]);
+          current.deck.set(JSON.parse(data)["deck"]);
+          current.turn = current.match.get('turn') === current.user.id ? true : false;
+          $('#loader').hide();
+          return _this.render();
         });
       };
 

@@ -498,8 +498,8 @@ onDeviceReady = ->
 
     class Deck extends Backbone.Model
       initialize: ->
-        # @on 'change', =>
-        #   console.log "deck changed"
+        @on 'change', =>
+          console.log "deck changed"
         #   $('#to_spend > .count').html(current.deck.to_spend())
           # @save()
 
@@ -841,7 +841,7 @@ onDeviceReady = ->
 
         # match_channel.bind 'change_turn', (data) =>
         #   console.log "match_channel:change_turn"
-        #   @refresh()
+        #   @render()
 
         # match_channel.bind 'update_score', (data) =>
         #   console.log "match_channel:update_score"
@@ -893,7 +893,6 @@ onDeviceReady = ->
             player.id == current.match.get('turn')
           @$el.find('#turn > .count').html(player.username)
         # TODO: add string truncation for names
-        # TODO: DRY this switch statement up
 
         $players_bar = $(".two.players")
         switch current.match.get('players').length
@@ -934,12 +933,12 @@ onDeviceReady = ->
         $('#loader').css('opacity', 1)
         $('#loader').find('#loading-text').html('Submitting turn...')
         current.match.set('last_move', new Date().toString().split(' ').slice(0,5).join(' '))
-        current.match.save {},
-          success: =>
-            $.post "#{server_url}/end_turn/#{current.match.get('id')}", JSON.stringify(current.match.toJSON()), (data) =>
-              console.log data
-              console.log 'fetching match data'
-              # @refresh()
+        $.post "#{server_url}/end_turn/#{current.match.get('id')}", {'match': current.match.toJSON()}, (data) =>
+          current.match.set JSON.parse(data)["match"]
+          current.deck.set JSON.parse(data)["deck"]
+          current.turn = if current.match.get('turn') == current.user.id then true else false
+          $('#loader').hide()
+          @render()
 
       back_to_lobby: ->
         changePage "#lobby",
