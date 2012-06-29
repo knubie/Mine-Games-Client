@@ -1099,25 +1099,8 @@ onDeviceReady = function() {
         console.log('MatchView#initialize');
         console.log(" - instantiating CardDetailView");
         current.carddetailview = new CardDetailView;
+        current.turn = current.match.get('turn') === current.user.id ? true : false;
         console.log(" - Binding pusher channels");
-        match_channel.bind('update', function(data) {
-          console.log("match_channel:update");
-          if (!current.turn) {
-            return current.match.fetch();
-          }
-        });
-        user_channel.bind('update_deck', function(data) {
-          console.log("user_channel:update_deck");
-          return _this.refresh();
-        });
-        match_channel.bind('change_turn', function(data) {
-          console.log("match_channel:change_turn");
-          return _this.refresh();
-        });
-        match_channel.bind('update_score', function(data) {
-          console.log("match_channel:update_score");
-          return _this.refresh();
-        });
         console.log(" - Binding backbone events");
         current.match.on('change:log', function() {
           console.log("current.match change:log");
@@ -1146,7 +1129,7 @@ onDeviceReady = function() {
       };
 
       MatchView.prototype.render = function() {
-        var $player, $players_bar, card, player, players, players_decks, view, _i, _j, _len, _len1, _ref, _ref1;
+        var $player, $players_bar, card, player, players_decks, view, _i, _j, _len, _len1, _ref, _ref1;
         this.$el.find('#log').html(_.last(current.match.get('log')));
         this.$el.find('#actions > .count').html(current.deck.get('actions'));
         this.$el.find('#mine > .count').html(current.match.get('mine').length);
@@ -1163,8 +1146,7 @@ onDeviceReady = function() {
         } else {
           this.$el.find('#end_turn').hide();
           this.$el.find('#turn').show();
-          players = current.match.get('players');
-          player = _.find(players, function(player) {
+          player = _.find(current.match.get('players'), function(player) {
             return player.id === current.match.get('turn');
           });
           this.$el.find('#turn > .count').html(player.username);
@@ -1381,7 +1363,6 @@ onDeviceReady = function() {
 
       LoginView.prototype.login = function(e) {
         $('#loader').show();
-        $('#loader').css('opacity', 1);
         $.post("" + server_url + "/signin.json", $('#login-form').serialize(), function(user) {
           if (user.error != null) {
             alert('invalid username and/or password');

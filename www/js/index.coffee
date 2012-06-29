@@ -845,23 +845,25 @@ onDeviceReady = ->
 
         console.log " - instantiating CardDetailView"
         current.carddetailview = new CardDetailView
+        
+        current.turn = if current.match.get('turn') == current.user.id then true else false
 
         console.log " - Binding pusher channels"
-        match_channel.bind 'update', (data) ->
-          console.log "match_channel:update"
-          current.match.fetch() if not current.turn
+        # match_channel.bind 'update', (data) ->
+        #   console.log "match_channel:update"
+        #   current.match.fetch() if not current.turn
 
-        user_channel.bind 'update_deck', (data) =>
-          console.log "user_channel:update_deck"
-          @refresh()
+        # user_channel.bind 'update_deck', (data) =>
+        #   console.log "user_channel:update_deck"
+        #   @refresh()
 
-        match_channel.bind 'change_turn', (data) =>
-          console.log "match_channel:change_turn"
-          @refresh()
+        # match_channel.bind 'change_turn', (data) =>
+        #   console.log "match_channel:change_turn"
+        #   @refresh()
 
-        match_channel.bind 'update_score', (data) =>
-          console.log "match_channel:update_score"
-          @refresh()
+        # match_channel.bind 'update_score', (data) =>
+        #   console.log "match_channel:update_score"
+        #   @refresh()
 
         console.log " - Binding backbone events"
 
@@ -905,8 +907,7 @@ onDeviceReady = ->
         else
           @$el.find('#end_turn').hide()
           @$el.find('#turn').show()
-          players = current.match.get('players')
-          player = _.find players, (player) ->
+          player = _.find current.match.get('players'), (player) ->
             player.id == current.match.get('turn')
           @$el.find('#turn > .count').html(player.username)
         # TODO: add string truncation for names
@@ -923,6 +924,7 @@ onDeviceReady = ->
         $player = $('#templates').find(".player").clone()
         $player.find('.name').html(current.user.username)
         $player.find('.score').html(current.deck.total_points())
+
         if current.turn
           $player.addClass('active')
         $players_bar.append($player)
@@ -940,7 +942,7 @@ onDeviceReady = ->
               $player.find('.score').html(deck.total_points())
           $players_bar.append($player)
 
-        # $('#loader').hide()
+        # # $('#loader').hide()
 
         if @$el.css('display') == 'none'
           changePage '#match',
@@ -1092,7 +1094,6 @@ onDeviceReady = ->
 
       login: (e) ->
         $('#loader').show()
-        $('#loader').css('opacity', 1)
         $.post("#{server_url}/signin.json", $('#login-form').serialize(), (user) ->
           if user.error?
             alert 'invalid username and/or password'
