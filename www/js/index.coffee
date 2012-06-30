@@ -826,42 +826,45 @@ onDeviceReady = ->
         console.log 'MatchView#initialize'
 
         console.log " - instantiating CardDetailView"
-        current.carddetailview = new CardDetailView
+        # views.carddetail = new CardDetailView
 
-        console.log " - Binding pusher channels"
-        # match_channel.bind 'update', (data) ->
-        #   console.log "match_channel:update"
-        #   current.match.fetch() if not current.turn
+        match_channel = pusher.channel("#{current.match.get('id')}")
+        deck_channel = pusher.subscribe("#{current.match.get('id')}")
 
-        # user_channel.bind 'update_deck', (data) =>
-        #   console.log "user_channel:update_deck"
-        #   @refresh()
-
-        # match_channel.bind 'change_turn', (data) =>
-        #   console.log "match_channel:change_turn"
+        # match_channel.bind 'update', (data) =>
+        #   alert "match channel update"
         #   @render()
+        #   # current.match.fetch() if not current.turn
 
-        # match_channel.bind 'update_score', (data) =>
-        #   console.log "match_channel:update_score"
-        #   @refresh()
+        # # user_channel.bind 'update_deck', (data) =>
+        # #   console.log "user_channel:update_deck"
+        # #   @refresh()
 
-        console.log " - Binding backbone events"
+        # # match_channel.bind 'change_turn', (data) =>
+        # #   console.log "match_channel:change_turn"
+        # #   @render()
 
-        current.match.on 'change:log', =>
-          console.log "current.match change:log"
-          @$el.find('#log').html(_.last(current.match.get('log')))
+        # # match_channel.bind 'update_score', (data) =>
+        # #   console.log "match_channel:update_score"
+        # #   @refresh()
 
-        current.match.on 'change:mine', =>
-          console.log "current.match change:mine"
-          @$el.find('#mine > .count').html(current.match.get('mine').length)
+        # console.log " - Binding backbone events"
 
-        current.deck.on 'change:actions', =>
-          console.log "current.deck change:actions"
-          @$el.find('#actions > .count').html(current.deck.get 'actions')
+        # current.match.on 'change:log', =>
+        #   console.log "current.match change:log"
+        #   @$el.find('#log').html(_.last(current.match.get('log')))
 
-        current.deck.on 'update_to_spend', =>
-          console.log "event: update_to_spend"
-          @$el.find('#to_spend > .count').html(current.deck.to_spend())
+        # current.match.on 'change:mine', =>
+        #   console.log "current.match change:mine"
+        #   @$el.find('#mine > .count').html(current.match.get('mine').length)
+
+        # current.deck.on 'change:actions', =>
+        #   console.log "current.deck change:actions"
+        #   @$el.find('#actions > .count').html(current.deck.get 'actions')
+
+        # current.deck.on 'update_to_spend', =>
+        #   console.log "event: update_to_spend"
+        #   @$el.find('#to_spend > .count').html(current.deck.to_spend())
 
         @render()
 
@@ -967,6 +970,8 @@ onDeviceReady = ->
             success: =>
               @deck.fetch
                 success: =>
+                  if @match.id == current.match.id
+                    views.match.render()
                   @render()
 
         sub.bind 'update', (data) =>
@@ -974,6 +979,8 @@ onDeviceReady = ->
             success: =>
               @deck.fetch
                 success: =>
+                  if @match.id == current.match.id
+                    views.match.render()
                   @render()
 
         @render()
@@ -1008,11 +1015,11 @@ onDeviceReady = ->
         # $('#loader').find('#loading-text').html('Setting up match...')
 
         console.log "checking if MatchView instance exists."
-        if current.matchview
-          current.matchview.render()
+        if views.match
+          views.match.render()
         else
           console.log 'MatchView instance doesnt exist. Creating new matchview'
-          current.matchview = new MatchView
+          views.match = new MatchView
 
         # if current.shopview
         #   current.shopview.render()

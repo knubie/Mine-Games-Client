@@ -1086,28 +1086,11 @@ onDeviceReady = function() {
       }
 
       MatchView.prototype.initialize = function() {
-        var _this = this;
+        var deck_channel;
         console.log('MatchView#initialize');
         console.log(" - instantiating CardDetailView");
-        current.carddetailview = new CardDetailView;
-        console.log(" - Binding pusher channels");
-        console.log(" - Binding backbone events");
-        current.match.on('change:log', function() {
-          console.log("current.match change:log");
-          return _this.$el.find('#log').html(_.last(current.match.get('log')));
-        });
-        current.match.on('change:mine', function() {
-          console.log("current.match change:mine");
-          return _this.$el.find('#mine > .count').html(current.match.get('mine').length);
-        });
-        current.deck.on('change:actions', function() {
-          console.log("current.deck change:actions");
-          return _this.$el.find('#actions > .count').html(current.deck.get('actions'));
-        });
-        current.deck.on('update_to_spend', function() {
-          console.log("event: update_to_spend");
-          return _this.$el.find('#to_spend > .count').html(current.deck.to_spend());
-        });
+        match_channel = pusher.channel("" + (current.match.get('id')));
+        deck_channel = pusher.subscribe("" + (current.match.get('id')));
         return this.render();
       };
 
@@ -1255,6 +1238,9 @@ onDeviceReady = function() {
             success: function() {
               return _this.deck.fetch({
                 success: function() {
+                  if (_this.match.id === current.match.id) {
+                    views.match.render();
+                  }
                   return _this.render();
                 }
               });
@@ -1266,6 +1252,9 @@ onDeviceReady = function() {
             success: function() {
               return _this.deck.fetch({
                 success: function() {
+                  if (_this.match.id === current.match.id) {
+                    views.match.render();
+                  }
                   return _this.render();
                 }
               });
@@ -1314,11 +1303,11 @@ onDeviceReady = function() {
         console.log("current match:");
         console.log(current.match);
         console.log("checking if MatchView instance exists.");
-        if (current.matchview) {
-          return current.matchview.render();
+        if (views.match) {
+          return views.match.render();
         } else {
           console.log('MatchView instance doesnt exist. Creating new matchview');
-          return current.matchview = new MatchView;
+          return views.match = new MatchView;
         }
       };
 
