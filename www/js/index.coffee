@@ -967,7 +967,6 @@ onDeviceReady = ->
             success: =>
               @deck.fetch
                 success: =>
-                  alert "turn changed"
                   @render()
 
         sub.bind 'update', (data) =>
@@ -975,7 +974,6 @@ onDeviceReady = ->
             success: =>
               @deck.fetch
                 success: =>
-                  alert "match: #{match.id} updated!"
                   @render()
 
         @render()

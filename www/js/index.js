@@ -1255,7 +1255,6 @@ onDeviceReady = function() {
             success: function() {
               return _this.deck.fetch({
                 success: function() {
-                  alert("turn changed");
                   return _this.render();
                 }
               });
@@ -1267,7 +1266,6 @@ onDeviceReady = function() {
             success: function() {
               return _this.deck.fetch({
                 success: function() {
-                  alert("match: " + match.id + " updated!");
                   return _this.render();
                 }
               });
