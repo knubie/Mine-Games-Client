@@ -1162,7 +1162,7 @@ onDeviceReady = function() {
             $player.addClass('turn');
           }
           if (player.id === current.user.id) {
-            $player.find('.score').html(current.deck.total_points());
+            $player.find('.score').html(current.deck.get('points'));
           } else {
             players_decks = new Decks();
             players_decks.url = "" + server_url + "/decks_by_user/" + player.id;
@@ -1172,7 +1172,7 @@ onDeviceReady = function() {
                 deck = players_decks.where({
                   match_id: current.match.get('id')
                 })[0];
-                return $player.find('.score').html(deck.total_points());
+                return $player.find('.score').html(deck.get('points'));
               }
             });
           }

@@ -911,14 +911,14 @@ onDeviceReady = ->
           if current.match.get('turn') == player.id
             $player.addClass('turn')
           if player.id == current.user.id
-            $player.find('.score').html(current.deck.total_points())
+            $player.find('.score').html(current.deck.get('points'))
           else
             players_decks = new Decks()
             players_decks.url = "#{server_url}/decks_by_user/#{player.id}"
             players_decks.fetch
               success: ->
                 deck = players_decks.where(match_id: current.match.get('id'))[0]
-                $player.find('.score').html(deck.total_points())
+                $player.find('.score').html(deck.get('points'))
           $players_bar.append($player)
 
         if @$el.css('display') == 'none'
