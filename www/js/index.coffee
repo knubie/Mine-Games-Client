@@ -79,7 +79,6 @@ onDeviceReady = ->
       current.match.set('log', log)
       console.log current.match.get('log')
 
-    pusher = 0
     user_channel = 0
     match_channel = 0
 
@@ -904,8 +903,6 @@ onDeviceReady = ->
         $players_bar.show().html('')
 
         for player in current.match.get('players')
-          console.log "player bar:"
-          console.log player
           $player = $('#templates').find(".player").clone()
           $player.find('.name').html(player.username)
           if current.match.get('turn') == player.id
@@ -982,7 +979,7 @@ onDeviceReady = ->
           # think of something to say here
           @$el.find('.subhead').html("No moves yet!")
         else
-          @$el.find('.subhead').html("Last move #{$.timeago @match.get('last_move')}")
+          @$el.find('.subhead').html("Last move #{$.timeago @match.get('last_move')}<br/>#{_.last(@match.get('log'))}")
 
       render_match: ->
         console.log 'MatchListView#render_match'
@@ -1021,9 +1018,10 @@ onDeviceReady = ->
               alert "You've been challenged to a new game!"
               @render()
 
-        # collections.matches.each (match) ->
-        #   sub = pusher.subscribe("#{match.get('id')}")
-        #   sub.bind 'update', (data) =>
+        collections.matches.each (match) ->
+          sub = pusher.subscribe("#{match.get('id')}")
+          sub.bind 'update', (data) =>
+            @render()
 
 
         @render()

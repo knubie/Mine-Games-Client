@@ -87,7 +87,6 @@ onDeviceReady = function() {
       current.match.set('log', log);
       return console.log(current.match.get('log'));
     };
-    pusher = 0;
     user_channel = 0;
     match_channel = 0;
     pusher = new Pusher('8aabfcf0bad1b94dbac3');
@@ -1154,8 +1153,6 @@ onDeviceReady = function() {
         _ref1 = current.match.get('players');
         for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
           player = _ref1[_j];
-          console.log("player bar:");
-          console.log(player);
           $player = $('#templates').find(".player").clone();
           $player.find('.name').html(player.username);
           if (current.match.get('turn') === player.id) {
@@ -1282,7 +1279,7 @@ onDeviceReady = function() {
         if (("" + (this.match.get('last_move'))) === "null") {
           return this.$el.find('.subhead').html("No moves yet!");
         } else {
-          return this.$el.find('.subhead').html("Last move " + ($.timeago(this.match.get('last_move'))));
+          return this.$el.find('.subhead').html("Last move " + ($.timeago(this.match.get('last_move'))) + "<br/>" + (_.last(this.match.get('log'))));
         }
       };
 
@@ -1324,6 +1321,14 @@ onDeviceReady = function() {
               alert("You've been challenged to a new game!");
               return _this.render();
             }
+          });
+        });
+        collections.matches.each(function(match) {
+          var sub,
+            _this = this;
+          sub = pusher.subscribe("" + (match.get('id')));
+          return sub.bind('update', function(data) {
+            return _this.render();
           });
         });
         return this.render();
