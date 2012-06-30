@@ -850,21 +850,21 @@ onDeviceReady = ->
 
         # console.log " - Binding backbone events"
 
-        # current.match.on 'change:log', =>
-        #   console.log "current.match change:log"
-        #   @$el.find('#log').html(_.last(current.match.get('log')))
+        current.match.on 'change:log', =>
+          console.log "current.match change:log"
+          @$el.find('#log').html(_.last(current.match.get('log')))
 
-        # current.match.on 'change:mine', =>
-        #   console.log "current.match change:mine"
-        #   @$el.find('#mine > .count').html(current.match.get('mine').length)
+        current.match.on 'change:mine', =>
+          console.log "current.match change:mine"
+          @$el.find('#mine > .count').html(current.match.get('mine').length)
 
-        # current.deck.on 'change:actions', =>
-        #   console.log "current.deck change:actions"
-        #   @$el.find('#actions > .count').html(current.deck.get 'actions')
+        current.deck.on 'change:actions', =>
+          console.log "current.deck change:actions"
+          @$el.find('#actions > .count').html(current.deck.get 'actions')
 
-        # current.deck.on 'update_to_spend', =>
-        #   console.log "event: update_to_spend"
-        #   @$el.find('#to_spend > .count').html(current.deck.to_spend())
+        current.deck.on 'update_to_spend', =>
+          console.log "event: update_to_spend"
+          @$el.find('#to_spend > .count').html(current.deck.to_spend())
 
         @render()
 
@@ -980,7 +980,7 @@ onDeviceReady = ->
               @deck.fetch
                 success: =>
                   if @match.id == current.match.id
-                    views.match.render()
+                    views.match.render() unless current.turn
                   @render()
 
         @render()

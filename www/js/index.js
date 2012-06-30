@@ -1086,11 +1086,28 @@ onDeviceReady = function() {
       }
 
       MatchView.prototype.initialize = function() {
-        var deck_channel;
+        var deck_channel,
+          _this = this;
         console.log('MatchView#initialize');
         console.log(" - instantiating CardDetailView");
         match_channel = pusher.channel("" + (current.match.get('id')));
         deck_channel = pusher.subscribe("" + (current.match.get('id')));
+        current.match.on('change:log', function() {
+          console.log("current.match change:log");
+          return _this.$el.find('#log').html(_.last(current.match.get('log')));
+        });
+        current.match.on('change:mine', function() {
+          console.log("current.match change:mine");
+          return _this.$el.find('#mine > .count').html(current.match.get('mine').length);
+        });
+        current.deck.on('change:actions', function() {
+          console.log("current.deck change:actions");
+          return _this.$el.find('#actions > .count').html(current.deck.get('actions'));
+        });
+        current.deck.on('update_to_spend', function() {
+          console.log("event: update_to_spend");
+          return _this.$el.find('#to_spend > .count').html(current.deck.to_spend());
+        });
         return this.render();
       };
 
@@ -1253,7 +1270,9 @@ onDeviceReady = function() {
               return _this.deck.fetch({
                 success: function() {
                   if (_this.match.id === current.match.id) {
-                    views.match.render();
+                    if (!current.turn) {
+                      views.match.render();
+                    }
                   }
                   return _this.render();
                 }
