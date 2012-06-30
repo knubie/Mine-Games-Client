@@ -65,7 +65,6 @@ onDeviceReady = ->
         $page.addClass 'active'
         $page.removeClass 'reverse'
 
-
     aOrAn = (word) ->
       console.log word.charAt(0)
       if word.charAt(0) == 'a' || word.charAt(0) == 'e' || word.charAt(0) == 'i' || word.charAt(0) == 'o' || word.charAt(0) == 'u'
@@ -246,7 +245,7 @@ onDeviceReady = ->
             changePage '#choose-opponents',
               transition: 'slideup'
           else
-            current.attack(current.match.get('players').find (player) -> player.id isnt current.user.id)
+            current.attack(_.find current.match.get('players'), (player) -> player.id isnt current.user.id)
 
           #do something
 
@@ -295,7 +294,7 @@ onDeviceReady = ->
 
       gopher:
         name: 'gopher'
-        type: 'action'
+        type: 'attack'
         cost: 4
         short_desc: "Steals a random card from an Opponent's hand"
         long_desc: 'long description'
@@ -338,7 +337,7 @@ onDeviceReady = ->
             changePage '#choose-opponents',
               transition: 'slideup'
           else
-            current.attack(current.match.get('players').find (player) -> player.id isnt current.user.id)
+            current.attack(_.find current.match.get('players'), (player) -> player.id isnt current.user.id)
 
       magnet:
         name: 'magnet'
@@ -623,26 +622,25 @@ onDeviceReady = ->
 
       buy: ->
         console.log "ShopListView#buy"
-        if @card.cost <= current.deck.to_spend() and current.turn
-          console.log 'buying card..'
-          console.log current.match.get('shop')
-          shop = _.clone current.match.get('shop')
-          shop = shop.minus(gsub(@card.name, ' ', '_'))
-          current.match.set('shop', shop)
-          curr_cards = _.clone current.deck.get('cards')
-          curr_cards.push gsub(@card.name, ' ', '_')
-          current.deck.set('cards', curr_cards)
-          console.log current.match.get('shop')
-          console.log current.deck.get('cards')
-          @amount--
-          @$el.find('.count').html(@amount)
-          current.deck.spend(@card.cost)
-          pushLog "<span class='name'>#{current.user.username}</span> bought #{aOrAn(@card.name)} <span class='item action'>#{@card.name}</span>"
-          changePage '#match',
-            transition: 'slide'
-          current.match.save()
-          current.deck.save()
-          current.deck.trigger 'update_to_spend'
+        if @card.cost <= current.deck.to_spend()
+          if current.turn
+            shop = _.clone current.match.get('shop')
+            shop = shop.minus(gsub(@card.name, ' ', '_'))
+            current.match.set('shop', shop)
+            curr_cards = _.clone current.deck.get('cards')
+            curr_cards.push gsub(@card.name, ' ', '_')
+            current.deck.set('cards', curr_cards)
+            @amount--
+            @$el.find('.count').html(@amount)
+            current.deck.spend(@card.cost)
+            pushLog "<span class='name'>#{current.user.username}</span> bought #{aOrAn(@card.name)} <span class='item action'>#{@card.name}</span>"
+            changePage '#match',
+              transition: 'slide'
+            current.match.save()
+            current.deck.save()
+            current.deck.trigger 'update_to_spend'
+          else
+            alert "It's not your turn!"
         else
           console.log 'not enough money'
           alert "not enough money!"
@@ -656,6 +654,9 @@ onDeviceReady = ->
         @render()
 
       el: '#shop'
+
+      events:
+        'tap .back': 'back'
 
       render: ->
         console.log 'ShopView#render'
@@ -673,6 +674,12 @@ onDeviceReady = ->
         for card, amount of shop
           console.log cards[card]
           view = new ShopListView(cards[card], amount)
+
+      back: ->
+        changePage "#match",
+          transition: 'slide'
+          reverse: true
+
 
 
     # Match
@@ -873,6 +880,7 @@ onDeviceReady = ->
       events:
         'tap #end_turn': 'end_turn'
         'tap #lobby_header': 'back_to_lobby'
+        'tap #shop_link': 'render_shop'
 
       render: ->
         current.turn = if current.match.get('turn') == current.user.id then true else false
@@ -941,22 +949,52 @@ onDeviceReady = ->
       back_to_lobby: ->
         changePage "#lobby",
           transition: 'slide'
+
+      render_shop: ->
+        if views.shop
+          views.shop.render()
+        else
+          views.shop = new ShopView
+        changePage "#shop",
+          transition: 'slide'
           reverse: true
 
 
     # Lobby
 
-    class NewMatchView extends Backbone.View
+    class NewMatchUsernameView extends Backbone.View
       initialize: ->
-        # I dunno..
+        # Nothing..
+
+      el: '#new_match_username'
 
       events:
         'tap .back': 'back'
 
       back: ->
-        changePage '#lobby',
+        console.log 'click'
+        changePage "#new_match",
+          transition: 'slide'
+          reverse: true
+
+    class NewMatchView extends Backbone.View
+      initialize: ->
+        # I dunno..
+
+      el: '#new_match'
+
+      events:
+        'tap .back': 'back'
+        'tap .username': 'username'
+
+      back: ->
+        changePage "#lobby",
           transition: 'slideup'
           reverse: true
+
+      username: ->
+        changePage "#new_match_username",
+          transition: 'slide'
 
     class MatchListView extends Backbone.View
       initialize: (@match, @deck) ->

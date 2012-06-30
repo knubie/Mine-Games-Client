@@ -11,7 +11,7 @@ onBodyLoad = function() {
 
 onDeviceReady = function() {
   return $(function() {
-    var CardDetailView, CardListView, ChooseOpponentsView, Deck, Decks, HomeView, LobbyView, LoginView, Match, MatchListView, MatchView, Matches, NewMatchView, OpponentsListView, ShopListView, ShopView, SignupView, aOrAn, actions, cards, changePage, collections, current, gsub, match_channel, pushLog, pusher, user_channel, views;
+    var CardDetailView, CardListView, ChooseOpponentsView, Deck, Decks, HomeView, LobbyView, LoginView, Match, MatchListView, MatchView, Matches, NewMatchUsernameView, NewMatchView, OpponentsListView, ShopListView, ShopView, SignupView, aOrAn, actions, cards, changePage, collections, current, gsub, match_channel, pushLog, pusher, user_channel, views;
     gsub = function(source, pattern, replacement) {
       var match, result;
       if (!((pattern != null) && (replacement != null))) {
@@ -283,7 +283,7 @@ onDeviceReady = function() {
               transition: 'slideup'
             });
           } else {
-            return current.attack(current.match.get('players').find(function(player) {
+            return current.attack(_.find(current.match.get('players'), function(player) {
               return player.id !== current.user.id;
             }));
           }
@@ -339,7 +339,7 @@ onDeviceReady = function() {
       },
       gopher: {
         name: 'gopher',
-        type: 'action',
+        type: 'attack',
         cost: 4,
         short_desc: "Steals a random card from an Opponent's hand",
         long_desc: 'long description',
@@ -391,7 +391,7 @@ onDeviceReady = function() {
               transition: 'slideup'
             });
           } else {
-            return current.attack(current.match.get('players').find(function(player) {
+            return current.attack(_.find(current.match.get('players'), function(player) {
               return player.id !== current.user.id;
             }));
           }
@@ -803,27 +803,27 @@ onDeviceReady = function() {
       ShopListView.prototype.buy = function() {
         var curr_cards, shop;
         console.log("ShopListView#buy");
-        if (this.card.cost <= current.deck.to_spend() && current.turn) {
-          console.log('buying card..');
-          console.log(current.match.get('shop'));
-          shop = _.clone(current.match.get('shop'));
-          shop = shop.minus(gsub(this.card.name, ' ', '_'));
-          current.match.set('shop', shop);
-          curr_cards = _.clone(current.deck.get('cards'));
-          curr_cards.push(gsub(this.card.name, ' ', '_'));
-          current.deck.set('cards', curr_cards);
-          console.log(current.match.get('shop'));
-          console.log(current.deck.get('cards'));
-          this.amount--;
-          this.$el.find('.count').html(this.amount);
-          current.deck.spend(this.card.cost);
-          pushLog("<span class='name'>" + current.user.username + "</span> bought " + (aOrAn(this.card.name)) + " <span class='item action'>" + this.card.name + "</span>");
-          changePage('#match', {
-            transition: 'slide'
-          });
-          current.match.save();
-          current.deck.save();
-          return current.deck.trigger('update_to_spend');
+        if (this.card.cost <= current.deck.to_spend()) {
+          if (current.turn) {
+            shop = _.clone(current.match.get('shop'));
+            shop = shop.minus(gsub(this.card.name, ' ', '_'));
+            current.match.set('shop', shop);
+            curr_cards = _.clone(current.deck.get('cards'));
+            curr_cards.push(gsub(this.card.name, ' ', '_'));
+            current.deck.set('cards', curr_cards);
+            this.amount--;
+            this.$el.find('.count').html(this.amount);
+            current.deck.spend(this.card.cost);
+            pushLog("<span class='name'>" + current.user.username + "</span> bought " + (aOrAn(this.card.name)) + " <span class='item action'>" + this.card.name + "</span>");
+            changePage('#match', {
+              transition: 'slide'
+            });
+            current.match.save();
+            current.deck.save();
+            return current.deck.trigger('update_to_spend');
+          } else {
+            return alert("It's not your turn!");
+          }
         } else {
           console.log('not enough money');
           return alert("not enough money!");
@@ -853,6 +853,10 @@ onDeviceReady = function() {
 
       ShopView.prototype.el = '#shop';
 
+      ShopView.prototype.events = {
+        'tap .back': 'back'
+      };
+
       ShopView.prototype.render = function() {
         var amount, card, prev, shop, view, _i, _len, _ref, _results;
         console.log('ShopView#render');
@@ -877,6 +881,13 @@ onDeviceReady = function() {
           _results.push(view = new ShopListView(cards[card], amount));
         }
         return _results;
+      };
+
+      ShopView.prototype.back = function() {
+        return changePage("#match", {
+          transition: 'slide',
+          reverse: true
+        });
       };
 
       return ShopView;
@@ -1115,7 +1126,8 @@ onDeviceReady = function() {
 
       MatchView.prototype.events = {
         'tap #end_turn': 'end_turn',
-        'tap #lobby_header': 'back_to_lobby'
+        'tap #lobby_header': 'back_to_lobby',
+        'tap #shop_link': 'render_shop'
       };
 
       MatchView.prototype.render = function() {
@@ -1202,12 +1214,50 @@ onDeviceReady = function() {
 
       MatchView.prototype.back_to_lobby = function() {
         return changePage("#lobby", {
+          transition: 'slide'
+        });
+      };
+
+      MatchView.prototype.render_shop = function() {
+        if (views.shop) {
+          views.shop.render();
+        } else {
+          views.shop = new ShopView;
+        }
+        return changePage("#shop", {
           transition: 'slide',
           reverse: true
         });
       };
 
       return MatchView;
+
+    })(Backbone.View);
+    NewMatchUsernameView = (function(_super) {
+
+      __extends(NewMatchUsernameView, _super);
+
+      function NewMatchUsernameView() {
+        return NewMatchUsernameView.__super__.constructor.apply(this, arguments);
+      }
+
+      NewMatchUsernameView.prototype.initialize = function() {};
+
+      NewMatchUsernameView.prototype.el = '#new_match_username';
+
+      NewMatchUsernameView.prototype.events = {
+        'tap .back': 'back'
+      };
+
+      NewMatchUsernameView.prototype.back = function() {
+        console.log('click');
+        return changePage("#new_match", {
+          transition: 'slide',
+          reverse: true
+        });
+      };
+
+      return NewMatchUsernameView;
 
     })(Backbone.View);
     NewMatchView = (function(_super) {
@@ -1220,14 +1270,23 @@ onDeviceReady = function() {
 
       NewMatchView.prototype.initialize = function() {};
 
+      NewMatchView.prototype.el = '#new_match';
+
       NewMatchView.prototype.events = {
-        'tap .back': 'back'
+        'tap .back': 'back',
+        'tap .username': 'username'
       };
 
       NewMatchView.prototype.back = function() {
-        return changePage('#lobby', {
+        return changePage("#lobby", {
           transition: 'slideup',
           reverse: true
+        });
+      };
+
+      NewMatchView.prototype.username = function() {
+        return changePage("#new_match_username", {
+          transition: 'slide'
         });
       };
 
