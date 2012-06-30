@@ -1040,6 +1040,7 @@ onDeviceReady = function() {
             }
             this.discard();
             this.card.use();
+            current.match.set('last_move', new Date().toString().split(' ').slice(0, 5).join(' '));
           } else {
             if (!current.turn) {
               alert("It's not your turn!");
@@ -1089,7 +1090,6 @@ onDeviceReady = function() {
         console.log('MatchView#initialize');
         console.log(" - instantiating CardDetailView");
         current.carddetailview = new CardDetailView;
-        current.turn = current.match.get('turn') === current.user.id ? true : false;
         console.log(" - Binding pusher channels");
         console.log(" - Binding backbone events");
         current.match.on('change:log', function() {
@@ -1120,6 +1120,7 @@ onDeviceReady = function() {
 
       MatchView.prototype.render = function() {
         var $player, $players_bar, card, player, players_decks, view, _i, _j, _len, _len1, _ref, _ref1;
+        current.turn = current.match.get('turn') === current.user.id ? true : false;
         this.$el.find('#log').html(_.last(current.match.get('log')));
         this.$el.find('#actions > .count').html(current.deck.get('actions'));
         this.$el.find('#mine > .count').html(current.match.get('mine').length);
@@ -1194,14 +1195,12 @@ onDeviceReady = function() {
         }, function(data) {
           current.match.set(JSON.parse(data)["match"]);
           current.deck.set(JSON.parse(data)["deck"]);
-          current.turn = current.match.get('turn') === current.user.id ? true : false;
           $('#loader').hide();
           return _this.render();
         });
       };
 
       MatchView.prototype.back_to_lobby = function() {
-        pusher.unsubscribe("" + (current.match.get('id')));
         return changePage("#lobby", {
           transition: 'slide',
           reverse: true
@@ -1244,10 +1243,37 @@ onDeviceReady = function() {
       }
 
       MatchListView.prototype.initialize = function(match, deck) {
+        var sub,
+          _this = this;
         this.match = match;
         this.deck = deck;
         console.log('init MatchListView');
         this.setElement($('#templates').find(".match-item-view").clone());
+        sub = pusher.subscribe("" + (this.match.get('id')));
+        sub.bind('change_turn', function(data) {
+          return _this.match.fetch({
+            success: function() {
+              return _this.deck.fetch({
+                success: function() {
+                  alert("turn changed");
+                  return _this.render();
+                }
+              });
+            }
+          });
+        });
+        sub.bind('update', function(data) {
+          return _this.match.fetch({
+            success: function() {
+              return _this.deck.fetch({
+                success: function() {
+                  alert("match: " + match.id + " updated!");
+                  return _this.render();
+                }
+              });
+            }
+          });
+        });
         return this.render();
       };
 
@@ -1289,7 +1315,6 @@ onDeviceReady = function() {
         current.deck = this.deck;
         console.log("current match:");
         console.log(current.match);
-        match_channel = pusher.subscribe("" + (current.match.get('id')));
         console.log("checking if MatchView instance exists.");
         if (current.matchview) {
           return current.matchview.render();
@@ -1321,14 +1346,6 @@ onDeviceReady = function() {
               alert("You've been challenged to a new game!");
               return _this.render();
             }
-          });
-        });
-        collections.matches.each(function(match) {
-          var sub,
-            _this = this;
-          sub = pusher.subscribe("" + (match.get('id')));
-          return sub.bind('update', function(data) {
-            return _this.render();
           });
         });
         return this.render();
@@ -1519,7 +1536,7 @@ onDeviceReady = function() {
 
       HomeView.prototype.signup = function() {
         if (!views.signup) {
-          views.lobby = new SignupView;
+          views.signup = new SignupView;
         }
         return changePage("#signup", {
           transition: "slideup"

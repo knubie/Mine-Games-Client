@@ -787,6 +787,7 @@ onDeviceReady = ->
             current.deck.set('actions', current.deck.get('actions') - 1 ) if @card.type == 'action' or @card.type == 'attack'
             @discard()
             @card.use()
+            current.match.set('last_move', new Date().toString().split(' ').slice(0,5).join(' '))
           else
             if not current.turn
               alert "It's not your turn!"
@@ -826,8 +827,6 @@ onDeviceReady = ->
 
         console.log " - instantiating CardDetailView"
         current.carddetailview = new CardDetailView
-
-        current.turn = if current.match.get('turn') == current.user.id then true else false
 
         console.log " - Binding pusher channels"
         # match_channel.bind 'update', (data) ->
@@ -873,6 +872,8 @@ onDeviceReady = ->
         'tap #lobby_header': 'back_to_lobby'
 
       render: ->
+        current.turn = if current.match.get('turn') == current.user.id then true else false
+
         @$el.find('#log').html(_.last(current.match.get('log')))
         @$el.find('#actions > .count').html(current.deck.get 'actions')
         @$el.find('#mine > .count').html(current.match.get('mine').length)
@@ -931,12 +932,10 @@ onDeviceReady = ->
         $.post "#{server_url}/end_turn/#{current.match.get('id')}", {'match': current.match.toJSON()}, (data) =>
           current.match.set JSON.parse(data)["match"]
           current.deck.set JSON.parse(data)["deck"]
-          current.turn = if current.match.get('turn') == current.user.id then true else false
           $('#loader').hide()
           @render()
 
       back_to_lobby: ->
-        pusher.unsubscribe("#{current.match.get('id')}")
         changePage "#lobby",
           transition: 'slide'
           reverse: true
@@ -960,6 +959,25 @@ onDeviceReady = ->
       initialize: (@match, @deck) ->
         console.log 'init MatchListView'
         @setElement $('#templates').find(".match-item-view").clone()
+
+        sub = pusher.subscribe("#{@match.get('id')}")
+        # TODO: write server method for getting match and current user deck in one request
+        sub.bind 'change_turn', (data) =>
+          @match.fetch
+            success: =>
+              @deck.fetch
+                success: =>
+                  alert "turn changed"
+                  @render()
+
+        sub.bind 'update', (data) =>
+          @match.fetch
+            success: =>
+              @deck.fetch
+                success: =>
+                  alert "match: #{match.id} updated!"
+                  @render()
+
         @render()
 
       events:
@@ -987,7 +1005,6 @@ onDeviceReady = ->
         current.deck = @deck
         console.log "current match:"
         console.log current.match
-        match_channel = pusher.subscribe("#{current.match.get('id')}")
 
         # $('#loader').show()
         # $('#loader').find('#loading-text').html('Setting up match...')
@@ -1017,11 +1034,6 @@ onDeviceReady = ->
             success: =>
               alert "You've been challenged to a new game!"
               @render()
-
-        collections.matches.each (match) ->
-          sub = pusher.subscribe("#{match.get('id')}")
-          sub.bind 'update', (data) =>
-            @render()
 
 
         @render()
@@ -1163,7 +1175,7 @@ onDeviceReady = ->
 
       signup: ->
         unless views.signup
-          views.lobby = new SignupView
+          views.signup = new SignupView
 
         changePage "#signup",
           transition: "slideup"
