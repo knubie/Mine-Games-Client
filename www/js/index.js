@@ -1458,10 +1458,7 @@ onDeviceReady = function() {
             console.log($.cookie('token', {
               expires: 7300
             }));
-            current.lobby.render();
-            return changePage('#lobby', {
-              transition: 'slidedown'
-            });
+            return views.home.set_user();
           }
         }, 'json');
         return e.preventDefault();

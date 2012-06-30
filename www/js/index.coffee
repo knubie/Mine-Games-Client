@@ -1124,9 +1124,8 @@ onDeviceReady = ->
           else
             console.log $.cookie 'token',
               expires: 7300
-            current.lobby.render()
-            changePage '#lobby',
-              transition: 'slidedown'
+            views.home.set_user()
+
         , 'json')
         e.preventDefault()
 
