@@ -647,6 +647,14 @@ onDeviceReady = ->
         else
           console.log 'not enough money'
           alert "not enough money!"
+     
+      back_to_lobby: ->
+        pusher.unsubscribe("#{current.match.get('id')}")
+        changePage "#lobby",
+          transition: 'slide'
+          reverse: true
+
+
 
     class ShopView extends Backbone.View
       initialize: (@card) ->
@@ -675,6 +683,10 @@ onDeviceReady = ->
           console.log cards[card]
           view = new ShopListView(cards[card], amount)
 
+      hand: ->
+        changePage '#match',
+          transition: 'reverse'
+          reverse: true
 
     # Match
 
@@ -1208,6 +1220,10 @@ onDeviceReady = ->
     # Create Game
     # ============================================
 
+      back: ->
+        changePage '#lobby',
+          transition: 'slideup'
+          reverse: true
 
     $('#new-match-username-form').submit (e) ->
       # show loader
