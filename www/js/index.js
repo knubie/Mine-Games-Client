@@ -51,7 +51,8 @@ onDeviceReady = function() {
     };
     changePage = function(page, options) {
       var $curr, $page;
-      $curr = $('.active');
+      $('.active').addClass('curr');
+      $curr = $('.curr');
       $page = $(page);
       if (options != null) {
         if (options.reverse === true) {
@@ -61,13 +62,13 @@ onDeviceReady = function() {
         $curr.addClass("" + options.transition + " out");
         $page.addClass("" + options.transition + " in active");
         $curr.one('webkitAnimationEnd', function() {
-          return $curr.removeClass("" + options.transition + " out active reverse");
+          return $curr.removeClass("" + options.transition + " out active reverse curr");
         });
         return $page.one('webkitAnimationEnd', function() {
           return $page.removeClass("" + options.transition + " in reverse");
         });
       } else {
-        $curr.removeClass('active reverse');
+        $curr.removeClass('active reverse curr');
         $page.addClass('active');
         return $page.removeClass('reverse');
       }
@@ -218,7 +219,7 @@ onDeviceReady = function() {
       },
       tnt: {
         name: 'tnt',
-        type: 'attack',
+        type: '',
         cost: 5,
         short_desc: "Destroy 2 items from an opponent's hand",
         long_desc: 'long description',
@@ -900,9 +901,20 @@ onDeviceReady = function() {
 
       CardDetailView.prototype.el = '#card-detail';
 
+      CardDetailView.prototype.events = {
+        'tap .close': 'close'
+      };
+
       CardDetailView.prototype.render = function(card) {
         this.$el.find('#card-detail-name').html(card.name);
         return this.$el.find('#card-detail-desc').html(card.long_desc);
+      };
+
+      CardDetailView.prototype.close = function() {
+        return changePage('#match', {
+          transition: 'pop',
+          reverse: true
+        });
       };
 
       return CardDetailView;
@@ -963,10 +975,9 @@ onDeviceReady = function() {
       CardListView.prototype.dy = 0;
 
       CardListView.prototype.render_card = function() {
-        console.log('CardListView#render_card');
-        current.carddetailview.render(this.card);
+        views.carddetail.render(this.card);
         return changePage('#card-detail', {
-          transition: 'flip'
+          transition: 'pop'
         });
       };
 
@@ -1074,7 +1085,15 @@ onDeviceReady = function() {
           if (this.clicked && Math.abs(this.dy) < 6) {
             this.clicked = false;
             console.log('clicked');
-            this.render_card();
+            if (views.carddetail) {
+              views.carddetail.render(this.card);
+            } else {
+              views.carddetail = new CardDetailView;
+              views.carddetail.render(this.card);
+            }
+            changePage('#card-detail', {
+              transition: 'pop'
+            });
           }
         }
         return this.dx = this.dy = 0;
@@ -1696,20 +1715,6 @@ onDeviceReady = function() {
         }, 'json');
       }
       return e.preventDefault();
-    });
-    $('a').on('tap', function(e) {
-      var reverse;
-      if ($(this).attr('href')) {
-        e.preventDefault();
-        reverse = false;
-        if ($(this).attr('data-transition') === 'reverse') {
-          reverse = true;
-        }
-        return changePage($(this).attr('href'), {
-          transition: 'slide',
-          reverse: reverse
-        });
-      }
     });
     $(document).bind('touchmove', function(e) {
       if (window.inAction) {

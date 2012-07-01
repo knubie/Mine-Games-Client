@@ -90,7 +90,7 @@
 
 /* slide up */
 .slideup.out {
-	-webkit-animation-name: fadeout;
+	-webkit-animation-name: static;
 	-webkit-animation-duration: 100ms;
 }
 
@@ -101,12 +101,65 @@
 }
 
 .slideup.in.reverse {
-	-webkit-animation-name: fadein;
-	-webkit-animation-duration: 150ms;
+	-webkit-animation-name: fadeout;
+	-webkit-animation-duration: 100ms;
 }
 
 .slideup.out.reverse {
 	-webkit-transform: translateY(100%);
 	-webkit-animation-name: slideouttobottom;
 	-webkit-animation-duration: 200ms;
+}
+
+/* Pop */
+.pop {
+	-webkit-transform-origin: 50% 50%;
+}
+
+.pop.in {
+	-webkit-transform: scale(1);
+    opacity: 1;
+	-webkit-animation-name: popin;
+	-webkit-animation-duration: 350ms;
+}
+
+.pop.out {
+	-webkit-animation-name: static;
+	-webkit-animation-duration: 100ms;
+}
+
+.pop.in.reverse {
+	-webkit-animation-name: static;
+	-webkit-animation-duration: 100ms;
+}
+
+.pop.out.reverse {
+	-webkit-transform: scale(.8);
+	-webkit-animation-name: popout;
+}
+
+@-webkit-keyframes popin {
+    from {
+        -webkit-transform: scale(.8);
+        opacity: 0;
+    }
+    to {
+        -webkit-transform: scale(1);
+        opacity: 1;
+    }
+}
+
+@-webkit-keyframes popout {
+    from {
+        -webkit-transform: scale(1);
+        opacity: 1;
+    }
+    to {
+        -webkit-transform: scale(.8);
+        opacity: 0;
+    }
+}
+@-webkit-keyframes static {
+    from {opacity: 1; }
+    to {opacity: 1; }
 }

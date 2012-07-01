@@ -308,6 +308,21 @@ background: #747a78;
 	font-weight:bold;
 }
 
+
+/* Card Detail */
+
+#card-detail {
+	width: 320px;
+	height: 480px;
+	background-color: #000;
+}
+#card {
+	width: 320px;
+	height: 480px;
+	-webkit-border-radius: 10px;
+	background-color: #efebe1;
+}
+
 /* Buttons */
 
 #itemsBtn img, #shopBtn img { width:92px; }

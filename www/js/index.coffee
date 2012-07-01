@@ -43,7 +43,8 @@ onDeviceReady = ->
       return popper
 
     changePage = (page, options) ->
-      $curr = $('.active')
+      $('.active').addClass('curr')
+      $curr = $('.curr')
       $page = $(page)
 
       if options?
@@ -55,12 +56,12 @@ onDeviceReady = ->
         $page.addClass("#{options.transition} in active")
 
         $curr.one 'webkitAnimationEnd', ->
-          $curr.removeClass("#{options.transition} out active reverse")
+          $curr.removeClass("#{options.transition} out active reverse curr")
 
         $page.one 'webkitAnimationEnd', ->
           $page.removeClass("#{options.transition} in reverse")
       else
-        $curr.removeClass 'active reverse'
+        $curr.removeClass 'active reverse curr'
         $page.addClass 'active'
         $page.removeClass 'reverse'
 
@@ -191,7 +192,7 @@ onDeviceReady = ->
 
       tnt:
         name: 'tnt'
-        type: 'attack'
+        type: ''
         cost: 5
         short_desc: "Destroy 2 items from an opponent's hand"
         long_desc: 'long description'
@@ -683,9 +684,17 @@ onDeviceReady = ->
 
       el: '#card-detail'
 
+      events:
+        'tap .close': 'close'
+
       render: (card) ->
         @$el.find('#card-detail-name').html(card.name)
         @$el.find('#card-detail-desc').html(card.long_desc)
+
+      close: ->
+        changePage '#match',
+          transition: 'pop'
+          reverse: true
 
     class CardListView extends Backbone.View
       initialize: (@card) ->
@@ -723,10 +732,9 @@ onDeviceReady = ->
       dy: 0
 
       render_card: ->
-        console.log 'CardListView#render_card'
-        current.carddetailview.render(@card)
+        views.carddetail.render(@card)
         changePage '#card-detail',
-          transition: 'flip'
+          transition: 'pop'
 
       touchstart: (e) ->
         @clicked = true
@@ -816,7 +824,14 @@ onDeviceReady = ->
           if @clicked and Math.abs(@dy) < 6
             @clicked = false
             console.log 'clicked'
-            @render_card()
+            if views.carddetail
+              views.carddetail.render(@card)
+            else
+              views.carddetail = new CardDetailView
+              views.carddetail.render(@card)
+
+            changePage '#card-detail',
+              transition: 'pop'
 
 
         @dx = @dy = 0
@@ -1306,15 +1321,15 @@ onDeviceReady = ->
         , 'json')
       e.preventDefault()
 
-    $('a').on 'tap', (e) ->
-      if $(this).attr('href')
-        e.preventDefault()
-        reverse = false
-        if $(this).attr('data-transition') == 'reverse'
-          reverse = true
-        changePage $(this).attr('href'),
-          transition: 'slide'
-          reverse: reverse
+    # $('a').on 'tap', (e) ->
+    #   if $(this).attr('href')
+    #     e.preventDefault()
+    #     reverse = false
+    #     if $(this).attr('data-transition') == 'reverse'
+    #       reverse = true
+    #     changePage $(this).attr('href'),
+    #       transition: 'slide'
+    #       reverse: reverse
 
     $(document).bind('touchmove', (e) ->
       if window.inAction
