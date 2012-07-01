@@ -12,7 +12,6 @@ onBodyLoad = ->
 
 onDeviceReady = ->
   $ ->
-    alert "changed!3"
     gsub = (source, pattern, replacement) ->
       unless pattern? and replacement?
         return source
@@ -96,7 +95,7 @@ onDeviceReady = ->
             random: false
             callback: (newcards) ->
               console.log 'calling callback'
-              pushLog "<span class='name'>#{current.user.username}</span> used a <span class='item action'>Stone Pickaxe</span> and got a <span class='money'>#{newcards[0]}</span>"
+              pushLog "<span class='name'>#{current.user.username}</span> used a <span class='item action'>Stone Pickaxe</span> and got a <span class='item money'>#{newcards[0]}</span>"
               current.match.save()
               current.deck.save()
               current.deck.trigger 'update_to_spend'
@@ -104,7 +103,7 @@ onDeviceReady = ->
       iron_pickaxe:
         name: 'iron pickaxe'
         type: 'action'
-        cost: 1
+        cost: 3
         short_desc: 'Draw 2 cards from the Mine'
         long_desc: 'long description'
         use: ->
@@ -113,7 +112,7 @@ onDeviceReady = ->
             random: false
             callback: (newcards) ->
               console.log 'calling callback'
-              pushLog "<span class='name'>#{current.user.username}</span> used an <span class='item action'>Iron Pickaxe</span> and got a <span class='money'>#{newcards[0]}</span> and <span class='money'>#{newcards[1]}</span>"
+              pushLog "<span class='name'>#{current.user.username}</span> used an <span class='item action'>Iron Pickaxe</span> and got a <span class='item money'>#{newcards[0]}</span> and <span class='item money'>#{newcards[1]}</span>"
               current.match.save()
               current.deck.save()
               current.deck.trigger 'update_to_spend'
@@ -121,7 +120,7 @@ onDeviceReady = ->
       diamond_pickaxe:
         name: 'diamond pickaxe'
         type: 'action'
-        cost: 1
+        cost: 6
         short_desc: 'Draw 3 cards from the Mine'
         long_desc: 'long description'
         use: ->
@@ -130,7 +129,7 @@ onDeviceReady = ->
             random: false
             callback: (newcards) ->
               console.log 'calling callback'
-              pushLog "<span class='name'>#{current.user.username}</span> used a <span class='item action'>Diamond Pickaxe</span> and got a <span class='money'>#{newcards[0]}</span>, <span class='money'>#{newcards[1]}</span> and <span class='money'>#{newcards[2]}</span>"
+              pushLog "<span class='name'>#{current.user.username}</span> used a <span class='item action'>Diamond Pickaxe</span> and got a <span class='item money'>#{newcards[0]}</span>, <span class='item money'>#{newcards[1]}</span> and <span class='item money'>#{newcards[2]}</span>"
               current.match.save()
               current.deck.save()
               current.deck.trigger 'update_to_spend'
@@ -192,8 +191,8 @@ onDeviceReady = ->
 
       tnt:
         name: 'tnt'
-        type: 'action'
-        cost: 1
+        type: 'attack'
+        cost: 5
         short_desc: "Destroy 2 items from an opponent's hand"
         long_desc: 'long description'
         use: ->
@@ -226,13 +225,14 @@ onDeviceReady = ->
                     number: 2
                     callback: (newcards) ->
                       console.log 'calling callback'
-                      pushLog "<span class='name'>#{current.user.username}</span> used a <span class='item action'>TNT</span> on #{player.username} and trashed a <span class='money'>#{cards[newcards[0]].name}</span> and <span class='money'>#{cards[newcards[1]].name}</span>"
+                      pushLog "<span class='name'>#{current.user.username}</span> used a <span class='item attack'>TNT</span> on <span class='name'>#{player.username}</span> and trashed a <span class='item #{cards[newcards[0]].type}'>#{cards[newcards[0]].name}</span> and <span class='item #{cards[newcards[1]].type}'>#{cards[newcards[1]].name}</span>"
                       current.match.save()
                       current.deck.save()
                       target_deck.save()
                       current.deck.trigger 'update_to_spend'
                 else
                   alert "#{player.username} used a reaction card and blocked your attack!"
+                  pushLog "<span class='name'>#{player.username}</span> blocked <span class='name'>#{current.user.username}'s</span> <span class='item attack'>TNT</span> with a <span class='item'>Shield</span>."
 
 
 
@@ -252,7 +252,7 @@ onDeviceReady = ->
       minecart:
         name: 'minecart'
         type: 'action'
-        cost: 1
+        cost: 5
         short_desc: '+2 Action, +1 Card'
         long_desc: 'long description'
         use: ->
@@ -262,7 +262,7 @@ onDeviceReady = ->
             random: false
             callback: (newcards) ->
               console.log 'calling callback'
-              pushLog "<span class='name'>#{current.user.username}</span> used a <span class='item action'>Minecart</span> and got a <span class='money'>#{cards[newcards[0]].name}</span>"
+              pushLog "<span class='name'>#{current.user.username}</span> used a <span class='item action'>Minecart</span> and got a <span class='item #{cards[newcards[0]].type}'>#{cards[newcards[0]].name}</span>"
               current.match.save()
               current.deck.save()
               current.deck.trigger 'update_to_spend'
@@ -271,7 +271,7 @@ onDeviceReady = ->
       mule:
         name: 'mule'
         type: 'action'
-        cost: 1
+        cost: 4
         short_desc: '+3 Cards'
         long_desc: 'long description'
         use: ->
@@ -280,7 +280,7 @@ onDeviceReady = ->
             random: false
             callback: (newcards) ->
               console.log 'calling callback'
-              pushLog "<span class='name'>#{current.user.username}</span> used a <span class='item action'>Minecart</span> and got a <span class='money'>#{cards[newcards[0]].name}</span>, <span class='money'>#{newcards[1]}</span> and <span class='money'>#{newcards[2]}</span>"
+              pushLog "<span class='name'>#{current.user.username}</span> used a <span class='item action'>Minecart</span> and got a <span class='item #{cards[newcards[0]].type}'>#{cards[newcards[0]].name}</span>, <span class='item #{cards[newcards[1]].type}'>#{newcards[1]}</span> and <span class='item #{cards[newcards[2]].type}'>#{newcards[2]}</span>"
               current.match.save()
               current.deck.save()
               current.deck.trigger 'update_to_spend'
@@ -288,14 +288,14 @@ onDeviceReady = ->
       headlamp:
         name: 'headlamp'
         type: 'action'
-        cost: 1
+        cost: 99
         short_desc: 'Draw two additional cards next hand.'
         long_desc: 'long description'
 
       gopher:
         name: 'gopher'
         type: 'attack'
-        cost: 1
+        cost: 5
         short_desc: "Steals a random card from an Opponent's hand"
         long_desc: 'long description'
         use: ->
@@ -320,7 +320,7 @@ onDeviceReady = ->
                   number: 1
                   callback: (newcards) ->
                     console.log 'calling callback'
-                    pushLog "<span class='name'>#{current.user.username}</span> used a <span class='item action'>Gopher</span> on #{player.username} and got a <span class='money'>#{cards[newcards[0]].name}</span>"
+                    pushLog "<span class='name'>#{current.user.username}</span> used a <span class='item action'>Gopher</span> on <span class='name'>#{player.username}</span> and got a <span class='item #{cards[newcards[0]].type}'>#{cards[newcards[0]].name}</span>"
                     current.match.save()
                     current.deck.save()
                     target_deck.save()
@@ -342,14 +342,14 @@ onDeviceReady = ->
       magnet:
         name: 'magnet'
         type: 'action'
-        cost: 1
+        cost: 99
         short_desc: 'Steal a tresure card from an Opponent'
         long_desc: 'long description'
 
       alchemy:
         name: 'alchemy'
         type: 'action'
-        cost: 1
+        cost: 4
         short_desc: 'Turns 2 coals into a Diamond'
         long_desc: 'long description'
         use: ->
@@ -374,7 +374,7 @@ onDeviceReady = ->
       shield:
         name: 'shield'
         type: 'reaction'
-        cost: 1
+        cost: 3
         short_desc: 'Blocks an incoming attack'
         long_desc: "Prevents a single attack from affecting you. This card is then returned to your inventory after it's been used."
 

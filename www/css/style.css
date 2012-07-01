@@ -235,11 +235,13 @@ background: #747a78;
 .card .attack { background-color: #ef6b56; }
 .card .money { background-color: #fbb032; }
 .card .action { background-color: #424242; }
+.card .coal { background-color: #424242; }
 
 /* name color */
 .card-main .name-attack { color: #ef6b56; }
 .card-main .name-money { color: #fbb032; }
 .card-main .name-action { color: #424242; }
+.card-main .name-coal { color: #424242; }
 
 .card-notch .use {
 	font-family: 'Gotham-Bold';
@@ -332,7 +334,19 @@ background: #747a78;
 }
 
 #log .item{
+	color: #4a4a4a;
+}
+
+#log .attack {
 	color: #ef6b56;
+}
+
+#log .money {
+	color: #fbb032;
+}
+
+#log .coal{
+	color: #4a4a4a;
 }
 
 /* Lobby
