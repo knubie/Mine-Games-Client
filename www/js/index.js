@@ -12,6 +12,7 @@ onBodyLoad = function() {
 onDeviceReady = function() {
   return $(function() {
     var CardDetailView, CardListView, ChooseOpponentsView, Deck, Decks, HomeView, LobbyView, LoginView, Match, MatchListView, MatchView, Matches, NewMatchUsernameView, NewMatchView, OpponentsListView, ShopListView, ShopView, SignupView, aOrAn, actions, cards, changePage, collections, current, gsub, match_channel, pushLog, pusher, user_channel, views;
+    alert("changed!3");
     gsub = function(source, pattern, replacement) {
       var match, result;
       if (!((pattern != null) && (replacement != null))) {
@@ -473,7 +474,6 @@ onDeviceReady = function() {
           hand.push(newcard);
           newcards.push(newcard);
         }
-           alert('psst.. i changed this part.');
         model.set(attribute, source);
         current.deck.set('hand', hand);
         console.log(" - Firing callback");

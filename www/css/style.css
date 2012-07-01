@@ -187,11 +187,15 @@ background: #747a78;
 
 /* Cards */
 
-#hand {
+#hand-container {
 	height: 237px;
 	width: 316px;
 	overflow-y: scroll;
 	-webkit-overflow-scrolling: touch;
+}
+
+#hand {
+	min-height: 231px;
 }
 
 .drag {

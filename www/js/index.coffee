@@ -12,7 +12,7 @@ onBodyLoad = ->
 
 onDeviceReady = ->
   $ ->
-
+    alert "changed!3"
     gsub = (source, pattern, replacement) ->
       unless pattern? and replacement?
         return source
@@ -409,7 +409,6 @@ onDeviceReady = ->
           newcards.push newcard
 
 
-        alert 'psst.. i changed this part.'
         model.set(attribute, source)
         current.deck.set('hand', hand)
 
