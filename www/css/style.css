@@ -189,6 +189,7 @@ background: #747a78;
 
 #hand {
 	height: 237px;
+	width: 316px;
 	overflow-y: scroll;
 	-webkit-overflow-scrolling: touch;
 }
@@ -201,7 +202,6 @@ background: #747a78;
 	width: 282px;
 	height: 51px;
 	margin: auto;
-	margin-top: 7px;
 	-webkit-border-top-right-radius: 5px;
 	-webkit-border-bottom-right-radius: 5px;
 	-webkit-transition: all .1s ease;
@@ -222,6 +222,7 @@ background: #747a78;
 	-webkit-user-select: none;
 	-webkit-transition: all .1s ease;
 	margin-top: -51px;
+	margin-bottom: 7px;
 	margin-left: 12px;
 	overflow: auto;
 }

@@ -87,7 +87,7 @@ onDeviceReady = ->
       stone_pickaxe:
         name: 'stone pickaxe'
         type: 'action'
-        cost: 3
+        cost: 1
         short_desc: 'Draw 1 card from the Mine'
         long_desc: 'long description'
         use: ->
@@ -104,7 +104,7 @@ onDeviceReady = ->
       iron_pickaxe:
         name: 'iron pickaxe'
         type: 'action'
-        cost: 5
+        cost: 1
         short_desc: 'Draw 2 cards from the Mine'
         long_desc: 'long description'
         use: ->
@@ -121,7 +121,7 @@ onDeviceReady = ->
       diamond_pickaxe:
         name: 'diamond pickaxe'
         type: 'action'
-        cost: 8
+        cost: 1
         short_desc: 'Draw 3 cards from the Mine'
         long_desc: 'long description'
         use: ->
@@ -252,7 +252,7 @@ onDeviceReady = ->
       minecart:
         name: 'minecart'
         type: 'action'
-        cost: 5
+        cost: 1
         short_desc: '+2 Action, +1 Card'
         long_desc: 'long description'
         use: ->
@@ -271,7 +271,7 @@ onDeviceReady = ->
       mule:
         name: 'mule'
         type: 'action'
-        cost: 5
+        cost: 1
         short_desc: '+3 Cards'
         long_desc: 'long description'
         use: ->
@@ -288,14 +288,14 @@ onDeviceReady = ->
       headlamp:
         name: 'headlamp'
         type: 'action'
-        cost: 4
+        cost: 1
         short_desc: 'Draw two additional cards next hand.'
         long_desc: 'long description'
 
       gopher:
         name: 'gopher'
         type: 'attack'
-        cost: 4
+        cost: 1
         short_desc: "Steals a random card from an Opponent's hand"
         long_desc: 'long description'
         use: ->
@@ -342,14 +342,14 @@ onDeviceReady = ->
       magnet:
         name: 'magnet'
         type: 'action'
-        cost: 5
+        cost: 1
         short_desc: 'Steal a tresure card from an Opponent'
         long_desc: 'long description'
 
       alchemy:
         name: 'alchemy'
         type: 'action'
-        cost: 6
+        cost: 1
         short_desc: 'Turns 2 coals into a Diamond'
         long_desc: 'long description'
         use: ->
@@ -358,8 +358,6 @@ onDeviceReady = ->
             card == 'coal'
           source = _.reject source, (card) ->
             card == 'coal'
-          console.log 'coals:'
-          console.log coals
           if coals.length >= 2
             source.push 'diamond'
             current.deck.set('hand', source)
@@ -410,13 +408,10 @@ onDeviceReady = ->
           hand.push newcard
           newcards.push newcard
 
-          console.log " - Setting model: #{attribute}"
-          model.set(attribute, source)
-          console.log " - Setting hand"
-          current.deck.set('hand', hand)
 
-          console.log " - Instantiating new CardListView"
-          view = new CardListView(cards[newcard])
+        alert 'psst.. i changed this part.'
+        model.set(attribute, source)
+        current.deck.set('hand', hand)
 
         console.log " - Firing callback"
         options.callback(newcards) if typeof options.callback == 'function'
@@ -714,7 +709,7 @@ onDeviceReady = ->
         @$el.find('.name').addClass("name-#{@card.type}")
         @$el.find('.desc').html(@card.short_desc)
         @$el.find('.card-notch').addClass(@card.type)
-        $('#hand').append(@el)
+        $('#hand').prepend(@el)
 
       w: 50
       touch:
@@ -790,11 +785,28 @@ onDeviceReady = ->
         if @use and @dx >= @w - 1
           @dx = 0
           if current.deck.get('actions') > 0 and current.turn
+            dy = ($('.card').size() - (@$el.index() + 2)) * 58
+            setTimeout =>
+              @$el.find('.card-main, .card-notch').css
+                'z-index': '999'
+                'margin-bottom':'-51px'
+                'opacity':'0'
+                '-webkit-transition': 'all .25s ease-in-out !important'
+                '-webkit-transform':"translate3d(0,#{dy}px,0)"
+
+              setTimeout =>
+                current.deck.set('actions', current.deck.get('actions') - 1 ) if @card.type == 'action' or @card.type == 'attack'
+                @discard()
+                @card.use()
+                current.match.set('last_move', new Date().toString().split(' ').slice(0,5).join(' '))
+              , 250
+
+            , 150
             console.log ' - Using card'
-            current.deck.set('actions', current.deck.get('actions') - 1 ) if @card.type == 'action' or @card.type == 'attack'
-            @discard()
-            @card.use()
-            current.match.set('last_move', new Date().toString().split(' ').slice(0,5).join(' '))
+            # current.deck.set('actions', current.deck.get('actions') - 1 ) if @card.type == 'action' or @card.type == 'attack'
+            # @discard()
+            # @card.use()
+            # current.match.set('last_move', new Date().toString().split(' ').slice(0,5).join(' '))
           else
             if not current.turn
               alert "It's not your turn!"
@@ -813,10 +825,7 @@ onDeviceReady = ->
 
 
       discard: () ->
-        console.log "CardListView#discard"
-        console.log " - removing from DOM"
         @remove()
-        console.log " - Removing card from hand, adding to deck.cards"
         nh = _.clone current.deck.get('hand')
         nh = nh.minus(gsub(@card.name, ' ', '_'))
         current.deck.set('hand', nh)
@@ -857,6 +866,7 @@ onDeviceReady = ->
 
         # console.log " - Binding backbone events"
 
+
         current.match.on 'change:log', =>
           console.log "current.match change:log"
           @$el.find('#log').html(_.last(current.match.get('log')))
@@ -864,6 +874,25 @@ onDeviceReady = ->
         current.match.on 'change:mine', =>
           console.log "current.match change:mine"
           @$el.find('#mine > .count').html(current.match.get('mine').length)
+
+        current.match.on 'change:turn', =>
+          # TODO: rerender player list
+          current.turn = if current.match.get('turn') == current.user.id then true else false
+          if current.turn
+            @$el.find('#end_turn').show()
+            @$el.find('#turn').hide()
+          else
+            @$el.find('#end_turn').hide()
+            @$el.find('#turn').show()
+            player = _.find current.match.get('players'), (player) ->
+              player.id == current.match.get('turn')
+            @$el.find('#turn > .count').html(player.username)
+
+
+        current.deck.on 'change:hand', =>
+          @$el.find('.card').remove()
+          for card in current.deck.get('hand')
+            view = new CardListView(cards[card])
 
         current.deck.on 'change:actions', =>
           console.log "current.deck change:actions"
@@ -930,9 +959,9 @@ onDeviceReady = ->
                 $player.find('.score').html(deck.get('points'))
           $players_bar.append($player)
 
-        if @$el.css('display') == 'none'
-          changePage '#match',
-            transition: 'slide'
+        # if @$el.css('display') == 'none'
+        #   changePage '#match',
+        #     transition: 'slide'
 
       end_turn: ->
         console.log 'MatchView#end_turn'
@@ -944,7 +973,7 @@ onDeviceReady = ->
           current.match.set JSON.parse(data)["match"]
           current.deck.set JSON.parse(data)["deck"]
           $('#loader').hide()
-          @render()
+          # @render()
 
       back_to_lobby: ->
         changePage "#lobby",
@@ -1008,8 +1037,6 @@ onDeviceReady = ->
             success: =>
               @deck.fetch
                 success: =>
-                  if @match.id == current.match.id
-                    views.match.render()
                   @render()
 
         sub.bind 'update', (data) =>
@@ -1017,8 +1044,8 @@ onDeviceReady = ->
             success: =>
               @deck.fetch
                 success: =>
-                  if @match.id == current.match.id
-                    views.match.render() unless current.turn
+                  # if @match.id == current.match.id
+                  #   views.match.render() unless current.turn
                   @render()
 
         @render()
@@ -1046,8 +1073,6 @@ onDeviceReady = ->
         console.log 'MatchListView#render_match'
         current.match = @match
         current.deck = @deck
-        console.log "current match:"
-        console.log current.match
 
         # $('#loader').show()
         # $('#loader').find('#loading-text').html('Setting up match...')
@@ -1058,6 +1083,9 @@ onDeviceReady = ->
         else
           console.log 'MatchView instance doesnt exist. Creating new matchview'
           views.match = new MatchView
+
+        changePage '#match',
+          transition: 'slide'
 
         # if current.shopview
         #   current.shopview.render()
