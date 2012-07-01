@@ -1261,7 +1261,8 @@ onDeviceReady = function() {
 
       MatchView.prototype.back_to_lobby = function() {
         return changePage("#lobby", {
-          transition: 'slide'
+          transition: 'slide',
+          reverse: true
         });
       };
 

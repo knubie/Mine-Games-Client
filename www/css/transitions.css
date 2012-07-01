@@ -91,7 +91,7 @@
 /* slide up */
 .slideup.out {
 	-webkit-animation-name: static;
-	-webkit-animation-duration: 100ms;
+	-webkit-animation-duration: 250ms;
 }
 
 .slideup.in {
@@ -101,8 +101,8 @@
 }
 
 .slideup.in.reverse {
-	-webkit-animation-name: fadeout;
-	-webkit-animation-duration: 100ms;
+	-webkit-animation-name: static;
+	-webkit-animation-duration: 200ms;
 }
 
 .slideup.out.reverse {
@@ -125,12 +125,12 @@
 
 .pop.out {
 	-webkit-animation-name: static;
-	-webkit-animation-duration: 100ms;
+	-webkit-animation-duration: 350ms;
 }
 
 .pop.in.reverse {
 	-webkit-animation-name: static;
-	-webkit-animation-duration: 100ms;
+	-webkit-animation-duration: 350ms;
 }
 
 .pop.out.reverse {

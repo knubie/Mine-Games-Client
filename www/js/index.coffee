@@ -992,6 +992,7 @@ onDeviceReady = ->
       back_to_lobby: ->
         changePage "#lobby",
           transition: 'slide'
+          reverse: true
 
       render_shop: ->
         if views.shop
