@@ -471,22 +471,20 @@ background: #747a78;
 }
 
 #backShop{
-	width: 50%;
-	background: #e29d29;
+	width: 25%;
+	background: #ef6b56;
+	color: white;
 	float: left;
-	height:62px;
-	padding-top: 8px;
-	text-align:center;
+	font-family: 'Gotham-Bold';
+	font-size: 19px;
+	height: 49px;
+	padding-top: 21px;
+	text-align: center;
+	text-decoration: none;
+	text-transform: uppercase;
 }
 
-#backShop a{
-	color: #fff;
-	font-size: 12px;;
-	font-family: 'Gotham-Bold';
-	text-align: center;
-	text-transform: uppercase;
-	text-decoration:none;
-}
+
 
 
 /* 
@@ -494,7 +492,7 @@ Shop Screen */
 
 #shopContainer{
 	padding-left: 42px;
-	padding-top: 6px;
+	padding-top: 35px;
 }
 
 .shop-item{
