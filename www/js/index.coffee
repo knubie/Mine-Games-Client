@@ -647,14 +647,6 @@ onDeviceReady = ->
         else
           console.log 'not enough money'
           alert "not enough money!"
-     
-      back_to_lobby: ->
-        pusher.unsubscribe("#{current.match.get('id')}")
-        changePage "#lobby",
-          transition: 'slide'
-          reverse: true
-
-
 
     class ShopView extends Backbone.View
       initialize: (@card) ->
@@ -683,7 +675,7 @@ onDeviceReady = ->
           console.log cards[card]
           view = new ShopListView(cards[card], amount)
 
-      hand: ->
+      back: ->
         changePage '#match',
           transition: 'reverse'
           reverse: true
