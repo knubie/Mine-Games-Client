@@ -12,7 +12,6 @@ onBodyLoad = ->
 
 onDeviceReady = ->
   $ ->
-
     gsub = (source, pattern, replacement) ->
       unless pattern? and replacement?
         return source
@@ -44,7 +43,8 @@ onDeviceReady = ->
       return popper
 
     changePage = (page, options) ->
-      $curr = $('.active')
+      $('.active').addClass('curr')
+      $curr = $('.curr')
       $page = $(page)
 
       if options?
@@ -56,15 +56,14 @@ onDeviceReady = ->
         $page.addClass("#{options.transition} in active")
 
         $curr.one 'webkitAnimationEnd', ->
-          $curr.removeClass("#{options.transition} out active reverse")
+          $curr.removeClass("#{options.transition} out active reverse curr")
 
         $page.one 'webkitAnimationEnd', ->
           $page.removeClass("#{options.transition} in reverse")
       else
-        $curr.removeClass 'active reverse'
+        $curr.removeClass 'active reverse curr'
         $page.addClass 'active'
         $page.removeClass 'reverse'
-
 
     aOrAn = (word) ->
       console.log word.charAt(0)
@@ -79,7 +78,6 @@ onDeviceReady = ->
       current.match.set('log', log)
       console.log current.match.get('log')
 
-    pusher = 0
     user_channel = 0
     match_channel = 0
 
@@ -89,7 +87,7 @@ onDeviceReady = ->
       stone_pickaxe:
         name: 'stone pickaxe'
         type: 'action'
-        cost: 3
+        cost: 1
         short_desc: 'Draw 1 card from the Mine'
         long_desc: 'long description'
         use: ->
@@ -98,7 +96,7 @@ onDeviceReady = ->
             random: false
             callback: (newcards) ->
               console.log 'calling callback'
-              pushLog "<span class='name'>#{current.user.username}</span> used a <span class='item action'>Stone Pickaxe</span> and got a <span class='money'>#{newcards[0]}</span>"
+              pushLog "<span class='name'>#{current.user.username}</span> used a <span class='item action'>Stone Pickaxe</span> and got a <span class='item money'>#{newcards[0]}</span>"
               current.match.save()
               current.deck.save()
               current.deck.trigger 'update_to_spend'
@@ -106,7 +104,7 @@ onDeviceReady = ->
       iron_pickaxe:
         name: 'iron pickaxe'
         type: 'action'
-        cost: 5
+        cost: 3
         short_desc: 'Draw 2 cards from the Mine'
         long_desc: 'long description'
         use: ->
@@ -115,7 +113,7 @@ onDeviceReady = ->
             random: false
             callback: (newcards) ->
               console.log 'calling callback'
-              pushLog "<span class='name'>#{current.user.username}</span> used an <span class='item action'>Iron Pickaxe</span> and got a <span class='money'>#{newcards[0]}</span> and <span class='money'>#{newcards[1]}</span>"
+              pushLog "<span class='name'>#{current.user.username}</span> used an <span class='item action'>Iron Pickaxe</span> and got a <span class='item money'>#{newcards[0]}</span> and <span class='item money'>#{newcards[1]}</span>"
               current.match.save()
               current.deck.save()
               current.deck.trigger 'update_to_spend'
@@ -123,7 +121,7 @@ onDeviceReady = ->
       diamond_pickaxe:
         name: 'diamond pickaxe'
         type: 'action'
-        cost: 8
+        cost: 6
         short_desc: 'Draw 3 cards from the Mine'
         long_desc: 'long description'
         use: ->
@@ -132,7 +130,7 @@ onDeviceReady = ->
             random: false
             callback: (newcards) ->
               console.log 'calling callback'
-              pushLog "<span class='name'>#{current.user.username}</span> used a <span class='item action'>Diamond Pickaxe</span> and got a <span class='money'>#{newcards[0]}</span>, <span class='money'>#{newcards[1]}</span> and <span class='money'>#{newcards[2]}</span>"
+              pushLog "<span class='name'>#{current.user.username}</span> used a <span class='item action'>Diamond Pickaxe</span> and got a <span class='item money'>#{newcards[0]}</span>, <span class='item money'>#{newcards[1]}</span> and <span class='item money'>#{newcards[2]}</span>"
               current.match.save()
               current.deck.save()
               current.deck.trigger 'update_to_spend'
@@ -194,8 +192,8 @@ onDeviceReady = ->
 
       tnt:
         name: 'tnt'
-        type: 'action'
-        cost: 1
+        type: ''
+        cost: 5
         short_desc: "Destroy 2 items from an opponent's hand"
         long_desc: 'long description'
         use: ->
@@ -228,13 +226,14 @@ onDeviceReady = ->
                     number: 2
                     callback: (newcards) ->
                       console.log 'calling callback'
-                      pushLog "<span class='name'>#{current.user.username}</span> used a <span class='item action'>TNT</span> on #{player.username} and trashed a <span class='money'>#{cards[newcards[0]].name}</span> and <span class='money'>#{cards[newcards[1]].name}</span>"
+                      pushLog "<span class='name'>#{current.user.username}</span> used a <span class='item attack'>TNT</span> on <span class='name'>#{player.username}</span> and trashed a <span class='item #{cards[newcards[0]].type}'>#{cards[newcards[0]].name}</span> and <span class='item #{cards[newcards[1]].type}'>#{cards[newcards[1]].name}</span>"
                       current.match.save()
                       current.deck.save()
                       target_deck.save()
                       current.deck.trigger 'update_to_spend'
                 else
                   alert "#{player.username} used a reaction card and blocked your attack!"
+                  pushLog "<span class='name'>#{player.username}</span> blocked <span class='name'>#{current.user.username}'s</span> <span class='item attack'>TNT</span> with a <span class='item'>Shield</span>."
 
 
 
@@ -247,7 +246,7 @@ onDeviceReady = ->
             changePage '#choose-opponents',
               transition: 'slideup'
           else
-            current.attack(current.match.get('players').find (player) -> player.id isnt current.user.id)
+            current.attack(_.find current.match.get('players'), (player) -> player.id isnt current.user.id)
 
           #do something
 
@@ -264,7 +263,7 @@ onDeviceReady = ->
             random: false
             callback: (newcards) ->
               console.log 'calling callback'
-              pushLog "<span class='name'>#{current.user.username}</span> used a <span class='item action'>Minecart</span> and got a <span class='money'>#{cards[newcards[0]].name}</span>"
+              pushLog "<span class='name'>#{current.user.username}</span> used a <span class='item action'>Minecart</span> and got a <span class='item #{cards[newcards[0]].type}'>#{cards[newcards[0]].name}</span>"
               current.match.save()
               current.deck.save()
               current.deck.trigger 'update_to_spend'
@@ -273,7 +272,7 @@ onDeviceReady = ->
       mule:
         name: 'mule'
         type: 'action'
-        cost: 5
+        cost: 4
         short_desc: '+3 Cards'
         long_desc: 'long description'
         use: ->
@@ -282,7 +281,7 @@ onDeviceReady = ->
             random: false
             callback: (newcards) ->
               console.log 'calling callback'
-              pushLog "<span class='name'>#{current.user.username}</span> used a <span class='item action'>Minecart</span> and got a <span class='money'>#{cards[newcards[0]].name}</span>, <span class='money'>#{newcards[1]}</span> and <span class='money'>#{newcards[2]}</span>"
+              pushLog "<span class='name'>#{current.user.username}</span> used a <span class='item action'>Minecart</span> and got a <span class='item #{cards[newcards[0]].type}'>#{cards[newcards[0]].name}</span>, <span class='item #{cards[newcards[1]].type}'>#{newcards[1]}</span> and <span class='item #{cards[newcards[2]].type}'>#{newcards[2]}</span>"
               current.match.save()
               current.deck.save()
               current.deck.trigger 'update_to_spend'
@@ -290,14 +289,14 @@ onDeviceReady = ->
       headlamp:
         name: 'headlamp'
         type: 'action'
-        cost: 4
+        cost: 99
         short_desc: 'Draw two additional cards next hand.'
         long_desc: 'long description'
 
       gopher:
         name: 'gopher'
-        type: 'action'
-        cost: 4
+        type: 'attack'
+        cost: 5
         short_desc: "Steals a random card from an Opponent's hand"
         long_desc: 'long description'
         use: ->
@@ -322,7 +321,7 @@ onDeviceReady = ->
                   number: 1
                   callback: (newcards) ->
                     console.log 'calling callback'
-                    pushLog "<span class='name'>#{current.user.username}</span> used a <span class='item action'>Gopher</span> on #{player.username} and got a <span class='money'>#{cards[newcards[0]].name}</span>"
+                    pushLog "<span class='name'>#{current.user.username}</span> used a <span class='item action'>Gopher</span> on <span class='name'>#{player.username}</span> and got a <span class='item #{cards[newcards[0]].type}'>#{cards[newcards[0]].name}</span>"
                     current.match.save()
                     current.deck.save()
                     target_deck.save()
@@ -339,19 +338,19 @@ onDeviceReady = ->
             changePage '#choose-opponents',
               transition: 'slideup'
           else
-            current.attack(current.match.get('players').find (player) -> player.id isnt current.user.id)
+            current.attack(_.find current.match.get('players'), (player) -> player.id isnt current.user.id)
 
       magnet:
         name: 'magnet'
         type: 'action'
-        cost: 5
+        cost: 99
         short_desc: 'Steal a tresure card from an Opponent'
         long_desc: 'long description'
 
       alchemy:
         name: 'alchemy'
         type: 'action'
-        cost: 6
+        cost: 4
         short_desc: 'Turns 2 coals into a Diamond'
         long_desc: 'long description'
         use: ->
@@ -360,8 +359,6 @@ onDeviceReady = ->
             card == 'coal'
           source = _.reject source, (card) ->
             card == 'coal'
-          console.log 'coals:'
-          console.log coals
           if coals.length >= 2
             source.push 'diamond'
             current.deck.set('hand', source)
@@ -378,7 +375,7 @@ onDeviceReady = ->
       shield:
         name: 'shield'
         type: 'reaction'
-        cost: 1
+        cost: 3
         short_desc: 'Blocks an incoming attack'
         long_desc: "Prevents a single attack from affecting you. This card is then returned to your inventory after it's been used."
 
@@ -412,13 +409,9 @@ onDeviceReady = ->
           hand.push newcard
           newcards.push newcard
 
-          console.log " - Setting model: #{attribute}"
-          model.set(attribute, source)
-          console.log " - Setting hand"
-          current.deck.set('hand', hand)
 
-          console.log " - Instantiating new CardListView"
-          view = new CardListView(cards[newcard])
+        model.set(attribute, source)
+        current.deck.set('hand', hand)
 
         console.log " - Firing callback"
         options.callback(newcards) if typeof options.callback == 'function'
@@ -624,26 +617,25 @@ onDeviceReady = ->
 
       buy: ->
         console.log "ShopListView#buy"
-        if @card.cost <= current.deck.to_spend() and current.turn
-          console.log 'buying card..'
-          console.log current.match.get('shop')
-          shop = _.clone current.match.get('shop')
-          shop = shop.minus(gsub(@card.name, ' ', '_'))
-          current.match.set('shop', shop)
-          curr_cards = _.clone current.deck.get('cards')
-          curr_cards.push gsub(@card.name, ' ', '_')
-          current.deck.set('cards', curr_cards)
-          console.log current.match.get('shop')
-          console.log current.deck.get('cards')
-          @amount--
-          @$el.find('.count').html(@amount)
-          current.deck.spend(@card.cost)
-          pushLog "<span class='name'>#{current.user.username}</span> bought #{aOrAn(@card.name)} <span class='item action'>#{@card.name}</span>"
-          changePage '#match',
-            transition: 'slide'
-          current.match.save()
-          current.deck.save()
-          current.deck.trigger 'update_to_spend'
+        if @card.cost <= current.deck.to_spend()
+          if current.turn
+            shop = _.clone current.match.get('shop')
+            shop = shop.minus(gsub(@card.name, ' ', '_'))
+            current.match.set('shop', shop)
+            curr_cards = _.clone current.deck.get('cards')
+            curr_cards.push gsub(@card.name, ' ', '_')
+            current.deck.set('cards', curr_cards)
+            @amount--
+            @$el.find('.count').html(@amount)
+            current.deck.spend(@card.cost)
+            pushLog "<span class='name'>#{current.user.username}</span> bought #{aOrAn(@card.name)} <span class='item action'>#{@card.name}</span>"
+            changePage '#match',
+              transition: 'slide'
+            current.match.save()
+            current.deck.save()
+            current.deck.trigger 'update_to_spend'
+          else
+            alert "It's not your turn!"
         else
           console.log 'not enough money'
           alert "not enough money!"
@@ -657,6 +649,9 @@ onDeviceReady = ->
         @render()
 
       el: '#shop'
+
+      events:
+        'tap .back': 'back'
 
       render: ->
         console.log 'ShopView#render'
@@ -676,9 +671,11 @@ onDeviceReady = ->
           view = new ShopListView(cards[card], amount)
 
       back: ->
-        changePage '#match',
-          transition: 'reverse'
+        changePage "#match",
+          transition: 'slide'
           reverse: true
+
+
 
     # Match
 
@@ -687,9 +684,17 @@ onDeviceReady = ->
 
       el: '#card-detail'
 
+      events:
+        'tap .close': 'close'
+
       render: (card) ->
         @$el.find('#card-detail-name').html(card.name)
         @$el.find('#card-detail-desc').html(card.long_desc)
+
+      close: ->
+        changePage '#match',
+          transition: 'pop'
+          reverse: true
 
     class CardListView extends Backbone.View
       initialize: (@card) ->
@@ -712,7 +717,7 @@ onDeviceReady = ->
         @$el.find('.name').addClass("name-#{@card.type}")
         @$el.find('.desc').html(@card.short_desc)
         @$el.find('.card-notch').addClass(@card.type)
-        $('#hand').append(@el)
+        $('#hand').prepend(@el)
 
       w: 50
       touch:
@@ -727,10 +732,9 @@ onDeviceReady = ->
       dy: 0
 
       render_card: ->
-        console.log 'CardListView#render_card'
-        current.carddetailview.render(@card)
+        views.carddetail.render(@card)
         changePage '#card-detail',
-          transition: 'flip'
+          transition: 'pop'
 
       touchstart: (e) ->
         @clicked = true
@@ -788,10 +792,28 @@ onDeviceReady = ->
         if @use and @dx >= @w - 1
           @dx = 0
           if current.deck.get('actions') > 0 and current.turn
+            dy = ($('.card').size() - (@$el.index() + 2)) * 58
+            setTimeout =>
+              @$el.find('.card-main, .card-notch').css
+                'z-index': '999'
+                'margin-bottom':'-51px'
+                'opacity':'0'
+                '-webkit-transition': 'all .25s ease-in-out !important'
+                '-webkit-transform':"translate3d(0,#{dy}px,0)"
+
+              setTimeout =>
+                current.deck.set('actions', current.deck.get('actions') - 1 ) if @card.type == 'action' or @card.type == 'attack'
+                @discard()
+                @card.use()
+                current.match.set('last_move', new Date().toString().split(' ').slice(0,5).join(' '))
+              , 250
+
+            , 150
             console.log ' - Using card'
-            current.deck.set('actions', current.deck.get('actions') - 1 ) if @card.type == 'action' or @card.type == 'attack'
-            @discard()
-            @card.use()
+            # current.deck.set('actions', current.deck.get('actions') - 1 ) if @card.type == 'action' or @card.type == 'attack'
+            # @discard()
+            # @card.use()
+            # current.match.set('last_move', new Date().toString().split(' ').slice(0,5).join(' '))
           else
             if not current.turn
               alert "It's not your turn!"
@@ -802,7 +824,14 @@ onDeviceReady = ->
           if @clicked and Math.abs(@dy) < 6
             @clicked = false
             console.log 'clicked'
-            @render_card()
+            if views.carddetail
+              views.carddetail.render(@card)
+            else
+              views.carddetail = new CardDetailView
+              views.carddetail.render(@card)
+
+            changePage '#card-detail',
+              transition: 'pop'
 
 
         @dx = @dy = 0
@@ -810,10 +839,7 @@ onDeviceReady = ->
 
 
       discard: () ->
-        console.log "CardListView#discard"
-        console.log " - removing from DOM"
         @remove()
-        console.log " - Removing card from hand, adding to deck.cards"
         nh = _.clone current.deck.get('hand')
         nh = nh.minus(gsub(@card.name, ' ', '_'))
         current.deck.set('hand', nh)
@@ -830,28 +856,30 @@ onDeviceReady = ->
         console.log 'MatchView#initialize'
 
         console.log " - instantiating CardDetailView"
-        current.carddetailview = new CardDetailView
+        # views.carddetail = new CardDetailView
 
-        current.turn = if current.match.get('turn') == current.user.id then true else false
+        match_channel = pusher.channel("#{current.match.get('id')}")
+        deck_channel = pusher.subscribe("#{current.match.get('id')}")
 
-        console.log " - Binding pusher channels"
-        # match_channel.bind 'update', (data) ->
-        #   console.log "match_channel:update"
-        #   current.match.fetch() if not current.turn
-
-        # user_channel.bind 'update_deck', (data) =>
-        #   console.log "user_channel:update_deck"
-        #   @refresh()
-
-        # match_channel.bind 'change_turn', (data) =>
-        #   console.log "match_channel:change_turn"
+        # match_channel.bind 'update', (data) =>
+        #   alert "match channel update"
         #   @render()
+        #   # current.match.fetch() if not current.turn
 
-        # match_channel.bind 'update_score', (data) =>
-        #   console.log "match_channel:update_score"
-        #   @refresh()
+        # # user_channel.bind 'update_deck', (data) =>
+        # #   console.log "user_channel:update_deck"
+        # #   @refresh()
 
-        console.log " - Binding backbone events"
+        # # match_channel.bind 'change_turn', (data) =>
+        # #   console.log "match_channel:change_turn"
+        # #   @render()
+
+        # # match_channel.bind 'update_score', (data) =>
+        # #   console.log "match_channel:update_score"
+        # #   @refresh()
+
+        # console.log " - Binding backbone events"
+
 
         current.match.on 'change:log', =>
           console.log "current.match change:log"
@@ -860,6 +888,25 @@ onDeviceReady = ->
         current.match.on 'change:mine', =>
           console.log "current.match change:mine"
           @$el.find('#mine > .count').html(current.match.get('mine').length)
+
+        current.match.on 'change:turn', =>
+          # TODO: rerender player list
+          current.turn = if current.match.get('turn') == current.user.id then true else false
+          if current.turn
+            @$el.find('#end_turn').show()
+            @$el.find('#turn').hide()
+          else
+            @$el.find('#end_turn').hide()
+            @$el.find('#turn').show()
+            player = _.find current.match.get('players'), (player) ->
+              player.id == current.match.get('turn')
+            @$el.find('#turn > .count').html(player.username)
+
+
+        current.deck.on 'change:hand', =>
+          @$el.find('.card').remove()
+          for card in current.deck.get('hand')
+            view = new CardListView(cards[card])
 
         current.deck.on 'change:actions', =>
           console.log "current.deck change:actions"
@@ -876,8 +923,11 @@ onDeviceReady = ->
       events:
         'tap #end_turn': 'end_turn'
         'tap #lobby_header': 'back_to_lobby'
+        'tap #shop_link': 'render_shop'
 
       render: ->
+        current.turn = if current.match.get('turn') == current.user.id then true else false
+
         @$el.find('#log').html(_.last(current.match.get('log')))
         @$el.find('#actions > .count').html(current.deck.get 'actions')
         @$el.find('#mine > .count').html(current.match.get('mine').length)
@@ -908,26 +958,24 @@ onDeviceReady = ->
         $players_bar.show().html('')
 
         for player in current.match.get('players')
-          console.log "player bar:"
-          console.log player
           $player = $('#templates').find(".player").clone()
           $player.find('.name').html(player.username)
           if current.match.get('turn') == player.id
             $player.addClass('turn')
           if player.id == current.user.id
-            $player.find('.score').html(current.deck.total_points())
+            $player.find('.score').html(current.deck.get('points'))
           else
             players_decks = new Decks()
             players_decks.url = "#{server_url}/decks_by_user/#{player.id}"
             players_decks.fetch
               success: ->
                 deck = players_decks.where(match_id: current.match.get('id'))[0]
-                $player.find('.score').html(deck.total_points())
+                $player.find('.score').html(deck.get('points'))
           $players_bar.append($player)
 
-        if @$el.css('display') == 'none'
-          changePage '#match',
-            transition: 'slide'
+        # if @$el.css('display') == 'none'
+        #   changePage '#match',
+        #     transition: 'slide'
 
       end_turn: ->
         console.log 'MatchView#end_turn'
@@ -938,35 +986,83 @@ onDeviceReady = ->
         $.post "#{server_url}/end_turn/#{current.match.get('id')}", {'match': current.match.toJSON()}, (data) =>
           current.match.set JSON.parse(data)["match"]
           current.deck.set JSON.parse(data)["deck"]
-          current.turn = if current.match.get('turn') == current.user.id then true else false
           $('#loader').hide()
-          @render()
+          # @render()
 
       back_to_lobby: ->
-        pusher.unsubscribe("#{current.match.get('id')}")
         changePage "#lobby",
+          transition: 'slide'
+          reverse: true
+
+      render_shop: ->
+        if views.shop
+          views.shop.render()
+        else
+          views.shop = new ShopView
+        changePage "#shop",
           transition: 'slide'
           reverse: true
 
 
     # Lobby
 
-    class NewMatchView extends Backbone.View
+    class NewMatchUsernameView extends Backbone.View
       initialize: ->
-        # I dunno..
+        # Nothing..
+
+      el: '#new_match_username'
 
       events:
         'tap .back': 'back'
 
       back: ->
-        changePage '#lobby',
+        console.log 'click'
+        changePage "#new_match",
+          transition: 'slide'
+          reverse: true
+
+    class NewMatchView extends Backbone.View
+      initialize: ->
+        # I dunno..
+
+      el: '#new_match'
+
+      events:
+        'tap .back': 'back'
+        'tap .username': 'username'
+
+      back: ->
+        changePage "#lobby",
           transition: 'slideup'
           reverse: true
+
+      username: ->
+        changePage "#new_match_username",
+          transition: 'slide'
 
     class MatchListView extends Backbone.View
       initialize: (@match, @deck) ->
         console.log 'init MatchListView'
         @setElement $('#templates').find(".match-item-view").clone()
+
+        sub = pusher.subscribe("#{@match.get('id')}")
+        # TODO: write server method for getting match and current user deck in one request
+        sub.bind 'change_turn', (data) =>
+          @match.fetch
+            success: =>
+              @deck.fetch
+                success: =>
+                  @render()
+
+        sub.bind 'update', (data) =>
+          @match.fetch
+            success: =>
+              @deck.fetch
+                success: =>
+                  # if @match.id == current.match.id
+                  #   views.match.render() unless current.turn
+                  @render()
+
         @render()
 
       events:
@@ -986,25 +1082,25 @@ onDeviceReady = ->
           # think of something to say here
           @$el.find('.subhead').html("No moves yet!")
         else
-          @$el.find('.subhead').html("Last move #{$.timeago @match.get('last_move')}")
+          @$el.find('.subhead').html("Last move #{$.timeago @match.get('last_move')}<br/>#{_.last(@match.get('log'))}")
 
       render_match: ->
         console.log 'MatchListView#render_match'
         current.match = @match
         current.deck = @deck
-        console.log "current match:"
-        console.log current.match
-        match_channel = pusher.subscribe("#{current.match.get('id')}")
 
         # $('#loader').show()
         # $('#loader').find('#loading-text').html('Setting up match...')
 
         console.log "checking if MatchView instance exists."
-        if current.matchview
-          current.matchview.render()
+        if views.match
+          views.match.render()
         else
           console.log 'MatchView instance doesnt exist. Creating new matchview'
-          current.matchview = new MatchView
+          views.match = new MatchView
+
+        changePage '#match',
+          transition: 'slide'
 
         # if current.shopview
         #   current.shopview.render()
@@ -1024,10 +1120,6 @@ onDeviceReady = ->
             success: =>
               alert "You've been challenged to a new game!"
               @render()
-
-        # collections.matches.each (match) ->
-        #   sub = pusher.subscribe("#{match.get('id')}")
-        #   sub.bind 'update', (data) =>
 
 
         @render()
@@ -1128,9 +1220,8 @@ onDeviceReady = ->
           else
             console.log $.cookie 'token',
               expires: 7300
-            current.lobby.render()
-            changePage '#lobby',
-              transition: 'slidedown'
+            views.home.set_user()
+
         , 'json')
         e.preventDefault()
 
@@ -1170,7 +1261,7 @@ onDeviceReady = ->
 
       signup: ->
         unless views.signup
-          views.lobby = new SignupView
+          views.signup = new SignupView
 
         changePage "#signup",
           transition: "slideup"
@@ -1212,10 +1303,6 @@ onDeviceReady = ->
     # Create Game
     # ============================================
 
-      back: ->
-        changePage '#lobby',
-          transition: 'slideup'
-          reverse: true
 
     $('#new-match-username-form').submit (e) ->
       # show loader
@@ -1235,15 +1322,15 @@ onDeviceReady = ->
         , 'json')
       e.preventDefault()
 
-    $('a').on 'tap', (e) ->
-      if $(this).attr('href')
-        e.preventDefault()
-        reverse = false
-        if $(this).attr('data-transition') == 'reverse'
-          reverse = true
-        changePage $(this).attr('href'),
-          transition: 'slide'
-          reverse: reverse
+    # $('a').on 'tap', (e) ->
+    #   if $(this).attr('href')
+    #     e.preventDefault()
+    #     reverse = false
+    #     if $(this).attr('data-transition') == 'reverse'
+    #       reverse = true
+    #     changePage $(this).attr('href'),
+    #       transition: 'slide'
+    #       reverse: reverse
 
     $(document).bind('touchmove', (e) ->
       if window.inAction
@@ -1256,7 +1343,6 @@ onDeviceReady = ->
 
 
     views.home = new HomeView
-
 
 
 

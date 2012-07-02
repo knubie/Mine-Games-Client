@@ -187,10 +187,15 @@ background: #747a78;
 
 /* Cards */
 
-#hand {
+#hand-container {
 	height: 237px;
+	width: 316px;
 	overflow-y: scroll;
 	-webkit-overflow-scrolling: touch;
+}
+
+#hand {
+	min-height: 231px;
 }
 
 .drag {
@@ -201,7 +206,6 @@ background: #747a78;
 	width: 282px;
 	height: 51px;
 	margin: auto;
-	margin-top: 7px;
 	-webkit-border-top-right-radius: 5px;
 	-webkit-border-bottom-right-radius: 5px;
 	-webkit-transition: all .1s ease;
@@ -222,6 +226,7 @@ background: #747a78;
 	-webkit-user-select: none;
 	-webkit-transition: all .1s ease;
 	margin-top: -51px;
+	margin-bottom: 7px;
 	margin-left: 12px;
 	overflow: auto;
 }
@@ -230,11 +235,13 @@ background: #747a78;
 .card .attack { background-color: #ef6b56; }
 .card .money { background-color: #fbb032; }
 .card .action { background-color: #424242; }
+.card .coal { background-color: #424242; }
 
 /* name color */
 .card-main .name-attack { color: #ef6b56; }
 .card-main .name-money { color: #fbb032; }
 .card-main .name-action { color: #424242; }
+.card-main .name-coal { color: #424242; }
 
 .card-notch .use {
 	font-family: 'Gotham-Bold';
@@ -301,6 +308,21 @@ background: #747a78;
 	font-weight:bold;
 }
 
+
+/* Card Detail */
+
+#card-detail {
+	width: 320px;
+	height: 480px;
+	background-color: #000;
+}
+#card {
+	width: 320px;
+	height: 480px;
+	-webkit-border-radius: 10px;
+	background-color: #efebe1;
+}
+
 /* Buttons */
 
 #itemsBtn img, #shopBtn img { width:92px; }
@@ -327,7 +349,19 @@ background: #747a78;
 }
 
 #log .item{
+	color: #4a4a4a;
+}
+
+#log .attack {
 	color: #ef6b56;
+}
+
+#log .money {
+	color: #fbb032;
+}
+
+#log .coal{
+	color: #4a4a4a;
 }
 
 /* Lobby
