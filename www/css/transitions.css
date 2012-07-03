@@ -28,10 +28,12 @@
 	left: 0px;
 	top: 0px;
 	position: absolute;
-	z-index: -1;
+	display: none;
+	/*z-index: -1;*/
 }
 .active {
-	z-index: 1;
+	display: block;
+	/*z-index: 1;*/
 }
 
 /* keyframes for slideout to sides */
