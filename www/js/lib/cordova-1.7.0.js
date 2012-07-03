@@ -4183,7 +4183,7 @@ module.exports = {
      * @param {String} buttonLabel          Label of the close button (default: OK)
      */
     alert: function(message, completeCallback, title, buttonLabel) {
-        var _title = (title || "Alert");
+        var _title = (title || "Mine");
         var _buttonLabel = (buttonLabel || "OK");
         exec(completeCallback, null, "Notification", "alert", [message, _title, _buttonLabel]);
     },

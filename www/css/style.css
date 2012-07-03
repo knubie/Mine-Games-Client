@@ -372,6 +372,18 @@ background: #747a78;
 		text-transform: uppercase;	
 }
 
+#lobbyTitle{
+		width: 100%;
+		background-image:url('../images/lobby/header.jpg');
+		background-repeat:no-repeat;
+		float: left;
+		height: 54px;
+		padding-top: 15px;
+		text-align:center;
+		line-height: 34px;
+		background-size: 319px;	
+	}
+
 .lobbyTitle{
 		color: #fff;
 		font-family: 'Gotham-Bold';
@@ -431,17 +443,6 @@ background: #747a78;
 	margin-top:10px;
 }
 
-#lobbyTitle{
-	width: 75%;
-	background-image:url('../images/lobby/header.jpg');
-	background-repeat:no-repeat;
-	background-size: 293px;
-	float: left;
-	height:55px;
-	padding-top: 15px;
-	text-align:center;
-	line-height: 34px;
-}
 
 #new_match {
 	background: #FFF;
@@ -469,30 +470,28 @@ background: #747a78;
 }
 
 #backShop{
-	width: 50%;
-	background: #e29d29;
+	width: 25%;
+	background: #ef6b56;
+	color: white;
 	float: left;
-	height:62px;
-	padding-top: 8px;
-	text-align:center;
-}
-
-#backShop a{
-	color: #fff;
-	font-size: 12px;;
 	font-family: 'Gotham-Bold';
+	font-size: 19px;
+	height: 49px;
+	padding-top: 21px;
 	text-align: center;
+	text-decoration: none;
 	text-transform: uppercase;
-	text-decoration:none;
 }
 
 
-/* Shop Screen
-========================================== */
+
+
+/* 
+Shop Screen */
 
 #shopContainer{
 	padding-left: 42px;
-	padding-top: 6px;
+	padding-top: 35px;
 }
 
 .shop-item{
@@ -652,6 +651,18 @@ Background Declarations */
 		background-repeat: none;
 		background-size: 100%;
 	}    
+
+		#lobbyTitle{
+		width: 100%;
+		background-image:url('../images/lobby/header.jpg');
+		background-repeat:no-repeat;
+		float: left;
+		height:60px;
+		padding-top: 15px;
+		text-align:center;
+		line-height: 34px;
+		background-size: 100%;	
+	}
 
     	#match{
 		background: url('../images/game_bg@2x.jpg');
