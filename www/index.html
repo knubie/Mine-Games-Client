@@ -66,8 +66,8 @@
 	
 
 			<div id="signForm">
-			    <form accept-charset="UTF-8" data-ajax="false" id="login-form">
-			        <input id="session_email" class="f90" name="session[email]" size="30" type="text" placeholder="Email"/>
+			    <form accept-charset="UTF-8" id="login-form" autocapitalize="off" autocorrect="off">
+			        <input id="session_email" type="email" class="f90" name="session[email]" size="30" type="text" placeholder="Email"/>
 			        <input id="session_password" name="session[password]" size="30" type="password" class="f90" placeholder="Password" />
 			        <input id="w90" class="bigButton" name="commit" type="submit" value="Sign in"  />
 			    </form>
@@ -84,10 +84,10 @@
 				Sign Up
 			</div>
 			<div id="signForm">
-				<form accept-charset="UTF-8" id="signup-form" data-ajax="false">
+				<form accept-charset="UTF-8" id="signup-form" autocapitalize="off" autocorrect="off">
 			        <input id="user_username" name="user[username]" size="30" type="text" class="f90" placeholder="User Name" />
-			        <input id="user_email" name="user[email]" size="30" type="text" class="f90" placeholder="Email"/>
-			        <input id="user_password" name="user[password]" size="30" type="password" class="f90" placeholder="Password" />
+			        <input id="user_email" type="email" name="user[email]" size="30" type="text" class="f90" placeholder="Email"/>
+			        <input id="user_password" type="email" name="user[password]" size="30" type="password" class="f90" placeholder="Password" />
 			 
 			        <input id="user_password_confirmation" name="user[password_confirmation]" size="30" type="password" class="f90" placeholder="Password Confirmation" />
 			        <input name="commit" type="submit" class="bigButton" value="Sign Up" />
@@ -127,7 +127,7 @@
 		<div id="new_match_username" class="page"> 
 			<div class="back">back</div>
 			<h1>usernames</h1>
-			<form accept-charset="UTF-8" id="new-match-username-form">
+			<form accept-charset="UTF-8" id="new-match-username-form" autocapitalize="off" autocorrect="off">
 				<label>enter username</label>
 				<input id="username" name="user" size="30" type="text" />
 				<input name="commit" type="submit" value="create game" />
