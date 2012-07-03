@@ -46,20 +46,30 @@ onDeviceReady = ->
       $('.active').addClass('curr')
       $curr = $('.curr')
       $page = $(page)
+      # if page == '#match'
+        # $('#match').find('#hand-container').css('-webkit-overflow-scrolling', '')
 
       if options?
         if options.reverse == true
           $curr.addClass('reverse')
           $page.addClass('reverse')
 
+        $page.css("z-index", -10)
+
         $curr.addClass("#{options.transition} out")
         $page.addClass("#{options.transition} in active")
+
+        $page.css("z-index", "")
 
         $curr.one 'webkitAnimationEnd', ->
           $curr.removeClass("#{options.transition} out active reverse curr")
 
         $page.one 'webkitAnimationEnd', ->
           $page.removeClass("#{options.transition} in reverse")
+          # TODO: find a less hacky solution
+          # if page == '#match'
+            # $('#match').find('#hand-container').css('-webkit-overflow-scrolling', 'touch')
+
       else
         $curr.removeClass 'active reverse curr'
         $page.addClass 'active'
@@ -192,7 +202,7 @@ onDeviceReady = ->
 
       tnt:
         name: 'tnt'
-        type: ''
+        type: 'attack'
         cost: 5
         short_desc: "Destroy 2 items from an opponent's hand"
         long_desc: 'long description'
@@ -681,15 +691,19 @@ onDeviceReady = ->
 
     class CardDetailView extends Backbone.View
       initialize: ->
+        @swipeview = new Swipe(document.getElementById('card-detail'))
 
       el: '#card-detail'
 
       events:
         'tap .close': 'close'
 
-      render: (card) ->
-        @$el.find('#card-detail-name').html(card.name)
-        @$el.find('#card-detail-desc').html(card.long_desc)
+      render: ->
+        for card in current.deck.get('hand')
+          @$card = $('#templates').find(".card-detail").clone()
+          @$card.find('.card-detail-name').html(cards[card].name)
+          @$card.find('.card-detail-desc').html(cards[card].long_desc)
+          @$el.find('ul').prepend(@$card)
 
       close: ->
         changePage '#match',
@@ -748,7 +762,7 @@ onDeviceReady = ->
         if not window.globalDrag and e.touches.length == 1
           @dx = e.touches[0].pageX - @touch.x1
           @dy = e.touches[0].pageY - @touch.y1
-          if Math.abs(@dy) < 6 and Math.abs(@dx) > 0 and not @swiping and not @dragging
+          if Math.abs(@dy) < 6 and Math.abs(@dx) > 1 and not @swiping and not @dragging
             @swiping = true
             window.inAction = true
             @$el.find('.card-main').addClass "drag"
@@ -823,15 +837,12 @@ onDeviceReady = ->
         else
           if @clicked and Math.abs(@dy) < 6
             @clicked = false
-            console.log 'clicked'
-            if views.carddetail
-              views.carddetail.render(@card)
-            else
-              views.carddetail = new CardDetailView
-              views.carddetail.render(@card)
 
-            changePage '#card-detail',
-              transition: 'pop'
+            views.carddetail.swipeview.slide(@$el.index(), 0)
+
+            changePage '#card-detail'#,
+              # transition: 'pop'
+            #FIXME: swip.js breaks when pop is set
 
 
         @dx = @dy = 0
@@ -853,41 +864,33 @@ onDeviceReady = ->
 
     class MatchView extends Backbone.View
       initialize: () ->
-        console.log 'MatchView#initialize'
+        @bind()
+        @render()
 
-        console.log " - instantiating CardDetailView"
-        # views.carddetail = new CardDetailView
+      el: '#match'
 
+      events:
+        'tap #end_turn': 'end_turn'
+        'tap #lobby_header': 'back_to_lobby'
+        'tap #shop_link': 'render_shop'
+
+      bind: ->
         match_channel = pusher.channel("#{current.match.get('id')}")
         deck_channel = pusher.subscribe("#{current.match.get('id')}")
-
-        # match_channel.bind 'update', (data) =>
-        #   alert "match channel update"
-        #   @render()
-        #   # current.match.fetch() if not current.turn
-
-        # # user_channel.bind 'update_deck', (data) =>
-        # #   console.log "user_channel:update_deck"
-        # #   @refresh()
-
-        # # match_channel.bind 'change_turn', (data) =>
-        # #   console.log "match_channel:change_turn"
-        # #   @render()
-
-        # # match_channel.bind 'update_score', (data) =>
-        # #   console.log "match_channel:update_score"
-        # #   @refresh()
-
-        # console.log " - Binding backbone events"
-
 
         current.match.on 'change:log', =>
           console.log "current.match change:log"
           @$el.find('#log').html(_.last(current.match.get('log')))
 
         current.match.on 'change:mine', =>
-          console.log "current.match change:mine"
-          @$el.find('#mine > .count').html(current.match.get('mine').length)
+          $count = @$el.find('#mine > .count')
+          $count.css '-webkit-animation-name', 'popchange'
+          $count.one 'webkitAnimationEnd', =>
+            $count.css '-webkit-animation-name', ''
+
+          setTimeout =>
+            $count.html(current.match.get('mine').length)
+          , 50
 
         current.match.on 'change:turn', =>
           # TODO: rerender player list
@@ -916,17 +919,15 @@ onDeviceReady = ->
           console.log "event: update_to_spend"
           @$el.find('#to_spend > .count').html(current.deck.to_spend())
 
-        @render()
-
-      el: '#match'
-
-      events:
-        'tap #end_turn': 'end_turn'
-        'tap #lobby_header': 'back_to_lobby'
-        'tap #shop_link': 'render_shop'
-
       render: ->
+
         current.turn = if current.match.get('turn') == current.user.id then true else false
+
+        if views.carddetail
+          views.carddetail.render()
+        else
+          views.carddetail = new CardDetailView
+          views.carddetail.render()
 
         @$el.find('#log').html(_.last(current.match.get('log')))
         @$el.find('#actions > .count').html(current.deck.get 'actions')
@@ -973,9 +974,6 @@ onDeviceReady = ->
                 $player.find('.score').html(deck.get('points'))
           $players_bar.append($player)
 
-        # if @$el.css('display') == 'none'
-        #   changePage '#match',
-        #     transition: 'slide'
 
       end_turn: ->
         console.log 'MatchView#end_turn'
@@ -1089,12 +1087,10 @@ onDeviceReady = ->
         current.match = @match
         current.deck = @deck
 
-        # $('#loader').show()
-        # $('#loader').find('#loading-text').html('Setting up match...')
-
         console.log "checking if MatchView instance exists."
         if views.match
           views.match.render()
+          views.match.bind()
         else
           console.log 'MatchView instance doesnt exist. Creating new matchview'
           views.match = new MatchView
@@ -1102,10 +1098,6 @@ onDeviceReady = ->
         changePage '#match',
           transition: 'slide'
 
-        # if current.shopview
-        #   current.shopview.render()
-        # else
-        #   current.shopview = new ShopView
 
     class LobbyView extends Backbone.View
       initialize: () ->
@@ -1121,11 +1113,7 @@ onDeviceReady = ->
               alert "You've been challenged to a new game!"
               @render()
 
-
         @render()
-
-        # TODO: add event when matches collection changes
-        # TODO: add pusher even when any match changes state
 
       el: '#lobby'
 

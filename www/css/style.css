@@ -8,7 +8,7 @@ body {
 }
 
 ul {
-	margin: 0;
+	margin: 0;  
 	padding: 0;
 	list-style-type: none;
 }	
@@ -191,7 +191,7 @@ background: #747a78;
 	height: 237px;
 	width: 316px;
 	overflow-y: scroll;
-	-webkit-overflow-scrolling: touch;
+	/*-webkit-overflow-scrolling: touch;*/
 }
 
 #hand {
@@ -295,6 +295,10 @@ background: #747a78;
 	color: #ffa800;
 	font-weight: bold;
 	size: 16px;
+	-webkit-animation-duration: 100ms;
+	-webkit-animation-iteration-count: 2;
+	-webkit-animation-direction: alternate;
+	-webkit-animation-timing-function: ease;
 }
 
 #mine{
@@ -312,11 +316,9 @@ background: #747a78;
 /* Card Detail */
 
 #card-detail {
-	width: 320px;
-	height: 480px;
 	background-color: #000;
 }
-#card {
+.card-detail {
 	width: 320px;
 	height: 480px;
 	-webkit-border-radius: 10px;
@@ -397,9 +399,10 @@ background: #747a78;
 
 #matches {
 	height: 340px;
-	margin: auto;
-	overflow: scroll;
 	width: 296px;
+	margin: auto;
+	overflow-y: scroll;
+	/*-webkit-overflow-scrolling: touch;*/
 }	
 
 #matches li{
@@ -445,7 +448,9 @@ background: #747a78;
 }
 
 
-
+#new_match {
+	background: #FFF;
+}
 
 /* Deck Screen
 ========================================== */
@@ -562,19 +567,6 @@ Other Pages */
 		line-height: 34px;
 	}
 
-	#divTitle1{
-		width: 75%;
-		background: #4a3515;
-		float: left;
-		height:55px;
-		padding-top: 15px;
-		text-align:center;
-		color: #fff;
-		font-size: 28px;
-		font-weight:bold;
-		line-height: 34px;
-	}
-
 
 /* 
 Background Declarations */
@@ -644,7 +636,7 @@ Background Declarations */
 		background-size: 100%;		
 	}
 
-	#lobby, #new_match{
+	#lobby{
 		background: url('../images/lobby/background.jpg');
 		background-repeat: none;
 		background-size: 100%;
@@ -656,22 +648,31 @@ Background Declarations */
 		background-size: 100%;	
 	}
 
-
 /*  Retina */
 @media only screen and (-webkit-min-device-pixel-ratio: 2) {
-		#lobby, #new_match{
+		#lobby{
 		background: url('../images/lobby/background.jpg');
 		background-repeat: none;
 		background-size: 100%;
 	}    
 
+		#lobbyTitle{
+		width: 100%;
+		background-image:url('../images/lobby/header.jpg');
+		background-repeat:no-repeat;
+		float: left;
+		height:60px;
+		padding-top: 15px;
+		text-align:center;
+		line-height: 34px;
+		background-size: 100%;	
+	}
 
     	#match{
 		background: url('../images/game_bg@2x.jpg');
 		background-repeat: none;
 		background-size: 100%;
 	}
-
 
 		#shop{
 		background: url('../images/shopscreen@2x.jpg');
@@ -776,3 +777,12 @@ Buttons */
 		font-weight: bold;
 		color:#4e3b2a;
 	}
+
+
+/* Webkit animations
+=================================*/
+
+@-webkit-keyframes popchange {
+    0% {-webkit-transform: scale(1); }
+    100% {-webkit-transform: scale(1.4); }
+}
