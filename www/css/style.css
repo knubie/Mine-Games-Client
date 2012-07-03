@@ -445,9 +445,7 @@ background: #747a78;
 }
 
 
-#new_match {
-	background: #FFF;
-}
+
 
 /* Deck Screen
 ========================================== */
@@ -564,6 +562,19 @@ Other Pages */
 		line-height: 34px;
 	}
 
+	#divTitle1{
+		width: 75%;
+		background: #4a3515;
+		float: left;
+		height:55px;
+		padding-top: 15px;
+		text-align:center;
+		color: #fff;
+		font-size: 28px;
+		font-weight:bold;
+		line-height: 34px;
+	}
+
 
 /* 
 Background Declarations */
@@ -633,7 +644,7 @@ Background Declarations */
 		background-size: 100%;		
 	}
 
-	#lobby{
+	#lobby, #new_match{
 		background: url('../images/lobby/background.jpg');
 		background-repeat: none;
 		background-size: 100%;
@@ -645,31 +656,22 @@ Background Declarations */
 		background-size: 100%;	
 	}
 
+
 /*  Retina */
 @media only screen and (-webkit-min-device-pixel-ratio: 2) {
-		#lobby{
+		#lobby, #new_match{
 		background: url('../images/lobby/background.jpg');
 		background-repeat: none;
 		background-size: 100%;
 	}    
 
-		#lobbyTitle{
-		width: 100%;
-		background-image:url('../images/lobby/header.jpg');
-		background-repeat:no-repeat;
-		float: left;
-		height:60px;
-		padding-top: 15px;
-		text-align:center;
-		line-height: 34px;
-		background-size: 100%;	
-	}
 
     	#match{
 		background: url('../images/game_bg@2x.jpg');
 		background-repeat: none;
 		background-size: 100%;
 	}
+
 
 		#shop{
 		background: url('../images/shopscreen@2x.jpg');
