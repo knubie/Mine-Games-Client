@@ -65,7 +65,18 @@ onDeviceReady = function() {
           return $curr.removeClass("" + options.transition + " out active reverse curr");
         });
         return $page.one('webkitAnimationEnd', function() {
-          return $page.removeClass("" + options.transition + " in reverse");
+          var card, view, _i, _len, _ref, _results;
+          $page.removeClass("" + options.transition + " in reverse");
+          if (page === '#match') {
+            $('#match').find('.card').remove();
+            _ref = current.deck.get('hand');
+            _results = [];
+            for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+              card = _ref[_i];
+              _results.push(view = new CardListView(cards[card]));
+            }
+            return _results;
+          }
         });
       } else {
         $curr.removeClass('active reverse curr');
@@ -219,7 +230,7 @@ onDeviceReady = function() {
       },
       tnt: {
         name: 'tnt',
-        type: '',
+        type: 'attack',
         cost: 5,
         short_desc: "Destroy 2 items from an opponent's hand",
         long_desc: 'long description',
@@ -897,7 +908,9 @@ onDeviceReady = function() {
         return CardDetailView.__super__.constructor.apply(this, arguments);
       }
 
-      CardDetailView.prototype.initialize = function() {};
+      CardDetailView.prototype.initialize = function() {
+        return this.swipeview = new Swipe(document.getElementById('card-detail'));
+      };
 
       CardDetailView.prototype.el = '#card-detail';
 
@@ -905,9 +918,18 @@ onDeviceReady = function() {
         'tap .close': 'close'
       };
 
-      CardDetailView.prototype.render = function(card) {
-        this.$el.find('#card-detail-name').html(card.name);
-        return this.$el.find('#card-detail-desc').html(card.long_desc);
+      CardDetailView.prototype.render = function() {
+        var card, _i, _len, _ref, _results;
+        _ref = current.deck.get('hand');
+        _results = [];
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          card = _ref[_i];
+          this.$card = $('#templates').find(".card-detail").clone();
+          this.$card.find('.card-detail-name').html(cards[card].name);
+          this.$card.find('.card-detail-desc').html(cards[card].long_desc);
+          _results.push(this.$el.find('ul').prepend(this.$card));
+        }
+        return _results;
       };
 
       CardDetailView.prototype.close = function() {
@@ -996,7 +1018,7 @@ onDeviceReady = function() {
         if (!window.globalDrag && e.touches.length === 1) {
           this.dx = e.touches[0].pageX - this.touch.x1;
           this.dy = e.touches[0].pageY - this.touch.y1;
-          if (Math.abs(this.dy) < 6 && Math.abs(this.dx) > 0 && !this.swiping && !this.dragging) {
+          if (Math.abs(this.dy) < 6 && Math.abs(this.dx) > 1 && !this.swiping && !this.dragging) {
             this.swiping = true;
             window.inAction = true;
             this.$el.find('.card-main').addClass("drag");
@@ -1084,16 +1106,8 @@ onDeviceReady = function() {
         } else {
           if (this.clicked && Math.abs(this.dy) < 6) {
             this.clicked = false;
-            console.log('clicked');
-            if (views.carddetail) {
-              views.carddetail.render(this.card);
-            } else {
-              views.carddetail = new CardDetailView;
-              views.carddetail.render(this.card);
-            }
-            changePage('#card-detail', {
-              transition: 'pop'
-            });
+            views.carddetail.swipeview.slide(this.$el.index(), 0);
+            changePage('#card-detail');
           }
         }
         return this.dx = this.dy = 0;
@@ -1122,10 +1136,21 @@ onDeviceReady = function() {
       }
 
       MatchView.prototype.initialize = function() {
+        this.bind();
+        return this.render();
+      };
+
+      MatchView.prototype.el = '#match';
+
+      MatchView.prototype.events = {
+        'tap #end_turn': 'end_turn',
+        'tap #lobby_header': 'back_to_lobby',
+        'tap #shop_link': 'render_shop'
+      };
+
+      MatchView.prototype.bind = function() {
         var deck_channel,
           _this = this;
-        console.log('MatchView#initialize');
-        console.log(" - instantiating CardDetailView");
         match_channel = pusher.channel("" + (current.match.get('id')));
         deck_channel = pusher.subscribe("" + (current.match.get('id')));
         current.match.on('change:log', function() {
@@ -1166,24 +1191,21 @@ onDeviceReady = function() {
           console.log("current.deck change:actions");
           return _this.$el.find('#actions > .count').html(current.deck.get('actions'));
         });
-        current.deck.on('update_to_spend', function() {
+        return current.deck.on('update_to_spend', function() {
           console.log("event: update_to_spend");
           return _this.$el.find('#to_spend > .count').html(current.deck.to_spend());
         });
-        return this.render();
-      };
-
-      MatchView.prototype.el = '#match';
-
-      MatchView.prototype.events = {
-        'tap #end_turn': 'end_turn',
-        'tap #lobby_header': 'back_to_lobby',
-        'tap #shop_link': 'render_shop'
       };
 
       MatchView.prototype.render = function() {
         var $player, $players_bar, card, player, players_decks, view, _i, _j, _len, _len1, _ref, _ref1, _results;
         current.turn = current.match.get('turn') === current.user.id ? true : false;
+        if (views.carddetail) {
+          views.carddetail.render();
+        } else {
+          views.carddetail = new CardDetailView;
+          views.carddetail.render();
+        }
         this.$el.find('#log').html(_.last(current.match.get('log')));
         this.$el.find('#actions > .count').html(current.deck.get('actions'));
         this.$el.find('#mine > .count').html(current.match.get('mine').length);
@@ -1421,6 +1443,7 @@ onDeviceReady = function() {
         console.log("checking if MatchView instance exists.");
         if (views.match) {
           views.match.render();
+          views.match.bind();
         } else {
           console.log('MatchView instance doesnt exist. Creating new matchview');
           views.match = new MatchView;

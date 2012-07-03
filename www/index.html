@@ -22,6 +22,7 @@
 		<script src="js/lib/ChildBrowser.js"></script>
 		<script src="js/lib/zepto.cookie.min.js"></script>
 		<script src="js/lib/zepto.timeago.js"></script>
+		<script src="js/lib/swipe.min.js"></script>
 		<script src="http://js.pusher.com/1.11/pusher.min.js" type="text/javascript"></script>
 		<script src="js/index.js"></script>
 
@@ -188,17 +189,14 @@
 
 			<div id="itemsBtn">
 				<a href="#deck">
-					<img src="images/buttons/items@2x.png" border="0">
+					<img src="images/buttons/items@2x.png" border="0" />
 				</a>
 			</div>
 		</div>
 
 		<div id="card-detail" class="page">
-			<div id="card">
-				<div id="card-detail-name"></div>
-				<div id="card-detail-desc"></div>
-				<a class="close">close</a>
-			</div>
+			<ul>
+			</ul>
 		</div>
 
 		<div id="shop" class="page">
@@ -258,6 +256,12 @@
 				<div class='card-notch'>
 					<div class='use'>USE</div>
 				</div>
+			</li>
+			<!-- Card detail view -->
+			<li class="card-detail">
+				<div class="card-detail-name"></div>
+				<div class="card-detail-desc"></div>
+				<a class="close">close</a>
 			</li>
 			<!-- Match list item -->
 			<li class='match-item-view'>
