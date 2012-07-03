@@ -5,6 +5,11 @@
 body {
 	-webkit-tap-highlight-color: rgba(0,0,0,0);
 	-webkit-user-select: none;
+	-webkit-font-smoothing: antialiased;
+}
+
+body * {
+	-webkit-transform: translate3d(0, 0, 0);
 }
 
 ul {
@@ -191,7 +196,7 @@ background: #747a78;
 	height: 237px;
 	width: 316px;
 	overflow-y: scroll;
-	/*-webkit-overflow-scrolling: touch;*/
+	-webkit-overflow-scrolling: touch;
 }
 
 #hand {
@@ -400,40 +405,50 @@ background: #747a78;
 #matches {
 	height: 340px;
 	width: 296px;
-	margin: auto;
+	margin: 0 auto;
 	overflow-y: scroll;
-	/*-webkit-overflow-scrolling: touch;*/
+	-webkit-overflow-scrolling: touch;
 }	
 
 #matches li{
-	width: 88%;
-	height: 31px;
-	margin: auto;
-	margin-top: 10px;
+	width: 276px;
+	margin: 10px 0 0 0;
 	-webkit-border-radius: 8px;
-	-webkit-user-select: none;
-	-webkit-transition: all .1s ease;
-	-webkit-perspective: 0;
-	-webkit-backface-visibility: hidden;
-	position: relative;
 	background-color: #fff;
-	background-repeat: repeat-y;
-	background-position: left;
-	overflow: hidden;
 	display:block;
-	padding:2%;
-	color: #000;		
+	padding:6px;
+	color: #424242;		
 	font-family: 'Gotham-Medium';
-	font-size: 13px;
-	text-decoration: none;		
+	font-size: 14px;
 }
 
-#matches li a{
+#matches li .log {
+	/*color: #ef6b56;*/
 	color: #898989;
-	font-family: 'Gotham-Medium';
-	font-size: 15px;
-	text-decoration: none;
-}	
+	font-size: 12px;
+	font-family: 'Gotham-Book';
+}
+
+#matches li .name{
+	color: #4a4a4a;
+}
+
+#matches li .item{
+	color: #4a4a4a;
+}
+
+#matches li .attack {
+	color: #ef6b56;
+}
+
+#matches li .money {
+	color: #fbb032;
+}
+
+#matches li .coal{
+	color: #4a4a4a;
+}
+
 
 #matches .subhead {
 	color: #898989;

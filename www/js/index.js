@@ -1430,7 +1430,8 @@ onDeviceReady = function() {
         if (("" + (this.match.get('last_move'))) === "null") {
           return this.$el.find('.subhead').html("No moves yet!");
         } else {
-          return this.$el.find('.subhead').html("Last move " + ($.timeago(this.match.get('last_move'))) + "<br/>" + (_.last(this.match.get('log'))));
+          this.$el.find('.subhead').html("Last move " + ($.timeago(this.match.get('last_move'))));
+          return this.$el.find('.log').html("" + (_.last(this.match.get('log'))));
         }
       };
 

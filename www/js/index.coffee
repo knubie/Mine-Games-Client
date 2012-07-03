@@ -1080,7 +1080,8 @@ onDeviceReady = ->
           # think of something to say here
           @$el.find('.subhead').html("No moves yet!")
         else
-          @$el.find('.subhead').html("Last move #{$.timeago @match.get('last_move')}<br/>#{_.last(@match.get('log'))}")
+          @$el.find('.subhead').html("Last move #{$.timeago @match.get('last_move')}")
+          @$el.find('.log').html("#{_.last(@match.get('log'))}")
 
       render_match: ->
         console.log 'MatchListView#render_match'
