@@ -54,6 +54,14 @@ onDeviceReady = function() {
       $('.active').addClass('curr');
       $curr = $('.curr');
       $page = $(page);
+      if (page === '#match') {
+        $('#lobby').find('#matches').css('-webkit-overflow-scrolling', 'auto');
+        $('#match').find('#hand-container').css('-webkit-overflow-scrolling', 'touch');
+      }
+      if (page === '#lobby') {
+        $('#lobby').find('#matches').css('-webkit-overflow-scrolling', 'touch');
+        $('#match').find('#hand-container').css('-webkit-overflow-scrolling', 'auto');
+      }
       if (options != null) {
         if (options.reverse === true) {
           $curr.addClass('reverse');
@@ -1738,15 +1746,6 @@ onDeviceReady = function() {
         }, 'json');
       }
       return e.preventDefault();
-    });
-    $(document).bind('touchmove', function(e) {
-      if (window.inAction) {
-        return e.preventDefault();
-      } else {
-        return window.globalDrag = true;
-      }
-    }).bind('touchend touchcancel', function(e) {
-      return window.globalDrag = false;
     });
     return views.home = new HomeView;
   });

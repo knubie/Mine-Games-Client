@@ -28,10 +28,10 @@
 	left: 0px;
 	top: 0px;
 	position: absolute;
-	display: none;
+	z-index: -1;
 }
 .active {
-	display: block;
+	z-index: 1;
 }
 
 /* keyframes for slideout to sides */
@@ -112,17 +112,17 @@
 	-webkit-transform: scale(1);
     opacity: 1;
 	-webkit-animation-name: popin;
-	-webkit-animation-duration: 350ms;
+	-webkit-animation-duration: 250ms;
 }
 
 .pop.out {
 	-webkit-animation-name: static;
-	-webkit-animation-duration: 350ms;
+	-webkit-animation-duration: 250ms;
 }
 
 .pop.in.reverse {
 	-webkit-animation-name: static;
-	-webkit-animation-duration: 350ms;
+	-webkit-animation-duration: 250ms;
 }
 
 .pop.out.reverse {
