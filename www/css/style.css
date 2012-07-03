@@ -191,7 +191,7 @@ background: #747a78;
 	height: 237px;
 	width: 316px;
 	overflow-y: scroll;
-	-webkit-overflow-scrolling: touch;
+	/*-webkit-overflow-scrolling: touch;*/
 }
 
 #hand {
@@ -295,6 +295,10 @@ background: #747a78;
 	color: #ffa800;
 	font-weight: bold;
 	size: 16px;
+	-webkit-animation-duration: 100ms;
+	-webkit-animation-iteration-count: 2;
+	-webkit-animation-direction: alternate;
+	-webkit-animation-timing-function: ease;
 }
 
 #mine{
@@ -398,7 +402,7 @@ background: #747a78;
 	width: 296px;
 	margin: auto;
 	overflow-y: scroll;
-	-webkit-overflow-scrolling: touch;
+	/*-webkit-overflow-scrolling: touch;*/
 }	
 
 #matches li{
@@ -773,3 +777,12 @@ Buttons */
 		font-weight: bold;
 		color:#4e3b2a;
 	}
+
+
+/* Webkit animations
+=================================*/
+
+@-webkit-keyframes popchange {
+    0% {-webkit-transform: scale(1); }
+    100% {-webkit-transform: scale(1.4); }
+}

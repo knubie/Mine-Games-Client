@@ -46,14 +46,20 @@ onDeviceReady = ->
       $('.active').addClass('curr')
       $curr = $('.curr')
       $page = $(page)
+      # if page == '#match'
+        # $('#match').find('#hand-container').css('-webkit-overflow-scrolling', '')
 
       if options?
         if options.reverse == true
           $curr.addClass('reverse')
           $page.addClass('reverse')
 
+        $page.css("z-index", -10)
+
         $curr.addClass("#{options.transition} out")
         $page.addClass("#{options.transition} in active")
+
+        $page.css("z-index", "")
 
         $curr.one 'webkitAnimationEnd', ->
           $curr.removeClass("#{options.transition} out active reverse curr")
@@ -61,10 +67,8 @@ onDeviceReady = ->
         $page.one 'webkitAnimationEnd', ->
           $page.removeClass("#{options.transition} in reverse")
           # TODO: find a less hacky solution
-          if page == '#match'
-            $('#match').find('.card').remove()
-            for card in current.deck.get('hand')
-              view = new CardListView(cards[card])
+          # if page == '#match'
+            # $('#match').find('#hand-container').css('-webkit-overflow-scrolling', 'touch')
 
       else
         $curr.removeClass 'active reverse curr'
@@ -879,8 +883,14 @@ onDeviceReady = ->
           @$el.find('#log').html(_.last(current.match.get('log')))
 
         current.match.on 'change:mine', =>
-          console.log "current.match change:mine"
-          @$el.find('#mine > .count').html(current.match.get('mine').length)
+          $count = @$el.find('#mine > .count')
+          $count.css '-webkit-animation-name', 'popchange'
+          $count.one 'webkitAnimationEnd', =>
+            $count.css '-webkit-animation-name', ''
+
+          setTimeout =>
+            $count.html(current.match.get('mine').length)
+          , 50
 
         current.match.on 'change:turn', =>
           # TODO: rerender player list

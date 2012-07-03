@@ -59,24 +59,15 @@ onDeviceReady = function() {
           $curr.addClass('reverse');
           $page.addClass('reverse');
         }
+        $page.css("z-index", -10);
         $curr.addClass("" + options.transition + " out");
         $page.addClass("" + options.transition + " in active");
+        $page.css("z-index", "");
         $curr.one('webkitAnimationEnd', function() {
           return $curr.removeClass("" + options.transition + " out active reverse curr");
         });
         return $page.one('webkitAnimationEnd', function() {
-          var card, view, _i, _len, _ref, _results;
-          $page.removeClass("" + options.transition + " in reverse");
-          if (page === '#match') {
-            $('#match').find('.card').remove();
-            _ref = current.deck.get('hand');
-            _results = [];
-            for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-              card = _ref[_i];
-              _results.push(view = new CardListView(cards[card]));
-            }
-            return _results;
-          }
+          return $page.removeClass("" + options.transition + " in reverse");
         });
       } else {
         $curr.removeClass('active reverse curr');
@@ -1158,8 +1149,15 @@ onDeviceReady = function() {
           return _this.$el.find('#log').html(_.last(current.match.get('log')));
         });
         current.match.on('change:mine', function() {
-          console.log("current.match change:mine");
-          return _this.$el.find('#mine > .count').html(current.match.get('mine').length);
+          var $count;
+          $count = _this.$el.find('#mine > .count');
+          $count.css('-webkit-animation-name', 'popchange');
+          $count.one('webkitAnimationEnd', function() {
+            return $count.css('-webkit-animation-name', '');
+          });
+          return setTimeout(function() {
+            return $count.html(current.match.get('mine').length);
+          }, 50);
         });
         current.match.on('change:turn', function() {
           var player;
