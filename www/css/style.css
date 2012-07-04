@@ -371,14 +371,56 @@ background: #747a78;
 	color: #4a4a4a;
 }
 
+/* Global Buttons
+========================================== */
+
+.logout{
+		color: #4F3B29;
+		display: block;
+		float: left;
+		font-family: Gotham-Bold;
+		font-size: 13px;
+		height: 24px;
+		margin-left: 20px;
+		margin-top: 11px;
+		text-transform: uppercase;
+		width: 74px;
+		background-image: url('../images/logoutBack.jpg');
+		background-repeat: none;
+}
+
+
+.back{
+		color: #4F3B29;
+		display: block;
+		float: left;
+		font-family: Gotham-Bold;
+		font-size: 13px;
+		height: 24px;
+		margin-left: 20px;
+		margin-top: 11px;
+		text-transform: uppercase;
+		width: 74px;
+		background-image: url('../images/logoutBack.jpg');
+		background-repeat: none;
+}
+
 /* Lobby
 ========================================== */
 
 .logout{
-		color: #fff;
-		font-family: 'Gotham-Bold';
+		color: #4F3B29;
+		display: block;
+		float: left;
+		font-family: Gotham-Bold;
 		font-size: 13px;
-		text-transform: uppercase;	
+		height: 24px;
+		margin-left: 20px;
+		margin-top: 11px;
+		text-transform: uppercase;
+		width: 74px;
+		background-image: url('../images/logoutBack.jpg');
+		background-repeat: none;
 }
 
 #lobbyTitle{
@@ -387,9 +429,8 @@ background: #747a78;
 		background-repeat:no-repeat;
 		float: left;
 		height: 54px;
-		padding-top: 15px;
 		text-align:center;
-		line-height: 34px;
+		line-height: 28px;
 		background-size: 319px;	
 	}
 
@@ -677,9 +718,8 @@ Background Declarations */
 		background-repeat:no-repeat;
 		float: left;
 		height:60px;
-		padding-top: 15px;
 		text-align:center;
-		line-height: 34px;
+		line-height: 28px;
 		background-size: 100%;	
 	}
 
