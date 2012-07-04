@@ -504,9 +504,7 @@ background: #747a78;
 }
 
 
-#new_match {
-	background: #FFF;
-}
+
 
 /* Deck Screen
 ========================================== */
@@ -692,7 +690,7 @@ Background Declarations */
 		background-size: 100%;		
 	}
 
-	#lobby{
+	#lobby, #new_match{
 		background: url('../images/lobby/background.jpg');
 		background-repeat: none;
 		background-size: 100%;
