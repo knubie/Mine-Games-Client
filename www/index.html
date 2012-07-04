@@ -115,13 +115,27 @@
 			<div id="lobbyTitle">
 				<a class="back">back</a> <!-- TODO add #login .back event -->
 			</div>
-			<form accept-charset="UTF-8" id="new-match-username-form" autocapitalize="off" autocorrect="off">
-				<label>enter username</label>
-				<input id="username" name="user" size="30" type="text" />
-				<input name="commit" type="submit" value="create game" />
-			</form>
-			<a href="#new_match_facebook">find friends on facebook</a>
-			<a href="#new_match_random">play random opponents</a>
+			<img src="images/match/startMatch.jpg" class="startMatch">
+			<div id="newButton"><img src="images/match/facebook.jpg">
+				<a href="#new_match_facebook">Play your friends on Facebook<a/>
+			</div>
+
+			<div id="newButton"><img src="images/match/random.jpg"> 
+				<a href="#new_match_random">Play Random Opponent</a>
+			</div>
+
+			<div id="newButton"><img src="images/match/contact.jpg">
+				<a href="#">Search your contact list</a>
+			</div>
+
+			<div id="newUsername">
+				<form accept-charset="UTF-8" id="new-match-username-form" autocapitalize="off" autocorrect="off">
+					<label>enter username</label>
+					<input id="username" name="user" size="30" type="text" placeholder="Enter a Username"/>
+					<input name="commit" type="submit" value="create game" />
+				</form>				
+			</div>
+
 		</div>
 
 		<div id="new_match_username" class="page"> 

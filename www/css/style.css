@@ -542,7 +542,56 @@ background: #747a78;
 }
 
 
+/* 
+New Match Screen */
+	#newButton{
+		width: 85%;
+		height: 40px;
+		margin:auto;
+		margin-top: 9px;
+		margin-bottom: 10px;
+		background: #4a5956;
+		border-radius: 5px;
+		padding:10px;
+	}
 
+	#newUsername{
+		width: 85%;
+		height: 40px;
+		margin:auto;
+		margin-top: 9px;
+		margin-bottom: 10px;
+		background: #ec695a;
+		border-radius: 5px;
+		padding:10px;
+	}	
+
+	.startMatch{
+		margin-left: 15px;
+		margin-top: 9px;
+		width: 210px;
+	}
+
+
+	#newButton img{
+		float: left;
+		width: 30%;
+		width:41px;
+		margin-right: 14px;
+	}
+
+	#newButton a{
+		color: #efebe1;
+		font-family:'Gotham-Bold', sans-serif;
+		font-weight:bold;
+		font-size:18px;
+		text-transform: uppercase;
+		width: 80%;
+		margin-top:9px;	
+		margin-bottom: 10px;	
+		text-decoration: none;
+		line-height: 12px;	
+	}
 
 /* 
 Shop Screen */
@@ -694,6 +743,7 @@ Background Declarations */
 		background: url('../images/lobby/background.jpg');
 		background-repeat: none;
 		background-size: 100%;
+		background-position:0;	
 	}
 
 	#deck{
@@ -704,10 +754,14 @@ Background Declarations */
 
 /*  Retina */
 @media only screen and (-webkit-min-device-pixel-ratio: 2) {
-		#lobby{
+		#lobby, #new_match{
 		background: url('../images/lobby/background.jpg');
 		background-repeat: none;
 		background-size: 100%;
+		background-position: -400px 0;
+	}
+
+
 	}    
 
 		#lobbyTitle{
