@@ -54,6 +54,12 @@ onDeviceReady = function() {
       $('.active').addClass('curr');
       $curr = $('.curr');
       $page = $(page);
+      if (page === '#match') {
+        $('#match').find('#hand-container').css('height', '237px');
+      }
+      if (page === '#lobby') {
+        $('#lobby').find('#matches').css('height', '340px');
+      }
       if (options != null) {
         if (options.reverse === true) {
           $curr.addClass('reverse');
@@ -67,7 +73,13 @@ onDeviceReady = function() {
           return $curr.removeClass("" + options.transition + " out active reverse curr");
         });
         return $page.one('webkitAnimationEnd', function() {
-          return $page.removeClass("" + options.transition + " in reverse");
+          $page.removeClass("" + options.transition + " in reverse");
+          if (page === '#match') {
+            $('#lobby').find('#matches').css('height', '0');
+          }
+          if (page === '#lobby') {
+            return $('#match').find('#hand-container').css('height', '0');
+          }
         });
       } else {
         $curr.removeClass('active reverse curr');
@@ -1738,15 +1750,6 @@ onDeviceReady = function() {
         }, 'json');
       }
       return e.preventDefault();
-    });
-    $(document).bind('touchmove', function(e) {
-      if (window.inAction) {
-        return e.preventDefault();
-      } else {
-        return window.globalDrag = true;
-      }
-    }).bind('touchend touchcancel', function(e) {
-      return window.globalDrag = false;
     });
     return views.home = new HomeView;
   });

@@ -46,8 +46,12 @@ onDeviceReady = ->
       $('.active').addClass('curr')
       $curr = $('.curr')
       $page = $(page)
-      # if page == '#match'
-        # $('#match').find('#hand-container').css('-webkit-overflow-scrolling', '')
+      # TODO: find a less hacky solution
+      if page == '#match'
+        $('#match').find('#hand-container').css('height', '237px')
+
+      if page == '#lobby'
+        $('#lobby').find('#matches').css('height', '340px')
 
       if options?
         if options.reverse == true
@@ -66,9 +70,12 @@ onDeviceReady = ->
 
         $page.one 'webkitAnimationEnd', ->
           $page.removeClass("#{options.transition} in reverse")
-          # TODO: find a less hacky solution
-          # if page == '#match'
-            # $('#match').find('#hand-container').css('-webkit-overflow-scrolling', 'touch')
+
+          if page == '#match'
+            $('#lobby').find('#matches').css('height', '0')
+
+          if page == '#lobby'
+            $('#match').find('#hand-container').css('height', '0')
 
       else
         $curr.removeClass 'active reverse curr'
@@ -1099,7 +1106,6 @@ onDeviceReady = ->
         changePage '#match',
           transition: 'slide'
 
-
     class LobbyView extends Backbone.View
       initialize: () ->
         console.log 'init LobbyView'
@@ -1321,14 +1327,14 @@ onDeviceReady = ->
     #       transition: 'slide'
     #       reverse: reverse
 
-    $(document).bind('touchmove', (e) ->
-      if window.inAction
-        e.preventDefault()
-      else
-        window.globalDrag = true;
-    ).bind('touchend touchcancel', (e) ->
-      window.globalDrag = false
-    )
+    # $(document).bind('touchmove', (e) ->
+    #   if window.inAction
+    #     e.preventDefault()
+    #   else
+    #     window.globalDrag = true;
+    # ).bind('touchend touchcancel', (e) ->
+    #   window.globalDrag = false
+    # )
 
 
     views.home = new HomeView
