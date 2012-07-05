@@ -57,17 +57,14 @@
 		</div>
 
 		<div id="login" class="brown page">
-			<div id="lobby_header">
-				<a href="#home">Back</a>
+			<div id="lobbyTitle">
+				<a class="back">back</a> <!-- TODO add #login .back event -->
 			</div>
-			<div id="divTitle" class="lobbyTitle">
-				Login
-			</div>
-	
+
 
 			<div id="signForm">
 			    <form accept-charset="UTF-8" id="login-form" autocapitalize="off" autocorrect="off">
-			        <input id="session_email" type="email" class="f90" name="session[email]" size="30" type="text" placeholder="Email"/>
+			        <input id="session_email" type="email" class="f90" name="session[email]" size="30" type="text" placeholder="Email" autocorrect="off" autocapitalize="off"/>
 			        <input id="session_password" name="session[password]" size="30" type="password" class="f90" placeholder="Password" />
 			        <input id="w90" class="bigButton" name="commit" type="submit" value="Sign in"  />
 			    </form>
@@ -77,16 +74,14 @@
 		</div>
 
 		<div id="signup" class="brown page">
-			<div id="lobby_header">
-				<a href="#home">Back</a>
+			<div id="lobbyTitle">
+				<a class="back">back</a> <!-- TODO add #signup .back event -->
 			</div>
-			<div id="divTitle" class="lobbyTitle">
-				Sign Up
-			</div>
+
 			<div id="signForm">
 				<form accept-charset="UTF-8" id="signup-form" autocapitalize="off" autocorrect="off">
-			        <input id="user_username" name="user[username]" size="30" type="text" class="f90" placeholder="User Name" />
-			        <input id="user_email" type="email" name="user[email]" size="30" type="text" class="f90" placeholder="Email"/>
+			        <input id="user_username" name="user[username]" size="30" type="text" class="f90" placeholder="User Name" autocorrect="off" autocapitalize="off"/>
+			        <input id="user_email" type="email" name="user[email]" size="30" type="text" class="f90" placeholder="Email" autocorrect="off" autocapitalize="off"/>
 			        <input id="user_password" type="email" name="user[password]" size="30" type="password" class="f90" placeholder="Password" />
 			 
 			        <input id="user_password_confirmation" name="user[password_confirmation]" size="30" type="password" class="f90" placeholder="Password Confirmation" />
@@ -96,11 +91,11 @@
 		</div>
 
 		<div id="lobby" class="page green">
-			<div id="lobby_header">
-				<a id="refresh_lobby">Refresh</a>
+			<!-- TODO - Add pull to refresh <a id="refresh_lobby">Refresh</a> -->
+
+			<div id="lobbyTitle">
 				<a class="logout">logout</a>
 			</div>
-			<div id="lobbyTitle" class="lobbyTitle"></div>
 
 			<div id="matches">
 				<img class="matchTitle" src="images/lobby/yourTurn.jpg">
@@ -117,11 +112,30 @@
 		</div>
 
 		<div id="new_match" class="page">
-			<div class="back">back</div>
-			<h1>New Match</h1>
-			<a class="username">enter username</a>
-			<a href="#new_match_facebook">find friends on facebook</a>
-			<a href="#new_match_random">play random opponents</a>
+			<div id="lobbyTitle">
+				<a class="back">back</a> <!-- TODO add #login .back event -->
+			</div>
+			<img src="images/match/startMatch.jpg" class="startMatch">
+			<div id="newButton"><img src="images/match/facebook.jpg">
+				<a href="#new_match_facebook">Play your friends on Facebook<a/>
+			</div>
+
+			<div id="newButton"><img src="images/match/random.jpg"> 
+				<a href="#new_match_random">Play Random Opponent</a>
+			</div>
+
+			<div id="newButton"><img src="images/match/contact.jpg">
+				<a href="#">Search your contact list</a>
+			</div>
+
+			<div id="newUsername">
+				<form accept-charset="UTF-8" id="new-match-username-form" autocapitalize="off" autocorrect="off">
+					<label>enter username</label>
+					<input id="username" name="user" size="30" type="text" autocorrect="off" autocapitalize="off" placeholder="Enter a Username"/>
+					<input name="commit" type="submit" value="create game" />
+				</form>				
+			</div>
+
 		</div>
 
 		<div id="new_match_username" class="page"> 
@@ -129,7 +143,7 @@
 			<h1>usernames</h1>
 			<form accept-charset="UTF-8" id="new-match-username-form" autocapitalize="off" autocorrect="off">
 				<label>enter username</label>
-				<input id="username" name="user" size="30" type="text" />
+				<input id="username" name="user" size="30" type="text" autocorrect="off" autocapitalize="off"/>
 				<input name="commit" type="submit" value="create game" />
 			</form>
 		</div>
