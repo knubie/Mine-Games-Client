@@ -11,7 +11,10 @@ onBodyLoad = ->
   document.addEventListener "deviceready", onDeviceReady, false
 
 onDeviceReady = ->
+
+
   $ ->
+
     gsub = (source, pattern, replacement) ->
       unless pattern? and replacement?
         return source
@@ -508,6 +511,7 @@ onDeviceReady = ->
 
     class Deck extends Backbone.Model
       initialize: ->
+        console.log "initializing deck model"
         @on 'change', =>
           console.log "deck changed"
         #   $('#to_spend > .count').html(current.deck.to_spend())
@@ -882,8 +886,6 @@ onDeviceReady = ->
         'tap #shop_link': 'render_shop'
 
       bind: ->
-        match_channel = pusher.channel("#{current.match.get('id')}")
-        deck_channel = pusher.subscribe("#{current.match.get('id')}")
 
         current.match.on 'change:log', =>
           console.log "current.match change:log"
@@ -1050,26 +1052,44 @@ onDeviceReady = ->
         console.log 'init MatchListView'
         @setElement $('#templates').find(".match-item-view").clone()
 
-        sub = pusher.subscribe("#{@match.get('id')}")
+        if pusher.channel("#{@match.get('id')}")
+          sub = pusher.channel("#{@match.get('id')}")
+        else
+          sub = pusher.subscribe("#{@match.get('id')}")
         # TODO: write server method for getting match and current user deck in one request
-        sub.bind 'change_turn', (data) =>
-          @match.fetch
+
+        document.addEventListener "active", =>
+          sub.unbind 'change_turn', change_turn
+          sub.unbind 'update', update
+
+
+        change_turn = (data) =>
+          @match.fetch # FIXME: this is being called but it's not hitting the server
+            error: (model, res) =>
+              alert "something went wrong"
+              console.log res
             success: =>
               @deck.fetch
                 success: =>
                   @render()
 
-        sub.bind 'update', (data) =>
-          @match.fetch
+        update = (data) =>
+          @match.fetch # FIXME: ditto
             success: =>
               @deck.fetch
                 success: =>
-                  # if @match.id == current.match.id
-                  #   views.match.render() unless current.turn
                   @render()
+
+        sub.bind 'change_turn', change_turn
+        sub.bind 'update', update
+
+        setInterval =>
+          @render_last_move()
+        , 60000
 
         @render()
 
+      rid: Math.floor(Math.floor(Math.random()*(100)))
       events:
         'tap': 'render_match'
 
@@ -1083,12 +1103,20 @@ onDeviceReady = ->
           player.id isnt current.user.id
         @$el.find('.head').html("Mining with #{player.username for player in players}")
         console.log 'checking last move'
+
         if "#{@match.get('last_move')}" == "null"
           # think of something to say here
           @$el.find('.subhead').html("No moves yet!")
         else
           @$el.find('.subhead').html("Last move #{$.timeago @match.get('last_move')}")
           @$el.find('.log').html("#{_.last(@match.get('log'))}")
+
+      render_last_move: ->
+        if "#{@match.get('last_move')}" == "null"
+          # think of something to say here
+          @$el.find('.subhead').html("No moves yet!")
+        else
+          @$el.find('.subhead').html("Last move #{$.timeago @match.get('last_move')}")
 
       render_match: ->
         console.log 'MatchListView#render_match'
@@ -1106,10 +1134,21 @@ onDeviceReady = ->
         changePage '#match',
           transition: 'slide'
 
+        console.log typeof @match.collection
+
     class LobbyView extends Backbone.View
       initialize: () ->
         console.log 'init LobbyView'
         views.newmatchview = new NewMatchView
+
+        document.addEventListener "active", =>
+          console.log 'active'
+          collections.matches.fetch
+            success: =>
+              collections.decks.fetch
+                success: =>
+                  @render()
+        , false
 
         # Initiate Pusher subscriptions
 
@@ -1119,6 +1158,15 @@ onDeviceReady = ->
             success: =>
               alert "You've been challenged to a new game!"
               @render()
+
+
+        # setInterval =>
+        #   collections.matches.each (match) ->
+        #     deck = collections.decks.find (deck) ->
+        #       deck.get('match_id') == match.get('id')
+        #     view = new MatchListView(match, deck)
+
+        # , 60000
 
         @render()
 
@@ -1130,13 +1178,22 @@ onDeviceReady = ->
         'tap .logout': 'logout'
 
       render: ->
+        console.log "render lobby"
         @$el.find('.match-item-view').remove()
         $('#loader').hide()
+
+        if typeof views.matchlist == 'object'
+          for view in views.matchlist
+            view.remove()
+            view.undelegateEvents()
+        else
+          views.matchlist = []
+
         collections.matches.each (match) ->
           console.log 'iterating matches in LobbyView#render'
           deck = collections.decks.find (deck) ->
             deck.get('match_id') == match.get('id')
-          view = new MatchListView(match, deck)
+          views.matchlist.push new MatchListView(match, deck)
 
       logout: ->
         console.log "LobbyView#logout"

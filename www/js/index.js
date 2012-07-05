@@ -601,6 +601,7 @@ onDeviceReady = function() {
 
       Deck.prototype.initialize = function() {
         var _this = this;
+        console.log("initializing deck model");
         return this.on('change', function() {
           return console.log("deck changed");
         });
@@ -1152,10 +1153,7 @@ onDeviceReady = function() {
       };
 
       MatchView.prototype.bind = function() {
-        var deck_channel,
-          _this = this;
-        match_channel = pusher.channel("" + (current.match.get('id')));
-        deck_channel = pusher.subscribe("" + (current.match.get('id')));
+        var _this = this;
         current.match.on('change:log', function() {
           console.log("current.match change:log");
           return _this.$el.find('#log').html(_.last(current.match.get('log')));
@@ -1382,14 +1380,37 @@ onDeviceReady = function() {
       }
 
       MatchListView.prototype.initialize = function(match, deck) {
-        var sub,
+        var change_turn, sub, update,
           _this = this;
         this.match = match;
         this.deck = deck;
         console.log('init MatchListView');
         this.setElement($('#templates').find(".match-item-view").clone());
-        sub = pusher.subscribe("" + (this.match.get('id')));
-        sub.bind('change_turn', function(data) {
+        if (pusher.channel("" + (this.match.get('id')))) {
+          sub = pusher.channel("" + (this.match.get('id')));
+        } else {
+          sub = pusher.subscribe("" + (this.match.get('id')));
+        }
+        document.addEventListener("active", function() {
+          sub.unbind('change_turn', change_turn);
+          return sub.unbind('update', update);
+        });
+        change_turn = function(data) {
+          return _this.match.fetch({
+            error: function(model, res) {
+              alert("something went wrong");
+              return console.log(res);
+            },
+            success: function() {
+              return _this.deck.fetch({
+                success: function() {
+                  return _this.render();
+                }
+              });
+            }
+          });
+        };
+        update = function(data) {
           return _this.match.fetch({
             success: function() {
               return _this.deck.fetch({
@@ -1399,20 +1420,16 @@ onDeviceReady = function() {
               });
             }
           });
-        });
-        sub.bind('update', function(data) {
-          return _this.match.fetch({
-            success: function() {
-              return _this.deck.fetch({
-                success: function() {
-                  return _this.render();
-                }
-              });
-            }
-          });
-        });
+        };
+        sub.bind('change_turn', change_turn);
+        sub.bind('update', update);
+        setInterval(function() {
+          return _this.render_last_move();
+        }, 60000);
         return this.render();
       };
+
+      MatchListView.prototype.rid = Math.floor(Math.floor(Math.random() * 100.));
 
       MatchListView.prototype.events = {
         'tap': 'render_match'
@@ -1447,6 +1464,14 @@ onDeviceReady = function() {
         }
       };
 
+      MatchListView.prototype.render_last_move = function() {
+        if (("" + (this.match.get('last_move'))) === "null") {
+          return this.$el.find('.subhead').html("No moves yet!");
+        } else {
+          return this.$el.find('.subhead').html("Last move " + ($.timeago(this.match.get('last_move'))));
+        }
+      };
+
       MatchListView.prototype.render_match = function() {
         console.log('MatchListView#render_match');
         current.match = this.match;
@@ -1459,9 +1484,10 @@ onDeviceReady = function() {
           console.log('MatchView instance doesnt exist. Creating new matchview');
           views.match = new MatchView;
         }
-        return changePage('#match', {
+        changePage('#match', {
           transition: 'slide'
         });
+        return console.log(typeof this.match.collection);
       };
 
       return MatchListView;
@@ -1479,6 +1505,18 @@ onDeviceReady = function() {
         var _this = this;
         console.log('init LobbyView');
         views.newmatchview = new NewMatchView;
+        document.addEventListener("active", function() {
+          console.log('active');
+          return collections.matches.fetch({
+            success: function() {
+              return collections.decks.fetch({
+                success: function() {
+                  return _this.render();
+                }
+              });
+            }
+          });
+        }, false);
         user_channel.bind('new_match', function(match) {
           collections.matches.add(match);
           return collections.decks.fetch({
@@ -1500,15 +1538,27 @@ onDeviceReady = function() {
       };
 
       LobbyView.prototype.render = function() {
+        var view, _i, _len, _ref;
+        console.log("render lobby");
         this.$el.find('.match-item-view').remove();
         $('#loader').hide();
+        if (typeof views.matchlist === 'object') {
+          _ref = views.matchlist;
+          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+            view = _ref[_i];
+            view.remove();
+            view.undelegateEvents();
+          }
+        } else {
+          views.matchlist = [];
+        }
         return collections.matches.each(function(match) {
-          var deck, view;
+          var deck;
           console.log('iterating matches in LobbyView#render');
           deck = collections.decks.find(function(deck) {
             return deck.get('match_id') === match.get('id');
           });
-          return view = new MatchListView(match, deck);
+          return views.matchlist.push(new MatchListView(match, deck));
         });
       };
 

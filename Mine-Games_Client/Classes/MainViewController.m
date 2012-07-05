@@ -118,6 +118,20 @@
 	return [super webViewDidFinishLoad:theWebView];
 }
 
+- (id) __init
+{
+    static BOOL initialized = NO;
+    id obj = self;
+    
+    if (!initialized) {
+        obj = [super __init]; // ignore warning
+        initialized = YES;
+    }
+    
+    return obj;
+    
+}
+
 /* Comment out the block below to over-ride */
 /*
 
