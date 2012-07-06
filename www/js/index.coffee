@@ -116,7 +116,7 @@ onDeviceReady = ->
             random: false
             callback: (newcards) ->
               console.log 'calling callback'
-              pushLog "<span class='name'>#{current.user.username}</span> used a <span class='item action'>Stone Pickaxe</span> and got a <span class='item money'>#{newcards[0]}</span>"
+              pushLog "<span class='name'>#{current.user.username}</span> used a <span class='item action'>Stone Pickaxe</span> and drew a <span class='item money'>#{newcards[0]}</span> from the <span class='mine'>mine</span>"
               current.match.save()
               current.deck.save()
               current.deck.trigger 'update_to_spend'
@@ -133,7 +133,7 @@ onDeviceReady = ->
             random: false
             callback: (newcards) ->
               console.log 'calling callback'
-              pushLog "<span class='name'>#{current.user.username}</span> used an <span class='item action'>Iron Pickaxe</span> and got a <span class='item money'>#{newcards[0]}</span> and <span class='item money'>#{newcards[1]}</span>"
+              pushLog "<span class='name'>#{current.user.username}</span> used an <span class='item action'>Iron Pickaxe</span> and drew a <span class='item money'>#{newcards[0]}</span> and <span class='item money'>#{newcards[1]}</span> from the <span class='mine'>mine</span>"
               current.match.save()
               current.deck.save()
               current.deck.trigger 'update_to_spend'
@@ -150,7 +150,7 @@ onDeviceReady = ->
             random: false
             callback: (newcards) ->
               console.log 'calling callback'
-              pushLog "<span class='name'>#{current.user.username}</span> used a <span class='item action'>Diamond Pickaxe</span> and got a <span class='item money'>#{newcards[0]}</span>, <span class='item money'>#{newcards[1]}</span> and <span class='item money'>#{newcards[2]}</span>"
+              pushLog "<span class='name'>#{current.user.username}</span> used a <span class='item action'>Diamond Pickaxe</span> and drew a <span class='item money'>#{newcards[0]}</span>, <span class='item money'>#{newcards[1]}</span> and <span class='item money'>#{newcards[2]}</span> from the <span class='mine'>mine</span>"
               current.match.save()
               current.deck.save()
               current.deck.trigger 'update_to_spend'
@@ -246,7 +246,7 @@ onDeviceReady = ->
                     number: 2
                     callback: (newcards) ->
                       console.log 'calling callback'
-                      pushLog "<span class='name'>#{current.user.username}</span> used a <span class='item attack'>TNT</span> on <span class='name'>#{player.username}</span> and trashed a <span class='item #{cards[newcards[0]].type}'>#{cards[newcards[0]].name}</span> and <span class='item #{cards[newcards[1]].type}'>#{cards[newcards[1]].name}</span>"
+                      pushLog "<span class='name'>#{current.user.username}</span> used a <span class='item attack'>TNT</span> and destroyed a <span class='item #{cards[newcards[0]].type}'>#{cards[newcards[0]].name}</span> and <span class='item #{cards[newcards[1]].type}'>#{cards[newcards[1]].name}</span> from <span class='name'>#{player.username}'s</span> hand."
                       current.match.save()
                       current.deck.save()
                       target_deck.save()
@@ -283,7 +283,7 @@ onDeviceReady = ->
             random: false
             callback: (newcards) ->
               console.log 'calling callback'
-              pushLog "<span class='name'>#{current.user.username}</span> used a <span class='item action'>Minecart</span> and got a <span class='item #{cards[newcards[0]].type}'>#{cards[newcards[0]].name}</span>"
+              pushLog "<span class='name'>#{current.user.username}</span> used a <span class='item action'>Minecart</span> and drew a <span class='item #{cards[newcards[0]].type}'>#{cards[newcards[0]].name}</span> from their deck."
               current.match.save()
               current.deck.save()
               current.deck.trigger 'update_to_spend'
@@ -301,7 +301,7 @@ onDeviceReady = ->
             random: false
             callback: (newcards) ->
               console.log 'calling callback'
-              pushLog "<span class='name'>#{current.user.username}</span> used a <span class='item action'>Minecart</span> and got a <span class='item #{cards[newcards[0]].type}'>#{cards[newcards[0]].name}</span>, <span class='item #{cards[newcards[1]].type}'>#{newcards[1]}</span> and <span class='item #{cards[newcards[2]].type}'>#{newcards[2]}</span>"
+              pushLog "<span class='name'>#{current.user.username}</span> used a <span class='item action'>Minecart</span> and drew a <span class='item #{cards[newcards[0]].type}'>#{cards[newcards[0]].name}</span>, <span class='item #{cards[newcards[1]].type}'>#{newcards[1]}</span> and <span class='item #{cards[newcards[2]].type}'>#{newcards[2]}</span> from their deck."
               current.match.save()
               current.deck.save()
               current.deck.trigger 'update_to_spend'
@@ -341,7 +341,7 @@ onDeviceReady = ->
                   number: 1
                   callback: (newcards) ->
                     console.log 'calling callback'
-                    pushLog "<span class='name'>#{current.user.username}</span> used a <span class='item action'>Gopher</span> on <span class='name'>#{player.username}</span> and got a <span class='item #{cards[newcards[0]].type}'>#{cards[newcards[0]].name}</span>"
+                    pushLog "<span class='name'>#{current.user.username}</span> used a <span class='item action'>Gopher</span> and stole a <span class='item #{cards[newcards[0]].type}'>#{cards[newcards[0]].name}</span> from <span class='name'>#{player.username}'s</span> hand."
                     current.match.save()
                     current.deck.save()
                     target_deck.save()
@@ -382,7 +382,7 @@ onDeviceReady = ->
           if coals.length >= 2
             source.push 'diamond'
             current.deck.set('hand', source)
-            pushLog "<span class='name'>#{current.user.username}</span> used <span class='item action'>Alchemy</span> and got a <span class='money'>Diamond</span>"
+            pushLog "<span class='name'>#{current.user.username}</span> used <span class='item action'>Alchemy</span> and synthesized 2 <span class='money'>Coals</span> into a <span class='money'>Diamond</span>"
             current.match.save()
             current.deck.save()
           else
@@ -1003,6 +1003,7 @@ onDeviceReady = ->
         $('#loader').css('opacity', 1)
         $('#loader').find('#loading-text').html('Submitting turn...')
         current.match.set('last_move', new Date().toString().split(' ').slice(0,5).join(' '))
+        pushLog "<span class='name'>#{current.user.username}</span> ended their turn"
         $.post "#{server_url}/end_turn/#{current.match.get('id')}", {'match': current.match.toJSON()}, (data) =>
           current.match.set JSON.parse(data)["match"]
           current.deck.set JSON.parse(data)["deck"]
