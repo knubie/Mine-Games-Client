@@ -890,6 +890,7 @@ onDeviceReady = ->
         current.match.on 'change:log', =>
           console.log "current.match change:log"
           @$el.find('#log').html(_.last(current.match.get('log')))
+          @render_scoreboard()
 
         current.match.on 'change:mine', =>
           $count = @$el.find('#mine > .count')
@@ -902,7 +903,6 @@ onDeviceReady = ->
           , 50
 
         current.match.on 'change:turn', =>
-          # TODO: rerender player list
           current.turn = if current.match.get('turn') == current.user.id then true else false
           if current.turn
             @$el.find('#end_turn').show()
@@ -913,6 +913,8 @@ onDeviceReady = ->
             player = _.find current.match.get('players'), (player) ->
               player.id == current.match.get('turn')
             @$el.find('#turn > .count').html(player.username)
+
+          @render_scoreboard()
 
 
         current.deck.on 'change:hand', =>
@@ -927,6 +929,40 @@ onDeviceReady = ->
         current.deck.on 'update_to_spend', =>
           console.log "event: update_to_spend"
           @$el.find('#to_spend > .count').html(current.deck.to_spend())
+
+      render_scoreboard: ->
+
+        $players_bar = $(".two.players")
+        switch current.match.get('players').length
+          when 3
+            $players_bar = $(".three.players")
+          when 4
+            $players_bar = $(".four.players")
+
+        $players_bar.show()
+        $players_bar.find('li').removeClass('turn')
+        for player in current.match.get('players')
+
+          if $players_bar.find(".#{player.username}").length < 1
+            $player = $('#templates').find(".player").clone().addClass("#{player.username}")
+            $players_bar.append($player)
+            $player.find('.name').html(player.username)
+          else
+            $player = $players_bar.find(".#{player.username}")
+
+          if current.match.get('turn') == player.id
+            $player.addClass('turn')
+          if player.id == current.user.id
+            $player.find('.score').html(current.deck.total_points())
+          else
+            players_decks = new Decks()
+            players_decks.url = "#{server_url}/decks_by_user/#{player.id}"
+            _$player = $player
+            players_decks.fetch
+              success: ->
+                deck = players_decks.where(match_id: current.match.get('id'))[0]
+                # alert deck.total_points()
+                _$player.find('.score').html(deck.total_points()) # FIXME: this won't work with three players
 
       render: ->
 
@@ -957,32 +993,9 @@ onDeviceReady = ->
             player.id == current.match.get('turn')
           @$el.find('#turn > .count').html(player.username)
         # TODO: add string truncation for names
-
-        $players_bar = $(".two.players")
-        switch current.match.get('players').length
-          when 3
-            $players_bar = $(".three.players")
-          when 4
-            $players_bar = $(".four.players")
-
-        $players_bar.show().html('')
-
-        for player in current.match.get('players')
-          $player = $('#templates').find(".player").clone()
-          $player.find('.name').html(player.username)
-          if current.match.get('turn') == player.id
-            $player.addClass('turn')
-          if player.id == current.user.id
-            $player.find('.score').html(current.deck.get('points'))
-          else
-            players_decks = new Decks()
-            players_decks.url = "#{server_url}/decks_by_user/#{player.id}"
-            players_decks.fetch
-              success: ->
-                deck = players_decks.where(match_id: current.match.get('id'))[0]
-                $player.find('.score').html(deck.get('points'))
-          $players_bar.append($player)
-
+        
+        $(".players").find('li').remove()
+        @render_scoreboard()
 
       end_turn: ->
         console.log 'MatchView#end_turn'
@@ -1158,15 +1171,6 @@ onDeviceReady = ->
             success: =>
               alert "You've been challenged to a new game!"
               @render()
-
-
-        # setInterval =>
-        #   collections.matches.each (match) ->
-        #     deck = collections.decks.find (deck) ->
-        #       deck.get('match_id') == match.get('id')
-        #     view = new MatchListView(match, deck)
-
-        # , 60000
 
         @render()
 

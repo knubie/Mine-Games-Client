@@ -1156,7 +1156,8 @@ onDeviceReady = function() {
         var _this = this;
         current.match.on('change:log', function() {
           console.log("current.match change:log");
-          return _this.$el.find('#log').html(_.last(current.match.get('log')));
+          _this.$el.find('#log').html(_.last(current.match.get('log')));
+          return _this.render_scoreboard();
         });
         current.match.on('change:mine', function() {
           var $count;
@@ -1174,15 +1175,16 @@ onDeviceReady = function() {
           current.turn = current.match.get('turn') === current.user.id ? true : false;
           if (current.turn) {
             _this.$el.find('#end_turn').show();
-            return _this.$el.find('#turn').hide();
+            _this.$el.find('#turn').hide();
           } else {
             _this.$el.find('#end_turn').hide();
             _this.$el.find('#turn').show();
             player = _.find(current.match.get('players'), function(player) {
               return player.id === current.match.get('turn');
             });
-            return _this.$el.find('#turn > .count').html(player.username);
+            _this.$el.find('#turn > .count').html(player.username);
           }
+          return _this.render_scoreboard();
         });
         current.deck.on('change:hand', function() {
           var card, view, _i, _len, _ref, _results;
@@ -1205,8 +1207,54 @@ onDeviceReady = function() {
         });
       };
 
+      MatchView.prototype.render_scoreboard = function() {
+        var $player, $players_bar, player, players_decks, _$player, _i, _len, _ref, _results;
+        $players_bar = $(".two.players");
+        switch (current.match.get('players').length) {
+          case 3:
+            $players_bar = $(".three.players");
+            break;
+          case 4:
+            $players_bar = $(".four.players");
+        }
+        $players_bar.show();
+        $players_bar.find('li').removeClass('turn');
+        _ref = current.match.get('players');
+        _results = [];
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          player = _ref[_i];
+          if ($players_bar.find("." + player.username).length < 1) {
+            $player = $('#templates').find(".player").clone().addClass("" + player.username);
+            $players_bar.append($player);
+            $player.find('.name').html(player.username);
+          } else {
+            $player = $players_bar.find("." + player.username);
+          }
+          if (current.match.get('turn') === player.id) {
+            $player.addClass('turn');
+          }
+          if (player.id === current.user.id) {
+            _results.push($player.find('.score').html(current.deck.total_points()));
+          } else {
+            players_decks = new Decks();
+            players_decks.url = "" + server_url + "/decks_by_user/" + player.id;
+            _$player = $player;
+            _results.push(players_decks.fetch({
+              success: function() {
+                var deck;
+                deck = players_decks.where({
+                  match_id: current.match.get('id')
+                })[0];
+                return _$player.find('.score').html(deck.total_points());
+              }
+            }));
+          }
+        }
+        return _results;
+      };
+
       MatchView.prototype.render = function() {
-        var $player, $players_bar, card, player, players_decks, view, _i, _j, _len, _len1, _ref, _ref1, _results;
+        var card, player, view, _i, _len, _ref;
         current.turn = current.match.get('turn') === current.user.id ? true : false;
         if (views.carddetail) {
           views.carddetail.render();
@@ -1235,42 +1283,8 @@ onDeviceReady = function() {
           });
           this.$el.find('#turn > .count').html(player.username);
         }
-        $players_bar = $(".two.players");
-        switch (current.match.get('players').length) {
-          case 3:
-            $players_bar = $(".three.players");
-            break;
-          case 4:
-            $players_bar = $(".four.players");
-        }
-        $players_bar.show().html('');
-        _ref1 = current.match.get('players');
-        _results = [];
-        for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
-          player = _ref1[_j];
-          $player = $('#templates').find(".player").clone();
-          $player.find('.name').html(player.username);
-          if (current.match.get('turn') === player.id) {
-            $player.addClass('turn');
-          }
-          if (player.id === current.user.id) {
-            $player.find('.score').html(current.deck.get('points'));
-          } else {
-            players_decks = new Decks();
-            players_decks.url = "" + server_url + "/decks_by_user/" + player.id;
-            players_decks.fetch({
-              success: function() {
-                var deck;
-                deck = players_decks.where({
-                  match_id: current.match.get('id')
-                })[0];
-                return $player.find('.score').html(deck.get('points'));
-              }
-            });
-          }
-          _results.push($players_bar.append($player));
-        }
-        return _results;
+        $(".players").find('li').remove();
+        return this.render_scoreboard();
       };
 
       MatchView.prototype.end_turn = function() {
