@@ -54,7 +54,7 @@ onDeviceReady = ->
         $('#match').find('#hand-container').css('height', '237px')
 
       if page == '#lobby'
-        $('#lobby').find('#matches').css('height', '340px')
+        $('#lobby').find('#matches-container').css('height', '330px')
 
       if options?
         if options.reverse == true
@@ -75,7 +75,7 @@ onDeviceReady = ->
           $page.removeClass("#{options.transition} in reverse")
 
           if page == '#match'
-            $('#lobby').find('#matches').css('height', '0')
+            $('#lobby').find('#matches-container').css('height', '0')
 
           if page == '#lobby'
             $('#match').find('#hand-container').css('height', '0')
@@ -84,6 +84,11 @@ onDeviceReady = ->
         $curr.removeClass 'active reverse curr'
         $page.addClass 'active'
         $page.removeClass 'reverse'
+        if page == '#match'
+          $('#lobby').find('#matches-container').css('height', '0')
+
+        if page == '#lobby'
+          $('#match').find('#hand-container').css('height', '0')
 
     aOrAn = (word) ->
       console.log word.charAt(0)

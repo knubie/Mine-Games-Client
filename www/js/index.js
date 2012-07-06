@@ -58,7 +58,7 @@ onDeviceReady = function() {
         $('#match').find('#hand-container').css('height', '237px');
       }
       if (page === '#lobby') {
-        $('#lobby').find('#matches').css('height', '340px');
+        $('#lobby').find('#matches-container').css('height', '330px');
       }
       if (options != null) {
         if (options.reverse === true) {
@@ -75,7 +75,7 @@ onDeviceReady = function() {
         return $page.one('webkitAnimationEnd', function() {
           $page.removeClass("" + options.transition + " in reverse");
           if (page === '#match') {
-            $('#lobby').find('#matches').css('height', '0');
+            $('#lobby').find('#matches-container').css('height', '0');
           }
           if (page === '#lobby') {
             return $('#match').find('#hand-container').css('height', '0');
@@ -84,7 +84,13 @@ onDeviceReady = function() {
       } else {
         $curr.removeClass('active reverse curr');
         $page.addClass('active');
-        return $page.removeClass('reverse');
+        $page.removeClass('reverse');
+        if (page === '#match') {
+          $('#lobby').find('#matches-container').css('height', '0');
+        }
+        if (page === '#lobby') {
+          return $('#match').find('#hand-container').css('height', '0');
+        }
       }
     };
     aOrAn = function(word) {

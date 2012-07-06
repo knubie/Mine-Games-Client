@@ -443,12 +443,18 @@ background: #747a78;
 
 
 
-#matches {
-	height: 340px;
-	width: 296px;
-	margin: 0 auto;
+#matches-container {
+	height: 330px;
+	width: 303px;
+	margin: 0 auto 10px auto;
+	margin-left: 12px;
+	margin-bottom: 10px;
 	overflow-y: scroll;
 	-webkit-overflow-scrolling: touch;
+}
+
+#matches {
+	min-height: 331px;
 }	
 
 #matches li{
