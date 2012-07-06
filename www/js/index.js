@@ -126,8 +126,7 @@ onDeviceReady = function() {
               console.log('calling callback');
               pushLog("<span class='name'>" + current.user.username + "</span> used a <span class='item action'>Stone Pickaxe</span> and drew a <span class='item money'>" + newcards[0] + "</span> from the <span class='mine'>mine</span>");
               current.match.save();
-              current.deck.save();
-              return current.deck.trigger('update_to_spend');
+              return current.deck.save();
             }
           });
         }
@@ -146,8 +145,7 @@ onDeviceReady = function() {
               console.log('calling callback');
               pushLog("<span class='name'>" + current.user.username + "</span> used an <span class='item action'>Iron Pickaxe</span> and drew a <span class='item money'>" + newcards[0] + "</span> and <span class='item money'>" + newcards[1] + "</span> from the <span class='mine'>mine</span>");
               current.match.save();
-              current.deck.save();
-              return current.deck.trigger('update_to_spend');
+              return current.deck.save();
             }
           });
         }
@@ -166,8 +164,7 @@ onDeviceReady = function() {
               console.log('calling callback');
               pushLog("<span class='name'>" + current.user.username + "</span> used a <span class='item action'>Diamond Pickaxe</span> and drew a <span class='item money'>" + newcards[0] + "</span>, <span class='item money'>" + newcards[1] + "</span> and <span class='item money'>" + newcards[2] + "</span> from the <span class='mine'>mine</span>");
               current.match.save();
-              current.deck.save();
-              return current.deck.trigger('update_to_spend');
+              return current.deck.save();
             }
           });
         }
@@ -283,8 +280,7 @@ onDeviceReady = function() {
                       pushLog("<span class='name'>" + current.user.username + "</span> used a <span class='item attack'>TNT</span> and destroyed a <span class='item " + cards[newcards[0]].type + "'>" + cards[newcards[0]].name + "</span> and <span class='item " + cards[newcards[1]].type + "'>" + cards[newcards[1]].name + "</span> from <span class='name'>" + player.username + "'s</span> hand.");
                       current.match.save();
                       current.deck.save();
-                      target_deck.save();
-                      return current.deck.trigger('update_to_spend');
+                      return target_deck.save();
                     }
                   });
                 } else {
@@ -326,8 +322,7 @@ onDeviceReady = function() {
               console.log('calling callback');
               pushLog("<span class='name'>" + current.user.username + "</span> used a <span class='item action'>Minecart</span> and drew a <span class='item " + cards[newcards[0]].type + "'>" + cards[newcards[0]].name + "</span> from their deck.");
               current.match.save();
-              current.deck.save();
-              return current.deck.trigger('update_to_spend');
+              return current.deck.save();
             }
           });
         }
@@ -346,8 +341,7 @@ onDeviceReady = function() {
               console.log('calling callback');
               pushLog("<span class='name'>" + current.user.username + "</span> used a <span class='item action'>Minecart</span> and drew a <span class='item " + cards[newcards[0]].type + "'>" + cards[newcards[0]].name + "</span>, <span class='item " + cards[newcards[1]].type + "'>" + newcards[1] + "</span> and <span class='item " + cards[newcards[2]].type + "'>" + newcards[2] + "</span> from their deck.");
               current.match.save();
-              current.deck.save();
-              return current.deck.trigger('update_to_spend');
+              return current.deck.save();
             }
           });
         }
@@ -395,8 +389,7 @@ onDeviceReady = function() {
                     pushLog("<span class='name'>" + current.user.username + "</span> used a <span class='item action'>Gopher</span> and stole a <span class='item " + cards[newcards[0]].type + "'>" + cards[newcards[0]].name + "</span> from <span class='name'>" + player.username + "'s</span> hand.");
                     current.match.save();
                     current.deck.save();
-                    target_deck.save();
-                    return current.deck.trigger('update_to_spend');
+                    return target_deck.save();
                   }
                 });
               }
@@ -836,8 +829,7 @@ onDeviceReady = function() {
               transition: 'slide'
             });
             current.match.save();
-            current.deck.save();
-            return current.deck.trigger('update_to_spend');
+            return current.deck.save();
           } else {
             return alert("It's not your turn!");
           }
@@ -1146,8 +1138,22 @@ onDeviceReady = function() {
       }
 
       MatchView.prototype.initialize = function() {
+        var _this = this;
         this.bind();
-        return this.render();
+        this.render();
+        return document.addEventListener("active", function() {
+          console.log('active');
+          return current.match.fetch({
+            success: function() {
+              _this.render_turn();
+              _this.render_scoreboard();
+              _this.render_hand();
+              _this.$el.find('#log').html(_.last(current.match.get('log')));
+              _this.$el.find('#mine > .count').html(current.match.get('mine').length);
+              return _this.$el.find('#to_spend > .count').html(current.deck.to_spend());
+            }
+          });
+        }, false);
       };
 
       MatchView.prototype.el = '#match';
@@ -1177,39 +1183,17 @@ onDeviceReady = function() {
           }, 50);
         });
         current.match.on('change:turn', function() {
-          var player;
           current.turn = current.match.get('turn') === current.user.id ? true : false;
-          if (current.turn) {
-            _this.$el.find('#end_turn').show();
-            _this.$el.find('#turn').hide();
-          } else {
-            _this.$el.find('#end_turn').hide();
-            _this.$el.find('#turn').show();
-            player = _.find(current.match.get('players'), function(player) {
-              return player.id === current.match.get('turn');
-            });
-            _this.$el.find('#turn > .count').html(player.username);
-          }
+          _this.render_turn();
           return _this.render_scoreboard();
         });
         current.deck.on('change:hand', function() {
-          var card, view, _i, _len, _ref, _results;
-          _this.$el.find('.card').remove();
-          _ref = current.deck.get('hand');
-          _results = [];
-          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-            card = _ref[_i];
-            _results.push(view = new CardListView(cards[card]));
-          }
-          return _results;
+          _this.render_hand();
+          return _this.$el.find('#to_spend > .count').html(current.deck.to_spend());
         });
-        current.deck.on('change:actions', function() {
+        return current.deck.on('change:actions', function() {
           console.log("current.deck change:actions");
           return _this.$el.find('#actions > .count').html(current.deck.get('actions'));
-        });
-        return current.deck.on('update_to_spend', function() {
-          console.log("event: update_to_spend");
-          return _this.$el.find('#to_spend > .count').html(current.deck.to_spend());
         });
       };
 
@@ -1259,8 +1243,43 @@ onDeviceReady = function() {
         return _results;
       };
 
+      MatchView.prototype.render_hand = function() {
+        var card, view, _i, _j, _len, _len1, _ref, _ref1, _results;
+        if (typeof views.hand === 'object') {
+          _ref = views.hand;
+          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+            view = _ref[_i];
+            view.remove();
+            view.undelegateEvents();
+          }
+        } else {
+          views.hand = [];
+        }
+        _ref1 = current.deck.get('hand');
+        _results = [];
+        for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+          card = _ref1[_j];
+          _results.push(views.hand.push(new CardListView(cards[card])));
+        }
+        return _results;
+      };
+
+      MatchView.prototype.render_turn = function() {
+        var player;
+        if (current.turn) {
+          this.$el.find('#end_turn').show();
+          return this.$el.find('#turn').hide();
+        } else {
+          this.$el.find('#end_turn').hide();
+          this.$el.find('#turn').show();
+          player = _.find(current.match.get('players'), function(player) {
+            return player.id === current.match.get('turn');
+          });
+          return this.$el.find('#turn > .count').html(player.username);
+        }
+      };
+
       MatchView.prototype.render = function() {
-        var card, player, view, _i, _len, _ref;
         current.turn = current.match.get('turn') === current.user.id ? true : false;
         if (views.carddetail) {
           views.carddetail.render();
@@ -1272,24 +1291,9 @@ onDeviceReady = function() {
         this.$el.find('#actions > .count').html(current.deck.get('actions'));
         this.$el.find('#mine > .count').html(current.match.get('mine').length);
         this.$el.find('#to_spend > .count').html(current.deck.to_spend());
-        this.$el.find('.card').remove();
-        _ref = current.deck.get('hand');
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          card = _ref[_i];
-          view = new CardListView(cards[card]);
-        }
-        if (current.turn) {
-          this.$el.find('#end_turn').show();
-          this.$el.find('#turn').hide();
-        } else {
-          this.$el.find('#end_turn').hide();
-          this.$el.find('#turn').show();
-          player = _.find(current.match.get('players'), function(player) {
-            return player.id === current.match.get('turn');
-          });
-          this.$el.find('#turn > .count').html(player.username);
-        }
-        $(".players").find('li').remove();
+        this.$el.find(".players").find('li').remove();
+        this.render_hand();
+        this.render_turn();
         return this.render_scoreboard();
       };
 
@@ -1494,6 +1498,11 @@ onDeviceReady = function() {
       };
 
       MatchListView.prototype.render_match = function() {
+        var _this = this;
+        this.$el.css('background-color', '#e4e4e4');
+        setTimeout(function() {
+          return _this.$el.css('background-color', '#fff');
+        }, 350);
         console.log('MatchListView#render_match');
         current.match = this.match;
         current.deck = this.deck;
@@ -1561,7 +1570,6 @@ onDeviceReady = function() {
       LobbyView.prototype.render = function() {
         var view, _i, _len, _ref;
         console.log("render lobby");
-        this.$el.find('.match-item-view').remove();
         $('#loader').hide();
         if (typeof views.matchlist === 'object') {
           _ref = views.matchlist;
@@ -1821,6 +1829,15 @@ onDeviceReady = function() {
         }, 'json');
       }
       return e.preventDefault();
+    });
+    $(document).bind('touchmove', function(e) {
+      if (window.inAction) {
+        return e.preventDefault();
+      } else {
+        return window.globalDrag = true;
+      }
+    }).bind('touchend touchcancel', function(e) {
+      return window.globalDrag = false;
     });
     return views.home = new HomeView;
   });

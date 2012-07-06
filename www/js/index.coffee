@@ -12,7 +12,6 @@ onBodyLoad = ->
 
 onDeviceReady = ->
 
-
   $ ->
 
     gsub = (source, pattern, replacement) ->
@@ -124,7 +123,6 @@ onDeviceReady = ->
               pushLog "<span class='name'>#{current.user.username}</span> used a <span class='item action'>Stone Pickaxe</span> and drew a <span class='item money'>#{newcards[0]}</span> from the <span class='mine'>mine</span>"
               current.match.save()
               current.deck.save()
-              current.deck.trigger 'update_to_spend'
 
       iron_pickaxe:
         name: 'iron pickaxe'
@@ -141,7 +139,6 @@ onDeviceReady = ->
               pushLog "<span class='name'>#{current.user.username}</span> used an <span class='item action'>Iron Pickaxe</span> and drew a <span class='item money'>#{newcards[0]}</span> and <span class='item money'>#{newcards[1]}</span> from the <span class='mine'>mine</span>"
               current.match.save()
               current.deck.save()
-              current.deck.trigger 'update_to_spend'
           
       diamond_pickaxe:
         name: 'diamond pickaxe'
@@ -158,7 +155,6 @@ onDeviceReady = ->
               pushLog "<span class='name'>#{current.user.username}</span> used a <span class='item action'>Diamond Pickaxe</span> and drew a <span class='item money'>#{newcards[0]}</span>, <span class='item money'>#{newcards[1]}</span> and <span class='item money'>#{newcards[2]}</span> from the <span class='mine'>mine</span>"
               current.match.save()
               current.deck.save()
-              current.deck.trigger 'update_to_spend'
 
       copper:
         name: 'copper'
@@ -255,7 +251,6 @@ onDeviceReady = ->
                       current.match.save()
                       current.deck.save()
                       target_deck.save()
-                      current.deck.trigger 'update_to_spend'
                 else
                   alert "#{player.username} used a reaction card and blocked your attack!"
                   pushLog "<span class='name'>#{player.username}</span> blocked <span class='name'>#{current.user.username}'s</span> <span class='item attack'>TNT</span> with a <span class='item'>Shield</span>."
@@ -291,7 +286,6 @@ onDeviceReady = ->
               pushLog "<span class='name'>#{current.user.username}</span> used a <span class='item action'>Minecart</span> and drew a <span class='item #{cards[newcards[0]].type}'>#{cards[newcards[0]].name}</span> from their deck."
               current.match.save()
               current.deck.save()
-              current.deck.trigger 'update_to_spend'
               #TODO: change card type dyanmically
 
       mule:
@@ -309,7 +303,6 @@ onDeviceReady = ->
               pushLog "<span class='name'>#{current.user.username}</span> used a <span class='item action'>Minecart</span> and drew a <span class='item #{cards[newcards[0]].type}'>#{cards[newcards[0]].name}</span>, <span class='item #{cards[newcards[1]].type}'>#{newcards[1]}</span> and <span class='item #{cards[newcards[2]].type}'>#{newcards[2]}</span> from their deck."
               current.match.save()
               current.deck.save()
-              current.deck.trigger 'update_to_spend'
 
       headlamp:
         name: 'headlamp'
@@ -350,7 +343,6 @@ onDeviceReady = ->
                     current.match.save()
                     current.deck.save()
                     target_deck.save()
-                    current.deck.trigger 'update_to_spend'
 
 
 
@@ -659,7 +651,6 @@ onDeviceReady = ->
               transition: 'slide'
             current.match.save()
             current.deck.save()
-            current.deck.trigger 'update_to_spend'
           else
             alert "It's not your turn!"
         else
@@ -883,6 +874,21 @@ onDeviceReady = ->
         @bind()
         @render()
 
+        document.addEventListener "active", =>
+          console.log 'active'
+          current.match.fetch
+            success: =>
+              @render_turn()
+              @render_scoreboard()
+              @render_hand()
+              @$el.find('#log').html(_.last(current.match.get('log')))
+              @$el.find('#mine > .count').html(current.match.get('mine').length)
+              @$el.find('#to_spend > .count').html(current.deck.to_spend())
+            #   collections.decks.fetch
+            #     success: =>
+            #       @render()
+        , false
+
       el: '#match'
 
       events:
@@ -892,10 +898,11 @@ onDeviceReady = ->
 
       bind: ->
 
+        # Match ==================================
         current.match.on 'change:log', =>
           console.log "current.match change:log"
           @$el.find('#log').html(_.last(current.match.get('log')))
-          @render_scoreboard()
+          @render_scoreboard() #TODO: I think this is being called before the hands change
 
         current.match.on 'change:mine', =>
           $count = @$el.find('#mine > .count')
@@ -909,31 +916,18 @@ onDeviceReady = ->
 
         current.match.on 'change:turn', =>
           current.turn = if current.match.get('turn') == current.user.id then true else false
-          if current.turn
-            @$el.find('#end_turn').show()
-            @$el.find('#turn').hide()
-          else
-            @$el.find('#end_turn').hide()
-            @$el.find('#turn').show()
-            player = _.find current.match.get('players'), (player) ->
-              player.id == current.match.get('turn')
-            @$el.find('#turn > .count').html(player.username)
-
+          @render_turn()
           @render_scoreboard()
 
 
+        # Deck ==================================
         current.deck.on 'change:hand', =>
-          @$el.find('.card').remove()
-          for card in current.deck.get('hand')
-            view = new CardListView(cards[card])
+          @render_hand()
+          @$el.find('#to_spend > .count').html(current.deck.to_spend())
 
         current.deck.on 'change:actions', =>
           console.log "current.deck change:actions"
           @$el.find('#actions > .count').html(current.deck.get 'actions')
-
-        current.deck.on 'update_to_spend', =>
-          console.log "event: update_to_spend"
-          @$el.find('#to_spend > .count').html(current.deck.to_spend())
 
       render_scoreboard: ->
 
@@ -969,6 +963,28 @@ onDeviceReady = ->
                 # alert deck.total_points()
                 _$player.find('.score').html(deck.total_points()) # FIXME: this won't work with three players
 
+      render_hand: ->
+        if typeof views.hand == 'object'
+          for view in views.hand
+            view.remove()
+            view.undelegateEvents()
+        else
+          views.hand = []
+
+        for card in current.deck.get('hand')
+          views.hand.push new CardListView(cards[card])
+
+      render_turn: ->
+        if current.turn
+          @$el.find('#end_turn').show()
+          @$el.find('#turn').hide()
+        else
+          @$el.find('#end_turn').hide()
+          @$el.find('#turn').show()
+          player = _.find current.match.get('players'), (player) ->
+            player.id == current.match.get('turn')
+          @$el.find('#turn > .count').html(player.username)
+
       render: ->
 
         current.turn = if current.match.get('turn') == current.user.id then true else false
@@ -983,23 +999,10 @@ onDeviceReady = ->
         @$el.find('#actions > .count').html(current.deck.get 'actions')
         @$el.find('#mine > .count').html(current.match.get('mine').length)
         @$el.find('#to_spend > .count').html(current.deck.to_spend())
+        @$el.find(".players").find('li').remove()
 
-        @$el.find('.card').remove()
-        for card in current.deck.get('hand')
-          view = new CardListView(cards[card])
-
-        if current.turn
-          @$el.find('#end_turn').show()
-          @$el.find('#turn').hide()
-        else
-          @$el.find('#end_turn').hide()
-          @$el.find('#turn').show()
-          player = _.find current.match.get('players'), (player) ->
-            player.id == current.match.get('turn')
-          @$el.find('#turn > .count').html(player.username)
-        # TODO: add string truncation for names
-        
-        $(".players").find('li').remove()
+        @render_hand()
+        @render_turn()
         @render_scoreboard()
 
       end_turn: ->
@@ -1138,6 +1141,11 @@ onDeviceReady = ->
           @$el.find('.subhead').html("Last move #{$.timeago @match.get('last_move')}")
 
       render_match: ->
+        @$el.css('background-color', '#e4e4e4')
+        setTimeout =>
+          @$el.css('background-color', '#fff')
+        , 350
+
         console.log 'MatchListView#render_match'
         current.match = @match
         current.deck = @deck
@@ -1189,7 +1197,7 @@ onDeviceReady = ->
 
       render: ->
         console.log "render lobby"
-        @$el.find('.match-item-view').remove()
+        # @$el.find('.match-item-view').remove()
         $('#loader').hide()
 
         if typeof views.matchlist == 'object'
@@ -1394,14 +1402,14 @@ onDeviceReady = ->
     #       transition: 'slide'
     #       reverse: reverse
 
-    # $(document).bind('touchmove', (e) ->
-    #   if window.inAction
-    #     e.preventDefault()
-    #   else
-    #     window.globalDrag = true;
-    # ).bind('touchend touchcancel', (e) ->
-    #   window.globalDrag = false
-    # )
+    $(document).bind('touchmove', (e) ->
+      if window.inAction
+        e.preventDefault()
+      else
+        window.globalDrag = true;
+    ).bind('touchend touchcancel', (e) ->
+      window.globalDrag = false
+    )
 
 
     views.home = new HomeView
