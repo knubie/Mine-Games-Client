@@ -33,6 +33,16 @@ ul {
   src: url('../fonts/Gotham-Book.otf');
 }
 
+@font-face {
+  font-family: Interstate;
+  src: url('../fonts/Interstate-Regular.otf');
+}
+
+@font-face {
+  font-family: Rockwell-ExtraBold;
+  src: url('../fonts/Rockwell-ExtraBold.otf');
+}
+
 #logo{
 	width: 268px;
 	height: 300px;
@@ -77,7 +87,7 @@ ul {
 #to_spend .count{
 	color: #fff;
 	float: right;
-	font-family: Helvetica, sans-serif;
+	font-family: Rockwell-ExtraBold;
 	font-size: 28px;
 	font-weight: bold;
 	line-height: 27px;
@@ -114,9 +124,8 @@ ul {
 #actions .count{
 	color: #fff;
 	font-size: 28px;
-	font-weight:bold;
+	font-family: Rockwell-ExtraBold;
 	line-height: 27px;	
-	font-family: 'Helvetica', sans-serif;
 
 }
 
@@ -171,7 +180,7 @@ ul {
 }
 
 .players .turn {
-background: #747a78;
+	background: #747a78;
 }
 
 .two.players li.player { width: 50%; }
@@ -185,7 +194,7 @@ background: #747a78;
 
 .player .score{
 	font-size: 18px;
-	font-weight:bold;
+	font-family: Rockwell-ExtraBold;
 	color: #c4d7d2;
 	margin-top: 10px;
 }
@@ -268,9 +277,10 @@ background: #747a78;
 
 .card-main .desc{
 	float: left;
-	font-family: Helvetica;
-	font-size:12px;
-	color:#646464;
+	font-family: Interstate;
+	font-size:13px;
+	color:#939393;
+	letter-spacing: 0px;
 }
 
 .card-main .thumb{
@@ -298,8 +308,9 @@ background: #747a78;
 
 #mine .count {
 	color: #ffa800;
-	font-weight: bold;
-	size: 16px;
+	font-family: Rockwell-ExtraBold;
+	font-size: 18px;
+	letter-spacing: -0.5px;
 	-webkit-animation-duration: 100ms;
 	-webkit-animation-iteration-count: 2;
 	-webkit-animation-direction: alternate;
@@ -308,13 +319,11 @@ background: #747a78;
 
 #mine{
 	float: left;
-	font-size: 25px;
 	height: 30px;
 	margin-left: 6px;
 	padding-top: 29px;
 	text-align: center;
 	width: 125px;
-	font-weight:bold;
 }
 
 

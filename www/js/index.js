@@ -798,7 +798,7 @@ onDeviceReady = function() {
       };
 
       ShopListView.prototype.events = {
-        'click': 'buy'
+        'tap': 'buy'
       };
 
       ShopListView.prototype.render = function() {
@@ -818,9 +818,9 @@ onDeviceReady = function() {
             shop = _.clone(current.match.get('shop'));
             shop = shop.minus(gsub(this.card.name, ' ', '_'));
             current.match.set('shop', shop);
-            curr_cards = _.clone(current.deck.get('cards'));
+            curr_cards = _.clone(current.deck.get('hand'));
             curr_cards.push(gsub(this.card.name, ' ', '_'));
-            current.deck.set('cards', curr_cards);
+            current.deck.set('hand', curr_cards);
             this.amount--;
             this.$el.find('.count').html(this.amount);
             current.deck.spend(this.card.cost);

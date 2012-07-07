@@ -622,7 +622,7 @@ onDeviceReady = ->
         @render()
 
       events:
-        'click': 'buy'
+        'tap': 'buy'
 
       render: ->
         console.log 'ShopListView#render'
@@ -640,9 +640,9 @@ onDeviceReady = ->
             shop = _.clone current.match.get('shop')
             shop = shop.minus(gsub(@card.name, ' ', '_'))
             current.match.set('shop', shop)
-            curr_cards = _.clone current.deck.get('cards')
+            curr_cards = _.clone current.deck.get('hand')
             curr_cards.push gsub(@card.name, ' ', '_')
-            current.deck.set('cards', curr_cards)
+            current.deck.set('hand', curr_cards)
             @amount--
             @$el.find('.count').html(@amount)
             current.deck.spend(@card.cost)
