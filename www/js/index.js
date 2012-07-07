@@ -449,12 +449,40 @@ onDeviceReady = function() {
           }
         }
       },
-      shield: {
-        name: 'shield',
+      canary: {
+        name: 'canary',
         type: 'reaction',
-        cost: 3,
-        short_desc: 'Blocks an incoming attack',
-        long_desc: "Prevents a single attack from affecting you. This card is then returned to your inventory after it's been used."
+        cost: 1,
+        short_desc: 'Absorbs an incoming attack',
+        long_desc: "Prevents a single attack from affecting you. This card gets trashed after it's been used."
+      },
+      scrip: {
+        name: 'scrip',
+        type: 'action',
+        cost: 93,
+        short_desc: '+$2',
+        long_desc: "When used this card gives you an extra $2 to spend at the shop this turn. It gets returned to your deck when used."
+      },
+      trash_four: {
+        name: 'TBD',
+        type: 'action',
+        cost: 92,
+        short_desc: 'Trash up to four cards from your hand',
+        long_desc: "Trash up to four cards from your hand."
+      },
+      play_twice: {
+        name: 'TBD',
+        type: 'action',
+        cost: 94,
+        short_desc: 'Play a card from your hand twice.',
+        long_desc: "Choose a card from your hand and it will be played twice, costing no additional actions."
+      },
+      action_and_coal: {
+        name: 'TBD',
+        type: 'action',
+        cost: 94,
+        short_desc: '+1 action, +1 coal to opponents',
+        long_desc: "Gain an action while giving a coal to all opponents."
       }
     };
     actions = {
@@ -495,13 +523,21 @@ onDeviceReady = function() {
           return options.callback(newcards);
         }
       },
-      discard: function(options, cb) {
+      user_discard: function(options, cb) {
         $('.discard').show();
         console.log(options.number);
         return current.deck.set({
           amount_to_discard: options.number,
           amount_discarded: 0,
           discard_type: options.type
+        });
+      },
+      user_trash: function(options, cb) {
+        $('.trash').show();
+        return current.deck.set({
+          amount_to_trash: options.number,
+          amount_trashed: 0,
+          trash_type: options.type
         });
       },
       trash: function(model, attribute, options) {
@@ -965,7 +1001,8 @@ onDeviceReady = function() {
         'swiperight': 'swiperight',
         'touchend': 'touchend',
         'touchcancel': 'touchend',
-        'tap .discard': 'discard'
+        'tap .discard': 'discard',
+        'tap .trash': 'trash'
       };
 
       CardListView.prototype.render = function() {
@@ -1118,12 +1155,27 @@ onDeviceReady = function() {
       CardListView.prototype.discard = function() {
         var nd, nh;
         this.remove();
+        this.undelegateEvents();
         nh = _.clone(current.deck.get('hand'));
         nh = nh.minus(gsub(this.card.name, ' ', '_'));
         current.deck.set('hand', nh);
         nd = _.clone(current.deck.get('cards'));
         nd.push(gsub(this.card.name, ' ', '_'));
         return current.deck.set('cards', nd);
+      };
+
+      CardListView.prototype.trash = function() {
+        var nh;
+        this.remove();
+        this.undelegateEvents();
+        nh = _.clone(current.deck.get('hand'));
+        nh = nh.minus(gsub(this.card.name, ' ', '_'));
+        current.deck.set('hand', nh);
+        current.deck.set('amount_trashed', current.deck.get('amount_trashed') + 1);
+        if (current.deck.get('amount_trashed') === current.deck.get('amount_to_trash')) {
+          console.log('trash limit reached');
+          return $('.trash').hide();
+        }
       };
 
       return CardListView;
