@@ -390,10 +390,10 @@ onDeviceReady = ->
             alert 'You need at least two coals in hand to make use this card!'
 
       shield:
-        name: 'shield'
+        name: 'canary'
         type: 'reaction'
         cost: 3
-        short_desc: 'Blocks an incoming attack'
+        short_desc: 'Absorbs an incoming attack'
         long_desc: "Prevents a single attack from affecting you. This card is then returned to your inventory after it's been used."
 
     actions = # Actions are decoupled from cards.
@@ -853,8 +853,6 @@ onDeviceReady = ->
 
 
         @dx = @dy = 0
-
-
 
       discard: () ->
         @remove()
