@@ -64,7 +64,7 @@ ul {
 	font-family: 'Gotham-Bold';
 	font-size: 13px;
 	text-transform: uppercase;		
-	color: #c4d7d2;
+	color: #fff;
 }
 
 #to_spend{
@@ -91,7 +91,7 @@ ul {
 	font-size: 28px;
 	font-weight: bold;
 	line-height: 27px;
-	margin-right: 31px;
+	margin-right: 28px;
 }
 
 #to_spend .money{
@@ -101,7 +101,7 @@ ul {
 	font-size: 18px;
 	font-weight: bold;
 	line-height: 27px;
-	margin-left: 19px;
+	margin-left: 14px;
 }
 
 #actions{
@@ -151,7 +151,7 @@ ul {
 	height:38px;
 	padding-top: 25px;
 	text-align:center;
-	color: #c4d7d2;
+	color: #ef6b56;
 	font-size: 12px;
 	font-weight:bold;
 	text-transform: uppercase;
@@ -321,7 +321,7 @@ ul {
 	float: left;
 	height: 30px;
 	margin-left: 6px;
-	padding-top: 29px;
+	padding-top: 49px;
 	text-align: center;
 	width: 125px;
 }
