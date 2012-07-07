@@ -389,12 +389,40 @@ onDeviceReady = ->
             current.deck.set 'hand', new_hand
             alert 'You need at least two coals in hand to make use this card!'
 
-      shield:
+      canary:
         name: 'canary'
         type: 'reaction'
-        cost: 3
+        cost: 1
         short_desc: 'Absorbs an incoming attack'
-        long_desc: "Prevents a single attack from affecting you. This card is then returned to your inventory after it's been used."
+        long_desc: "Prevents a single attack from affecting you. This card gets trashed after it's been used."
+
+      scrip:
+        name: 'scrip'
+        type: 'action'
+        cost: 93
+        short_desc: '+$2'
+        long_desc: "When used this card gives you an extra $2 to spend at the shop this turn. It gets returned to your deck when used."
+
+      trash_four:
+        name: 'TBD'
+        type: 'action'
+        cost: 92
+        short_desc: 'Trash up to four cards from your hand'
+        long_desc: "Trash up to four cards from your hand."
+
+      play_twice:
+        name: 'TBD'
+        type: 'action'
+        cost: 94
+        short_desc: 'Play a card from your hand twice.'
+        long_desc: "Choose a card from your hand and it will be played twice, costing no additional actions."
+
+      action_and_coal:
+        name: 'TBD'
+        type: 'action'
+        cost: 94
+        short_desc: '+1 action, +1 coal to opponents'
+        long_desc: "Gain an action while giving a coal to all opponents."
 
     actions = # Actions are decoupled from cards.
 
@@ -433,7 +461,7 @@ onDeviceReady = ->
         console.log " - Firing callback"
         options.callback(newcards) if typeof options.callback == 'function'
 
-      discard: (options, cb) ->
+      user_discard: (options, cb) ->
         # insert view that tells user to discard cards
         # add icon to click on each card that lets user discard that card
         $('.discard').show()
@@ -442,6 +470,15 @@ onDeviceReady = ->
           amount_to_discard: options.number
           amount_discarded: 0
           discard_type: options.type
+
+      user_trash: (options, cb) ->
+        # insert view that tells user to discard cards
+        # add icon to click on each card that lets user discard that card
+        $('.trash').show()
+        current.deck.set
+          amount_to_trash: options.number
+          amount_trashed: 0
+          trash_type: options.type
 
       trash: (model, attribute, options) ->
         console.log "actions#trash"
@@ -730,7 +767,7 @@ onDeviceReady = ->
         'touchend': 'touchend'
         'touchcancel': 'touchend'
         'tap .discard': 'discard'
-        # 'click .trash': 'trash'
+        'tap .trash': 'trash'
 
       render: ->
         @$el.find('.thumb').attr('src', "images/cards/#{gsub(@card.name, ' ', '_')}_thumb.png")
@@ -856,6 +893,7 @@ onDeviceReady = ->
 
       discard: () ->
         @remove()
+        @undelegateEvents()
         nh = _.clone current.deck.get('hand')
         nh = nh.minus(gsub(@card.name, ' ', '_'))
         current.deck.set('hand', nh)
@@ -866,6 +904,17 @@ onDeviceReady = ->
         # if current.deck.get('amount_discarded') == current.deck.get('amount_to_discard')
         #   console.log 'discard limit reached'
         #   $('.discard').hide()
+
+      trash: () ->
+        @remove()
+        @undelegateEvents()
+        nh = _.clone current.deck.get('hand')
+        nh = nh.minus(gsub(@card.name, ' ', '_'))
+        current.deck.set('hand', nh)
+        current.deck.set('amount_trashed', current.deck.get('amount_trashed') + 1)
+        if current.deck.get('amount_trashed') == current.deck.get('amount_to_trash')
+          console.log 'trash limit reached'
+          $('.trash').hide()
 
     class MatchView extends Backbone.View
       initialize: () ->
