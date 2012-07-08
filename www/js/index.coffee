@@ -941,9 +941,6 @@ onDeviceReady = ->
               @$el.find('#log').html(_.last(current.match.get('log')))
               @$el.find('#mine > .count').html(current.match.get('mine').length)
               @$el.find('#to_spend > .count').html(current.deck.to_spend())
-            #   collections.decks.fetch
-            #     success: =>
-            #       @render()
         , false
 
       el: '#match'
@@ -999,12 +996,12 @@ onDeviceReady = ->
         $players_bar.find('li').removeClass('turn')
         for player in current.match.get('players')
 
-          if $players_bar.find(".#{player.username}").length < 1
-            $player = $('#templates').find(".player").clone().addClass("#{player.username}")
+          if $players_bar.find("[data-id*='#{player.id}']").length < 1
+            $player = $('#templates').find(".player").clone().attr("data-id", "#{player.id}")
             $players_bar.append($player)
             $player.find('.name').html(player.username)
           else
-            $player = $players_bar.find(".#{player.username}")
+            $player = $players_bar.find("[data-id*='#{player.id}']")
 
           if current.match.get('turn') == player.id
             $player.addClass('turn')
@@ -1017,7 +1014,6 @@ onDeviceReady = ->
             players_decks.fetch
               success: ->
                 deck = players_decks.where(match_id: current.match.get('id'))[0]
-                # alert deck.total_points()
                 _$player.find('.score').html(deck.total_points()) # FIXME: this won't work with three players
 
       render_hand: ->
@@ -1169,6 +1165,7 @@ onDeviceReady = ->
         @render()
 
       rid: Math.floor(Math.floor(Math.random()*(100)))
+
       events:
         'tap': 'render_match'
 

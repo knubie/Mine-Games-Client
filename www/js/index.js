@@ -1274,12 +1274,12 @@ onDeviceReady = function() {
         _results = [];
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           player = _ref[_i];
-          if ($players_bar.find("." + player.username).length < 1) {
-            $player = $('#templates').find(".player").clone().addClass("" + player.username);
+          if ($players_bar.find("[data-id*='" + player.id + "']").length < 1) {
+            $player = $('#templates').find(".player").clone().attr("data-id", "" + player.id);
             $players_bar.append($player);
             $player.find('.name').html(player.username);
           } else {
-            $player = $players_bar.find("." + player.username);
+            $player = $players_bar.find("[data-id*='" + player.id + "']");
           }
           if (current.match.get('turn') === player.id) {
             $player.addClass('turn');
