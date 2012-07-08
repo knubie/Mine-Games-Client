@@ -956,11 +956,9 @@ Background Declarations */
 		background: url('../images/lobby/background.jpg');
 		background-repeat: none;
 		background-size: 100%;
-		background-position: -400px 0;
 	}
 
 
-	}    
 
 		#lobbyTitle{
 		width: 100%;
