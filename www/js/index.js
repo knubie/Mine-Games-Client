@@ -10,6 +10,15 @@ onBodyLoad = function() {
 };
 
 onDeviceReady = function() {
+  try {
+    FB.init({
+      appId: "247405602033317",
+      nativeInterface: CDV.FB,
+      useCachedDialogs: false
+    });
+  } catch (e) {
+    alert(e);
+  }
   return $(function() {
     var CardDetailView, CardListView, ChooseOpponentsView, Deck, Decks, HomeView, LobbyView, LoginView, Match, MatchListView, MatchView, Matches, NewMatchUsernameView, NewMatchView, OpponentsListView, ShopListView, ShopView, SignupView, aOrAn, actions, cards, changePage, collections, current, gsub, match_channel, pushLog, pusher, user_channel, views;
     gsub = function(source, pattern, replacement) {
@@ -1265,12 +1274,12 @@ onDeviceReady = function() {
         _results = [];
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           player = _ref[_i];
-          if ($players_bar.find("." + player.username).length < 1) {
-            $player = $('#templates').find(".player").clone().addClass("" + player.username);
+          if ($players_bar.find("[data-id*='" + player.id + "']").length < 1) {
+            $player = $('#templates').find(".player").clone().attr("data-id", "" + player.id);
             $players_bar.append($player);
             $player.find('.name').html(player.username);
           } else {
-            $player = $players_bar.find("." + player.username);
+            $player = $players_bar.find("[data-id*='" + player.id + "']");
           }
           if (current.match.get('turn') === player.id) {
             $player.addClass('turn');
@@ -1673,8 +1682,40 @@ onDeviceReady = function() {
 
       LoginView.prototype.events = {
         'submit #login-form': 'login',
-        'tap #facebook-auth': 'facebook_auth',
+        'tap #facebook-auth': 'facebook_login',
         'tap .back': 'back'
+      };
+
+      LoginView.prototype.facebook_login = function() {
+        console.log('facebook login');
+        return FB.login(function(session) {
+          $('#loader').show();
+          if (session && session.status !== 'not_authorized' && session.status !== 'notConnected') {
+            if (session.authResponse['accessToken']) {
+              return FB.api('/me', function(user) {
+                return $.post("" + server_url + "/signin.json", {
+                  facebook: {
+                    name: user.name,
+                    uid: user.id,
+                    token: session.authResponse['accessToken']
+                  }
+                }, function(user) {
+                  if (user.error != null) {
+                    return alert('error');
+                  } else {
+                    $('#loader').hide();
+                    $.cookie('token', user.token, {
+                      expires: 7300
+                    });
+                    return views.home.set_user();
+                  }
+                }, 'json');
+              });
+            }
+          }
+        }, {
+          scope: 'email'
+        });
       };
 
       LoginView.prototype.facebook_auth = function(e) {
@@ -1699,17 +1740,13 @@ onDeviceReady = function() {
         $.post("" + server_url + "/signin.json", $('#login-form').serialize(), function(user) {
           if (user.error != null) {
             alert('invalid username and/or password');
-            $('#loader').hide();
-            return $('#loader').css('opacity', 0);
+            return $('#loader').hide();
           } else {
             $('#loader').hide();
-            $('#loader').css('opacity', 0);
             $.cookie('token', user.token, {
               expires: 7300
             });
             console.log($.cookie('token'));
-            current.user = user;
-            user_channel = pusher.subscribe("" + current.user.id);
             return views.home.set_user();
           }
         }, 'json');
@@ -1748,9 +1785,9 @@ onDeviceReady = function() {
           if (user.error != null) {
             return alert('error');
           } else {
-            console.log($.cookie('token', {
+            $.cookie('token', user.token, {
               expires: 7300
-            }));
+            });
             return views.home.set_user();
           }
         }, 'json');

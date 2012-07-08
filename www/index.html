@@ -16,6 +16,10 @@
 		<!-- If your application is targeting iOS BEFORE 4.0 you MUST put json2.js from http://www.JSON.org/json2.js into your www directory and include it here -->
 		<script src="http://localhost:8080/target/target-script-min.js#anonymous"></script>
 		<script src="js/lib/cordova-1.8.1.js"></script>
+		<script src="js/lib/fb/cdv-plugin-fb-connect.js"></script>
+		<script src="js/lib/fb/facebook_js_sdk.js"></script>
+		<!-- // <script src="js/lib/fb/auth.js"></script> -->
+		<script src="js/lib/fb/requests.js"></script>
 		<script src="js/lib/zepto.min.js"></script>
 		<script src="js/lib/underscore-min.js"></script>
 		<script src="js/lib/backbone.js"></script>
@@ -38,6 +42,7 @@
   </head>
   <body onload="onBodyLoad()">
 
+		<div id="fb-root"></div>
   		<div id="loader">
   			<span id="loading-text">
 	  			Loading..
