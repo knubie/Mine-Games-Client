@@ -12,6 +12,16 @@ onBodyLoad = ->
 
 onDeviceReady = ->
 
+  # Facebook plugin setup
+  try
+    FB.init
+      appId: "247405602033317"
+      nativeInterface: CDV.FB
+      useCachedDialogs: false
+      # status: true
+  catch e
+    alert e
+
   $ ->
 
     gsub = (source, pattern, replacement) ->
@@ -1279,8 +1289,33 @@ onDeviceReady = ->
 
       events:
         'submit #login-form': 'login'
-        'tap #facebook-auth': 'facebook_auth'
+        'tap #facebook-auth': 'facebook_login'
         'tap .back': 'back'
+
+
+      facebook_login: ->
+        console.log 'facebook login'
+        FB.login (session) ->
+          $('#loader').show()
+          if session and session.status isnt 'not_authorized' and session.status isnt 'notConnected'
+            if session.authResponse['accessToken']
+              FB.api '/me', (user) ->
+                $.post("#{server_url}/signin.json",
+                  facebook:
+                    name: user.name
+                    uid: user.id
+                    token: session.authResponse['accessToken']
+                , (user) ->
+                  if user.error?
+                    alert 'error'
+                  else
+                    $('#loader').hide()
+                    $.cookie 'token', user.token,
+                      expires: 7300
+                    views.home.set_user()
+
+                , 'json')
+        , {scope: 'email'}
 
       facebook_auth: (e) ->
         console.log 'facebook_auth function'
@@ -1301,16 +1336,11 @@ onDeviceReady = ->
           if user.error?
             alert 'invalid username and/or password'
             $('#loader').hide()
-            $('#loader').css('opacity', 0)
           else
             $('#loader').hide()
-            $('#loader').css('opacity', 0)
             $.cookie 'token', user.token,
               expires: 7300
             console.log $.cookie 'token'
-            current.user = user
-            user_channel = pusher.subscribe("#{current.user.id}")
-
             views.home.set_user()
 
         , 'json')
@@ -1335,7 +1365,7 @@ onDeviceReady = ->
           if user.error?
             alert 'error'
           else
-            console.log $.cookie 'token',
+            $.cookie 'token', user.token,
               expires: 7300
             views.home.set_user()
 
@@ -1439,15 +1469,6 @@ onDeviceReady = ->
         , 'json')
       e.preventDefault()
 
-    # $('a').on 'tap', (e) ->
-    #   if $(this).attr('href')
-    #     e.preventDefault()
-    #     reverse = false
-    #     if $(this).attr('data-transition') == 'reverse'
-    #       reverse = true
-    #     changePage $(this).attr('href'),
-    #       transition: 'slide'
-    #       reverse: reverse
 
     $(document).bind('touchmove', (e) ->
       if window.inAction
@@ -1458,9 +1479,9 @@ onDeviceReady = ->
       window.globalDrag = false
     )
 
-
     views.home = new HomeView
 
+      
 
 
 
