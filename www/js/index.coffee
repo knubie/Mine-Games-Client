@@ -1358,9 +1358,11 @@ onDeviceReady = ->
         'tap .back': 'back'
 
       signup: (e) ->
+        console.log 'hi'
         $.post("#{server_url}/users.json", $('#signup-form').serialize(), (user) ->
-          if user.error?
-            alert 'error'
+          console.log user
+          if user.errors?
+            console.log user
           else
             $.cookie 'token', user.token,
               expires: 7300

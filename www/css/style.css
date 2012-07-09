@@ -231,6 +231,7 @@ ul {
 	z-index: 1;
 	background-color: #efebe1;
 	-webkit-box-shadow: -5px 0 6px -6px rgba(0,0,0,0.3);
+	line-height: 16px;
 }
 
 .card-notch {
@@ -268,17 +269,17 @@ ul {
 .card-main .name{
 	font-family: 'Gotham-Bold';
 	float: left;
-	font-size: 20px;
+	font-size: 18px;
 	font-weight: bold;
 	text-transform: uppercase;
-	margin-top: 4px;
+	margin-top: 10px;
 	width: 180px;
 }
 
 .card-main .desc{
 	float: left;
 	font-family: Interstate;
-	font-size:13px;
+	font-size:12px;
 	color:#939393;
 	letter-spacing: 0px;
 }
@@ -316,7 +317,7 @@ ul {
 	right: 12px;
 }
 .trash {
-	/*display: none;*/
+	display: none;
 	background-color: #ef6b56;
 	border: 1px solid rgba(0, 0, 0, .2);
 	border-radius: 3px;

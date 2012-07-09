@@ -1781,9 +1781,11 @@ onDeviceReady = function() {
       };
 
       SignupView.prototype.signup = function(e) {
+        console.log('hi');
         $.post("" + server_url + "/users.json", $('#signup-form').serialize(), function(user) {
-          if (user.error != null) {
-            return alert('error');
+          console.log(user);
+          if (user.errors != null) {
+            return console.log(user);
           } else {
             $.cookie('token', user.token, {
               expires: 7300
