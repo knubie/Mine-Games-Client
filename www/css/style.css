@@ -866,6 +866,9 @@ Shop Screen */
 #shopContainer{
 	padding-left: 42px;
 	padding-top: 35px;
+	width: 278px;
+	height: 294px;
+	overflow-y: scroll;
 }
 
 .shop-item{

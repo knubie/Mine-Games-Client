@@ -409,9 +409,13 @@ onDeviceReady = ->
       scrip:
         name: 'scrip'
         type: 'action'
-        cost: 93
+        cost: 3
         short_desc: '+$2'
         long_desc: "When used this card gives you an extra $2 to spend at the shop this turn. It gets returned to your deck when used."
+        use: ->
+          current.deck.set('extra_spend', current.deck.get('extra_spend') + 2)
+          pushLog "<span class='name'>#{current.user.username}</span> used <span class='item action'>Scrip</span> and got an extra <span class='money'>2$</span> to spend."
+          current.deck.save()
 
       trash_four:
         name: 'TBD'
@@ -569,7 +573,7 @@ onDeviceReady = ->
 
       to_spend: ->
         console.log "Deck#to_spend"
-        to_spend = 0
+        to_spend = @get('extra_spend')
         for card in @get('hand')
           if cards[card].type == 'money'
             to_spend += cards[card].value
@@ -584,6 +588,8 @@ onDeviceReady = ->
 
       spend: (value) ->
         console.log 'Deck#spend'
+        value = value - @get('extra_spend')
+        @set('extra_spend', 0)
         money_cards = []
         for card in @get('hand')
           if cards[card].type == 'money'
@@ -977,6 +983,9 @@ onDeviceReady = ->
         # Deck ==================================
         current.deck.on 'change:hand', =>
           @render_hand()
+          @$el.find('#to_spend > .count').html(current.deck.to_spend())
+
+        current.deck.on 'change:extra_spend', =>
           @$el.find('#to_spend > .count').html(current.deck.to_spend())
 
         current.deck.on 'change:actions', =>
