@@ -61,7 +61,7 @@
 			</div>
 		</div>
 
-		<div id="login" class="brown page">
+		<div id="login" class="page">
 			<div id="lobbyTitle">
 				<a class="back">back</a> <!-- TODO add #login .back event -->
 			</div>
@@ -71,16 +71,16 @@
 			    <form accept-charset="UTF-8" id="login-form" autocapitalize="off" autocorrect="off">
 			        <input id="session_email" type="email" class="f90" name="session[email]" size="30" type="text" placeholder="Email" autocorrect="off" autocapitalize="off"/>
 			        <input id="session_password" name="session[password]" size="30" type="password" class="f90" placeholder="Password" />
-			        <input id="w90" class="bigButton" name="commit" type="submit" value="Sign in"  />
+			        <input id="largeButton" name="commit" type="submit" value="Sign in"  />
 			    </form>
 			</div>    
     
 			<img src="images/signin_fb.png" id="facebook-auth" border="0" />
 		</div>
 
-		<div id="signup" class="brown page">
+		<div id="signup" class="page">
 			<div id="lobbyTitle">
-				<a class="back">back</a> <!-- TODO add #signup .back event -->
+				<a class="back">back</a> 
 			</div>
 
 			<div id="signForm">
@@ -281,9 +281,30 @@
 			</li>
 			<!-- Card detail view -->
 			<li class="card-detail">
-				<div class="card-detail-name"></div>
-				<div class="card-detail-desc"></div>
-				<a class="close">close</a>
+				<div class="card-back">
+					<a class="close"><img src="images/cardsFull/close.png" border="0"></a>	
+					<div class="icon">
+						<img src="images/cardsFull/gopher.png" >
+					</div>	
+					<div class="card-detail-name name-attack"></div>
+					<div class="statsContainer">
+						<div class="type attack">
+							Attack
+						</div>
+						<div class="cost money">
+							$5
+						</div>							
+						<div class="function ">
+							-1 Action
+						</div>
+					</div>	
+
+					<div class="line"></div>	
+						
+					<div class="card-detail-desc"></div>
+					<div class='use button'>USE</div>
+				</div>
+
 			</li>
 			<!-- Match list item -->
 			<li class='match-item-view'>
@@ -293,6 +314,7 @@
 			</li>
 			<!-- Opponent selection list item -->
 			<li class='opponent-item'></li>
+
 			<!-- Shop items -->
 			<div class='shop-item'>
 				<img src='images/_thumb.png' border='0' />
