@@ -60,7 +60,7 @@ onDeviceReady = ->
       $page = $(page)
       # TODO: find a less hacky solution
       if page == '#match'
-        $('#match').find('#hand-container').css('height', '237px')
+        $('#match').find('#hand-container').css('height', '267px')
 
       if page == '#lobby'
         $('#lobby').find('#matches-container').css('height', '330px')
