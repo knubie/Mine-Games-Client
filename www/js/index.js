@@ -468,9 +468,14 @@ onDeviceReady = function() {
       scrip: {
         name: 'scrip',
         type: 'action',
-        cost: 93,
+        cost: 3,
         short_desc: '+$2',
-        long_desc: "When used this card gives you an extra $2 to spend at the shop this turn. It gets returned to your deck when used."
+        long_desc: "When used this card gives you an extra $2 to spend at the shop this turn. It gets returned to your deck when used.",
+        use: function() {
+          current.deck.set('extra_spend', current.deck.get('extra_spend') + 2);
+          pushLog("<span class='name'>" + current.user.username + "</span> used <span class='item action'>Scrip</span> and got an extra <span class='money'>2$</span> to spend.");
+          return current.deck.save();
+        }
       },
       trash_four: {
         name: 'TBD',
@@ -662,7 +667,7 @@ onDeviceReady = function() {
       Deck.prototype.to_spend = function() {
         var card, to_spend, _i, _len, _ref;
         console.log("Deck#to_spend");
-        to_spend = 0;
+        to_spend = this.get('extra_spend');
         _ref = this.get('hand');
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           card = _ref[_i];
@@ -689,6 +694,8 @@ onDeviceReady = function() {
       Deck.prototype.spend = function(value) {
         var card, money_cards, new_hand, _i, _j, _len, _len1, _ref;
         console.log('Deck#spend');
+        value = value - this.get('extra_spend');
+        this.set('extra_spend', 0);
         money_cards = [];
         _ref = this.get('hand');
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
@@ -1252,6 +1259,9 @@ onDeviceReady = function() {
           _this.render_hand();
           return _this.$el.find('#to_spend > .count').html(current.deck.to_spend());
         });
+        current.deck.on('change:extra_spend', function() {
+          return _this.$el.find('#to_spend > .count').html(current.deck.to_spend());
+        });
         return current.deck.on('change:actions', function() {
           console.log("current.deck change:actions");
           return _this.$el.find('#actions > .count').html(current.deck.get('actions'));
@@ -1781,9 +1791,11 @@ onDeviceReady = function() {
       };
 
       SignupView.prototype.signup = function(e) {
+        console.log('hi');
         $.post("" + server_url + "/users.json", $('#signup-form').serialize(), function(user) {
-          if (user.error != null) {
-            return alert('error');
+          console.log(user);
+          if (user.errors != null) {
+            return console.log(user);
           } else {
             $.cookie('token', user.token, {
               expires: 7300
