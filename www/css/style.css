@@ -316,6 +316,7 @@ ul {
 	top: 11px;
 	right: 12px;
 }
+
 .trash {
 	display: none;
 	background-color: #ef6b56;
@@ -958,7 +959,7 @@ Background Declarations */
 	}
 
 	#match{
-		background: url('../images/game_bg.jpg');
+		background: url('../images/game_bg.png');
 		background-repeat: none;
 	}
 
@@ -1044,7 +1045,7 @@ Background Declarations */
 	}
 
     	#match{
-		background: url('../images/game_bg@2x.jpg');
+		background: url('../images/game_bg@2x.png');
 		background-repeat: none;
 		background-size: 100%;
 	}
